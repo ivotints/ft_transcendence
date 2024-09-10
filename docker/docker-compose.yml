@@ -3,22 +3,29 @@ version: '3.9'
 services:
   db:
     image: postgres:13
-    container_name: ft_db
+    container_name: db
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: test
-      POSTGRES_DB: ft_db
+      POSTGRES_DB: db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-    web:
-      build: ./src/pong/
-      ports:
+  web:
+    build: ../backend/pong/
+    ports:
       - "8000:8000"
+    volumes:
+      - ../backend/pong/:/code
     depends_on:
       - db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: db
 
 volumes:
   postgres_data:
+  

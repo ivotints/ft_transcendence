@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 	
+    "django_extensions",
+	
     "rest_framework",
 ]
 
@@ -78,7 +80,7 @@ WSGI_APPLICATION = "pong.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "db_ft",
+        "NAME": "db",
 		"USER": "admin",
 		"PASSWORD": "test",
 		"HOST": "db",
