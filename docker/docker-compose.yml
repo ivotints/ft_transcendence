@@ -5,13 +5,20 @@ services:
     image: postgres:13
     container_name: ft_db
     environment:
-      POSTGRES_USER: your_username
-      POSTGRES_PASSWORD: your_password
-      POSTGRES_DB: transcendence
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: ft_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+    web:
+      build: ./src/pong/
+      ports:
+      - "8000:8000"
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
