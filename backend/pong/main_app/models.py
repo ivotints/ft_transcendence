@@ -48,6 +48,9 @@ class MatchHistory(models.Model):
 	
 
 class Tournament(models.Model):
-    name = models.CharField(max_length=100)
-    match_date = models.DateTimeField()
-    blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)  # Ethereum transaction reference
+	name = models.CharField(max_length=100)
+	match_date = models.DateTimeField()
+	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
+	
+	def __str__(self):
+		return self.name
