@@ -37,14 +37,29 @@ class Friend(models.Model):
 
 
 class MatchHistory(models.Model):
-    player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player1")
-    player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player2")
-    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_matches")
-    match_date = models.DateTimeField(default=timezone.now)
-    match_score = models.CharField(max_length=50)  # Store as string (e.g. "10-5")
+	player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player1")
+	player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player2")
+	winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_matches")
+	match_date = models.DateTimeField(default=timezone.now)
+	match_score = models.CharField(max_length=50)  # Store as string (e.g. "10-5")
 
-    def __str__(self):
-        return f"Match {self.id}: {self.player1.display_name} vs {self.player2.display_name} on {self.match_date}"
+	def calculate_winner(self):
+		player1_score, player2_score = map(int, self.match_score.split('-')) #TODO: validate input in serializer
+		if player1_score > player2_score:
+			self.winner = self.player1
+		elif player2_score > player1_score:
+			self.winner = self.player2
+		else:
+			self.winner = None
+
+	def save(self, *args, **kwargs):
+		self.calculate_winner()
+		super().save(*args, **kwargs)
+
+	def __str__(self):
+		return f"Match {self.id}: {self.player1.display_name} vs {self.player2.display_name} on {self.match_date}"
+	
+
 	
 
 class Tournament(models.Model):
