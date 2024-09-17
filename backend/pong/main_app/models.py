@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.db.models import Q
 
 # Create your models here.
 
@@ -12,15 +13,29 @@ class User(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 	is_online = models.BooleanField(default=False)
 
+	def save(self, *args, **kwargs):
+		is_new = not self.pk # Checking if new object
+		super().save(*args, **kwargs)
+		if is_new:
+			UserProfile.objects.create(user=self)
+
 	def __str__(self):
 		return self.display_name
 
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-	wins = models.IntegerField(default=0)
-	losses = models.IntegerField(default=0)
-	match_history = models.ForeignKey("MatchHistory", on_delete=models.SET_NULL, null=True, blank=True)
+	# wins = models.IntegerField(default=0)
+	# losses = models.IntegerField(default=0)
+	match_history = models.ManyToManyField("MatchHistory", blank=True)
+
+	def calculate_wins(self):
+		return self.user.won_matches.filter(winner=self.user).count() # MatchHistory.objects.filter(user=self.user)
+	
+	def calculate_losses(self):
+		return self.user.won_matches.filter(
+			Q(player1=self.user) | Q(player2=self.user)
+		).exclude(winner=self.user).count()
 
 	def __str__(self):
 		return f"{self.user.display_name}'s profile"
@@ -39,7 +54,7 @@ class Friend(models.Model):
 class MatchHistory(models.Model):
 	player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player1")
 	player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player2")
-	winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_matches")
+	winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_matches") # TODO: make it calculated on the go
 	match_date = models.DateTimeField(default=timezone.now)
 	match_score = models.CharField(max_length=50)  # Store as string (e.g. "10-5")
 
@@ -64,7 +79,7 @@ class MatchHistory(models.Model):
 
 class Tournament(models.Model):
 	name = models.CharField(max_length=100)
-	match_date = models.DateTimeField()
+	match_date = models.DateTimeField(default=timezone.now)
 	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
 	
 	def __str__(self):
