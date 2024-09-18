@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from django.contrib.auth.models import User
 from .models import MatchHistory
-from .models import User
 from .models import UserProfile
 from .models import Friend
 from .models import Tournament
@@ -11,10 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = [
-			'email',
-			'display_name',
-			'avatar_url',
-			'is_online'
+			'username',
+            'email',
+            'first_name',
+            'last_name',
+            'is_active',
 		]
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -27,7 +28,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			'user',
 			'wins',
 			'losses',
-			'match_history'
+			'match_history',
+			'avatar_url',
+			'is_online',
 		]
 
 	def get_wins(self, obj):
