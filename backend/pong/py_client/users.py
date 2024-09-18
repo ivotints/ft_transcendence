@@ -9,9 +9,9 @@ def list_users_view():
 def create_view():
 	endpoint = "https://0.0.0.0:8000/users/"
 	user_data = {
-		"email": "test1@gmail.com",
+		"email": "test@gmail.com",
 		"password_hash": "1123231fjsdjjdsjsfhfhffhfhfdjdddd",
-		"display_name": "Jane1 Williams",
+		"display_name": "Jane Williams",
 	}
 	post_response = requests.post(endpoint, json=user_data, verify=False)
 	print(post_response.status_code)

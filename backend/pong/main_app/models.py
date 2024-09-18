@@ -1,44 +1,47 @@
 from django.db import models
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 # Create your models here.
 
-class User(models.Model):
-	email = models.EmailField(unique=True)
-	password_hash = models.CharField(max_length=255)
-	display_name = models.CharField(max_length=50, unique=True)
-	avatar_url = models.URLField(blank=True, default="")
-	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
-	is_online = models.BooleanField(default=False)
+# class User(models.Model):
+# 	email = models.EmailField(unique=True)
+# 	password_hash = models.CharField(max_length=255)
+# 	display_name = models.CharField(max_length=50, unique=True)
+# 	avatar_url = models.URLField(blank=True, default="")
+# 	created_at = models.DateTimeField(auto_now_add=True)
+# 	updated_at = models.DateTimeField(auto_now=True)
+# 	is_online = models.BooleanField(default=False)
 
-	def save(self, *args, **kwargs):
-		is_new = not self.pk # Checking if new object
-		super().save(*args, **kwargs)
-		if is_new:
-			UserProfile.objects.create(user=self)
+# 	def save(self, *args, **kwargs):
+# 		is_new = not self.pk # Checking if new object
+# 		super().save(*args, **kwargs)
+# 		if is_new:
+# 			UserProfile.objects.create(user=self)
 
-	def __str__(self):
-		return self.display_name
+# 	def __str__(self):
+# 		return self.display_name
 
 
 class UserProfile(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+	user = models.OneToOneField(User, on_delete=models.CASCADE) # , related_name="profile")
+	avatar_url = models.URLField(blank=True, default="")
+	is_online = models.BooleanField(default=False)
 	# wins = models.IntegerField(default=0)
 	# losses = models.IntegerField(default=0)
 	match_history = models.ManyToManyField("MatchHistory", blank=True)
 
 	def calculate_wins(self):
-		return self.user.won_matches.filter(winner=self.user).count() # MatchHistory.objects.filter(user=self.user)
+		return MatchHistory.objects.filter(winner=self.user).count()
 	
 	def calculate_losses(self):
-		return self.user.won_matches.filter(
+		return MatchHistory.objects.filter(
 			Q(player1=self.user) | Q(player2=self.user)
 		).exclude(winner=self.user).count()
 
 	def __str__(self):
-		return f"{self.user.display_name}'s profile"
+		return f"{self.user.username}'s profile"
 
 
 class Friend(models.Model):
@@ -48,7 +51,7 @@ class Friend(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return f"{self.user.display_name} -> {self.friend.display_name} ({self.status})"
+		return f"{self.user.username} -> {self.friend.username} ({self.status})"
 
 
 class MatchHistory(models.Model):
@@ -72,7 +75,7 @@ class MatchHistory(models.Model):
 		super().save(*args, **kwargs)
 
 	def __str__(self):
-		return f"Match {self.id}: {self.player1.display_name} vs {self.player2.display_name} on {self.match_date}"
+		return f"Match {self.id}: {self.player1.username} vs {self.player2.username} on {self.match_date}"
 	
 
 	

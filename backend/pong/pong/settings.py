@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
 	"rest_framework.authtoken",
-    "main_app",
+    # "main_app",
+	"main_app.apps.MainAppConfig"
 ]
 
 MIDDLEWARE = [

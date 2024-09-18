@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from .models import User
+from django.contrib.auth.models import User
 from .models import UserProfile
 from .models import Friend
 from .models import MatchHistory

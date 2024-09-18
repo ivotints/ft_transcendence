@@ -8,8 +8,8 @@ class MainAppConfig(AppConfig):
 
     def ready(self):
         from .models import User, UserProfile, Friend, MatchHistory, Tournament
+        import main_app.signals
 
-        admin.site.register(User)
         admin.site.register(UserProfile)
         admin.site.register(Friend)
         admin.site.register(MatchHistory)
