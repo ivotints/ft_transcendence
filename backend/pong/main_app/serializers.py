@@ -61,6 +61,21 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 		]
 		read_only_fields = ['winner']
 
+	def validate_match_score(self, value):
+		try:
+			player1_score, player2_score = map(int, value.strip().split('-'))
+			if player1_score < 0 or player2_score < 0:
+				raise serializers.ValidationError("Scores must be non-negative integers.")
+		except ValueError:
+			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
+		return value
+	
+	def validate(self, data):
+		# Ensure player1 and player2 are not the same user
+		if data['player1'] == data['player2']:
+			raise serializers.ValidationError("A player cannot play against themselves.")
+		return data
+
 class FriendSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Friend
@@ -70,6 +85,15 @@ class FriendSerializer(serializers.ModelSerializer):
 			'status',
 			'created_at'
 		]
+
+		def validate(self, data):
+			user = self.context['request'].user
+			friend = data['friend']
+			if user == friend: # TODO: doesn't work
+				raise serializers.ValidationError("You cannot send a friend request to yourself.")
+			if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
+				raise serializers.ValidationError("A friend request already exists between these users.")
+			return data
 
 class TournamentSerializer(serializers.ModelSerializer):
 	class Meta:

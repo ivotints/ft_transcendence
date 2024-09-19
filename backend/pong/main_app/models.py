@@ -78,8 +78,6 @@ class MatchHistory(models.Model):
 		return f"Match {self.id}: {self.player1.username} vs {self.player2.username} on {self.match_date}"
 	
 
-	
-
 class Tournament(models.Model):
 	name = models.CharField(max_length=100)
 	match_date = models.DateTimeField(default=timezone.now)
