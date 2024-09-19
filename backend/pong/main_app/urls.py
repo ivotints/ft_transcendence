@@ -4,7 +4,7 @@ from .views import UserListCreateAPIView, UserProfileListAPIView, FriendListCrea
 
 
 urlpatterns = [
-	# path("auth/", obtain_auth_token),
+	path("auth/", obtain_auth_token),
 	# path("", views.home),
 	path('users/', UserListCreateAPIView.as_view(), name='user-list-create'),
 	path('profiles/', UserProfileListAPIView.as_view(), name='userprofile-list-create'),

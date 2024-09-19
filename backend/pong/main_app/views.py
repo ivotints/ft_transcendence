@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import authentication
+
 
 from django.contrib.auth.models import User
 from .models import UserProfile
@@ -21,12 +23,21 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
 class UserProfileListAPIView(generics.ListAPIView):
 	serializer_class = UserProfileSerializer
 	queryset = UserProfile.objects.all()
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		authentication.TokenAuthentication
+	]
+	permission_classes = [IsAuthenticated]
 
 	# def get_queryset(self):
 	# 	return UserProfile.objects.filter(user=self.request.user.id)
 
 class FriendListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = FriendSerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		authentication.TokenAuthentication
+	]
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
@@ -40,6 +51,10 @@ class FriendListCreateAPIView(generics.ListCreateAPIView):
 
 class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = MatchHistorySerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		authentication.TokenAuthentication
+	]
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
@@ -52,3 +67,8 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	queryset = Tournament.objects.all()
 	serializer_class = TournamentSerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		authentication.TokenAuthentication
+	]
+	permission_classes = [IsAuthenticated]
