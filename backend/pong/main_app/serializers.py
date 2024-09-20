@@ -86,14 +86,14 @@ class FriendSerializer(serializers.ModelSerializer):
 			'created_at'
 		]
 
-		def validate(self, data):
-			user = self.context['request'].user
-			friend = data['friend']
-			if user == friend: # TODO: doesn't work
-				raise serializers.ValidationError("You cannot send a friend request to yourself.")
-			if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
-				raise serializers.ValidationError("A friend request already exists between these users.")
-			return data
+	def validate(self, data):
+		user = self.context['request'].user
+		friend = data['friend']
+		if user == friend: # TODO: doesn't work
+			raise serializers.ValidationError("You cannot send a friend request to yourself.")
+		if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
+			raise serializers.ValidationError("A friend request already exists between these users.")
+		return data
 
 class TournamentSerializer(serializers.ModelSerializer):
 	class Meta:
