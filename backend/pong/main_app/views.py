@@ -7,7 +7,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import permissions
 from rest_framework import status
 from django.http import Http404
+from django.http import JsonResponse
+from django.conf import settings
 
+from .web3 import get_tournament_data, add_tournament_data
 
 from django.contrib.auth.models import User
 from .models import UserProfile
@@ -141,3 +144,63 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 		authentication.TokenAuthentication
 	]
 	permission_classes = [IsAuthenticated]
+
+	def create(self, request, *args, **kwargs):
+		# user_ids = request.data.get('user_ids')
+		user_ids = [1, 2, 3, 4]
+
+		if user_ids is not None:
+			# user_ids = [int(id) for id in user_ids.split(',')]
+			# print(user_ids)
+			if len(user_ids) != 4:
+				return Response({"error": "Must provide exactly 4 user IDs"}, status=400)
+
+			try:
+				tx_hash = add_tournament_data(request.data.get('tournament_id'), user_ids, settings.METAMASK_PRIVATE_KEY)
+
+				# Use the serializer to validate the data and create the new object
+				serializer = self.get_serializer(data=request.data)
+				serializer.is_valid(raise_exception=True)
+				self.perform_create(serializer)
+
+				tournament = serializer.instance
+				tournament.blockchain_tx_hash = tx_hash
+				tournament.save()
+
+				headers = self.get_success_headers(serializer.data)
+				return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+			except Exception as e:
+				return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+		return super().create(request, *args, **kwargs)
+
+
+class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
+	queryset = Tournament.objects.all()
+	serializer_class = TournamentSerializer
+
+	def update(self, request, *args, **kwargs): # TODO: validation of unique players
+		user_ids = request.data.get('user_ids')
+		if user_ids is not None:
+			if len(user_ids) != 4:
+				return Response({"error": "Must provide exactly 4 user IDs"}, status=400)
+
+			tournament = self.get_object()
+			tournament_id = tournament.id
+
+			if tournament.blockchain_tx_hash is not None: # simple prevention of overriding, adding admin of tournament is a solution as well
+				return Response({"error": "Tournament results have already been posted"}, status=400)
+			
+			try:
+				tx_hash = add_tournament_data(tournament_id, user_ids, settings.METAMASK_PRIVATE_KEY)
+
+				# Update tournament to the database with the transaction hash
+				serializer = self.get_serializer(tournament, data=request.data, partial=True)
+				serializer.is_valid(raise_exception=True)
+				serializer.save(blockchain_tx_hash=tx_hash)
+			except Exception as e:
+				return Response({"error": str(e)}, status=400)
+		return super().update(request, *args, **kwargs)
+
+
+

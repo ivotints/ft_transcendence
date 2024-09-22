@@ -25,6 +25,8 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: test
       POSTGRES_DB: db
+      ALCHEMY_API_KEY: ${ALCHEMY_API_KEY}
+      METAMASK_PRIVATE_KEY: ${METAMASK_PRIVATE_KEY}
 
 volumes:
   postgres_data:
