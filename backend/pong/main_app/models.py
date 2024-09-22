@@ -2,26 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.models import User
-
-# Create your models here.
-
-# class User(models.Model):
-# 	email = models.EmailField(unique=True)
-# 	password_hash = models.CharField(max_length=255)
-# 	display_name = models.CharField(max_length=50, unique=True)
-# 	avatar_url = models.URLField(blank=True, default="")
-# 	created_at = models.DateTimeField(auto_now_add=True)
-# 	updated_at = models.DateTimeField(auto_now=True)
-# 	is_online = models.BooleanField(default=False)
-
-# 	def save(self, *args, **kwargs):
-# 		is_new = not self.pk # Checking if new object
-# 		super().save(*args, **kwargs)
-# 		if is_new:
-# 			UserProfile.objects.create(user=self)
-
-# 	def __str__(self):
-# 		return self.display_name
+from django.contrib.postgres.fields import ArrayField
 
 
 class UserProfile(models.Model):
@@ -80,7 +61,10 @@ class MatchHistory(models.Model):
 
 class Tournament(models.Model):
 	name = models.CharField(max_length=100)
+	tournament_id = models.IntegerField(unique=True, null=True, blank=True)
 	match_date = models.DateTimeField(default=timezone.now)
+	user_ids = ArrayField(models.IntegerField(), blank=True, default=list)
+	participants = models.ManyToManyField(User, related_name='tournaments')
 	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
 	
 	def __str__(self):

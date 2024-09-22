@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
-from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, TournamentListCreateAPIView
+from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, TournamentListCreateAPIView, TournamentDetailAPIView
 
 
 urlpatterns = [
@@ -14,4 +14,5 @@ urlpatterns = [
 	path('friends/<int:pk>/', FriendDetailAPIView.as_view(), name='friend-detail'),
 	path('matches/', MatchHistoryListCreateAPIView.as_view(), name='matchhistory-list-create'),
 	path('tournaments/', TournamentListCreateAPIView.as_view(), name='tournament-list-create'),
+	path('tournaments/<int:pk>/', TournamentDetailAPIView.as_view(), name='tournament-detail'),
 ]

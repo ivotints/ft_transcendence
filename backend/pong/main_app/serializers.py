@@ -100,6 +100,10 @@ class TournamentSerializer(serializers.ModelSerializer):
 		model = Tournament
 		fields = [
 			'name',
+			'tournament_id',
 			'match_date',
+			'user_ids',
+			'participants',
 			'blockchain_tx_hash',
 		]
+		read_only_fields = ['blockchain_tx_hash']
