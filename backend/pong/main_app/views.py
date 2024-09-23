@@ -147,16 +147,16 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 
 	def create(self, request, *args, **kwargs):
 		# user_ids = request.data.get('user_ids')
-		user_ids = [1, 2, 3, 4]
+		winners_order = ['daniel', 'olaf', 'jackob', 'semolina']
 
-		if user_ids is not None:
+		if winners_order is not None:
 			# user_ids = [int(id) for id in user_ids.split(',')]
 			# print(user_ids)
-			if len(user_ids) != 4:
-				return Response({"error": "Must provide exactly 4 user IDs"}, status=400)
+			if len(winners_order) != 4:
+				return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
 
 			try:
-				tx_hash = add_tournament_data(request.data.get('tournament_id'), user_ids, settings.METAMASK_PRIVATE_KEY)
+				tx_hash = add_tournament_data(request.data.get('tournament_id'), winners_order, settings.METAMASK_PRIVATE_KEY)
 
 				# Use the serializer to validate the data and create the new object
 				serializer = self.get_serializer(data=request.data)
@@ -180,10 +180,10 @@ class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = TournamentSerializer
 
 	def update(self, request, *args, **kwargs): # TODO: validation of unique players
-		user_ids = request.data.get('user_ids')
-		if user_ids is not None:
-			if len(user_ids) != 4:
-				return Response({"error": "Must provide exactly 4 user IDs"}, status=400)
+		winners_order = request.data.get('winners_order')
+		if winners_order is not None:
+			if len(winners_order) != 4:
+				return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
 
 			tournament = self.get_object()
 			tournament_id = tournament.id
@@ -192,7 +192,7 @@ class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 				return Response({"error": "Tournament results have already been posted"}, status=400)
 			
 			try:
-				tx_hash = add_tournament_data(tournament_id, user_ids, settings.METAMASK_PRIVATE_KEY)
+				tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
 
 				# Update tournament to the database with the transaction hash
 				serializer = self.get_serializer(tournament, data=request.data, partial=True)

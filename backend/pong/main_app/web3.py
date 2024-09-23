@@ -18,14 +18,79 @@ contract_abi = [
 				"type": "uint16"
 			},
 			{
-				"internalType": "uint16[]",
-				"name": "_userIDs",
-				"type": "uint16[]"
+				"internalType": "string[]",
+				"name": "_user_names",
+				"type": "string[]"
 			}
 		],
 		"name": "addTournament",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": False,
+		"inputs": [
+			{
+				"indexed": True,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": True,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "isOwner",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -39,9 +104,9 @@ contract_abi = [
 		"name": "viewTournament",
 		"outputs": [
 			{
-				"internalType": "uint16[]",
+				"internalType": "string[]",
 				"name": "",
-				"type": "uint16[]"
+				"type": "string[]"
 			}
 		],
 		"stateMutability": "view",
@@ -49,23 +114,24 @@ contract_abi = [
 	}
 ]
 
-contract_address = "0x43cb1803106fd9baCdf03183f079C3071E9FC1A2"
+contract_address = "0x1AF16b1e735BeC02179C19D7901c8e9a76DAA348"
 contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
 def get_tournament_data(tournament_id):
 	tournament_data = contract.functions.viewTournament(tournament_id).call()
 	return tournament_data
 
-def add_tournament_data(tournament_id, user_ids, private_key):
+def add_tournament_data(tournament_id, winners_order, private_key):
 	tournament_id = int(tournament_id)
-	user_ids = [int(uid) for uid in user_ids]
+	# user_ids = [int(uid) for uid in user_ids]
 	account = web3.eth.account.from_key(private_key)
 	nonce = web3.eth.get_transaction_count(account.address)
-	transaction = contract.functions.addTournament(tournament_id, user_ids).build_transaction({
+	gas_price = web3.eth.gas_price
+	transaction = contract.functions.addTournament(tournament_id, winners_order).build_transaction({
 		'from': account.address,
 		'nonce': nonce,
-		'gas': 88224,
-		'gasPrice': web3.to_wei('20', 'gwei'),
+		'gas': 200000,
+		'gasPrice': gas_price,
 	})
 
 	# Signing the transaction
@@ -77,5 +143,7 @@ def add_tournament_data(tournament_id, user_ids, private_key):
 	receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
 	if receipt['status'] == 0:
 		raise Exception("Transaction failed")
+
+	print(f"Tournament's {tournament_id} data stored on blockchain: {get_tournament_data(tournament_id)}")
 
 	return web3.to_hex(tx_hash)
