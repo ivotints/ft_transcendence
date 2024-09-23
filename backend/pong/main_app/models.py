@@ -63,7 +63,7 @@ class Tournament(models.Model):
 	name = models.CharField(max_length=100)
 	tournament_id = models.IntegerField(unique=True, null=True, blank=True)
 	match_date = models.DateTimeField(default=timezone.now)
-	user_ids = ArrayField(models.IntegerField(), blank=True, default=list)
+	winners_order = ArrayField(models.CharField(max_length=100), blank=True, default=list)
 	participants = models.ManyToManyField(User, related_name='tournaments')
 	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
 	

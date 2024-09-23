@@ -102,7 +102,7 @@ class TournamentSerializer(serializers.ModelSerializer):
 			'name',
 			'tournament_id',
 			'match_date',
-			'user_ids',
+			'winners_order',
 			'participants',
 			'blockchain_tx_hash',
 		]
