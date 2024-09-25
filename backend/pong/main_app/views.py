@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import authentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import permissions
@@ -29,7 +30,8 @@ class UserListAPIView(generics.ListAPIView):
 	serializer_class = UserSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
 
@@ -45,7 +47,8 @@ class UserProfileListAPIView(generics.ListAPIView):
 	queryset = UserProfile.objects.all()
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
 	
@@ -54,7 +57,8 @@ class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     authentication_classes = [
         authentication.SessionAuthentication,
-        authentication.TokenAuthentication
+		JWTAuthentication,
+        authentication.TokenAuthentication,
     ]
     permission_classes = [IsAuthenticated]
 
@@ -66,7 +70,8 @@ class FriendListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -82,7 +87,8 @@ class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -121,7 +127,8 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = MatchHistorySerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -140,7 +147,8 @@ class MatchHistoryDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = MatchHistorySerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -153,7 +161,8 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = TournamentSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		authentication.TokenAuthentication
+		JWTAuthentication,
+		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -190,6 +199,12 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 	queryset = Tournament.objects.all()
 	serializer_class = TournamentSerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		JWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
 
 	def update(self, request, *args, **kwargs): # TODO: validation of unique players
 		winners_order = request.data.get('winners_order')
