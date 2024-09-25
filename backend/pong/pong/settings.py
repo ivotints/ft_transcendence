@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import datetime
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
 	"rest_framework.authtoken",
+	"rest_framework_simplejwt",
     # "main_app",
 	"main_app.apps.MainAppConfig"
 ]
@@ -133,5 +135,12 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
 ALCHEMY_API_KEY = os.environ.get('ALCHEMY_API_KEY')
 METAMASK_PRIVATE_KEY = os.environ.get('METAMASK_PRIVATE_KEY')
+
+
+SIMPLE_JWT = {
+	"ACCESS_TOKEN_LIFETIME": datetime.timedelta(seconds=30),
+	"REFRESH_TOKEN_LIFETIME": datetime.timedelta(minutes=1),
+}
