@@ -14,12 +14,12 @@ class UserProfile(models.Model):
 	match_history = models.ManyToManyField("MatchHistory", blank=True)
 
 	def calculate_wins(self):
-		return MatchHistory.objects.filter(winner=self.user).count()
+		return MatchHistory.objects.filter(winner=self.user.get_username()).count()
 	
 	def calculate_losses(self):
 		return MatchHistory.objects.filter(
-			Q(player1=self.user) | Q(player2=self.user)
-		).exclude(winner=self.user).count()
+			Q(player1=self.user) | Q(player2=self.user.get_username())
+		).exclude(winner=self.user.get_username()).count()
 
 	def __str__(self):
 		return f"{self.user.username}'s profile"
@@ -37,15 +37,15 @@ class Friend(models.Model):
 
 class MatchHistory(models.Model):
 	player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player1")
-	player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="matches_as_player2")
-	winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_matches") # TODO: make it calculated on the go
+	player2 = models.CharField(max_length=100) # Since these are local matches
+	winner = models.CharField(max_length=100, null=True, blank=True) 
 	match_date = models.DateTimeField(default=timezone.now)
 	match_score = models.CharField(max_length=50)  # Store as string (e.g. "10-5")
 
 	def calculate_winner(self):
 		player1_score, player2_score = map(int, self.match_score.split('-')) #TODO: validate input in serializer
 		if player1_score > player2_score:
-			self.winner = self.player1
+			self.winner = self.player1.get_username()
 		elif player2_score > player1_score:
 			self.winner = self.player2
 		else:
@@ -56,7 +56,7 @@ class MatchHistory(models.Model):
 		super().save(*args, **kwargs)
 
 	def __str__(self):
-		return f"Match {self.id}: {self.player1.username} vs {self.player2.username} on {self.match_date}"
+		return f"Match {self.id}: {self.player1.username} vs {self.player2} on {self.match_date}"
 	
 
 class Tournament(models.Model):

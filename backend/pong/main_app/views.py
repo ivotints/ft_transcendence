@@ -47,10 +47,7 @@ class UserProfileListAPIView(generics.ListAPIView):
 		authentication.SessionAuthentication,
 		authentication.TokenAuthentication
 	]
-	permission_classes = [IsAuthenticated]
-
-	def get_queryset(self):
-		return UserProfile.objects.filter(user=self.request.user)
+	permission_classes = [permissions.IsAdminUser]
 	
 	
 class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
@@ -130,10 +127,25 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return MatchHistory.objects.filter(player1=user) | MatchHistory.objects.filter(player2=user)
+		return MatchHistory.objects.filter(player1=user) | MatchHistory.objects.filter(player2=user.username)
 	
 	def perform_create(self, serializer):
-		serializer.save() # not sure if needed
+		player1 = serializer.validated_data.get('player1')
+		if player1 != self.request.user:
+			raise PermissionDenied("You can only create matches for yourself.")
+		serializer.save()
+
+	
+class MatchHistoryDetailAPIView(generics.RetrieveUpdateAPIView):
+	serializer_class = MatchHistorySerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		authentication.TokenAuthentication
+	]
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		return MatchHistory.objects.get(user=self.request.user, id=self.kwargs['pk'])
 
 
 class TournamentListCreateAPIView(generics.ListCreateAPIView):
@@ -145,7 +157,7 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	]
 	permission_classes = [IsAuthenticated]
 
-	def create(self, request, *args, **kwargs):
+	def create(self, request, *args, **kwargs): # TODO: change it for a frontend
 		# user_ids = request.data.get('user_ids')
 		winners_order = ['daniel', 'olaf', 'jackob', 'semolina']
 
