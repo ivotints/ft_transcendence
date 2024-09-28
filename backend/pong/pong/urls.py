@@ -22,13 +22,14 @@ from rest_framework_simplejwt.views import (
 	TokenRefreshView,
 	TokenVerifyView,
 )
+from main_app.views import CustomTokenObtainView
 
 # def home(request):
 # 	return HttpResponse("Home Page")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-	path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+	path("token/", CustomTokenObtainView.as_view(), name="token_obtain_pair"),
 	path("token/resresh/", TokenRefreshView.as_view(), name="token_resresh"),
 	path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
 	path("", include("main_app.urls")),

@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import authentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import permissions
@@ -228,6 +229,16 @@ class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 			except Exception as e:
 				return Response({"error": str(e)}, status=400)
 		return super().update(request, *args, **kwargs)
+	
 
-
-
+class CustomTokenObtainPairView(TokenObtainPairView):
+	def post(self, request, *args, **kwargs):
+		response = super().post(request, *args, **kwargs)
+		response.set_cookie(
+			'access_token',
+			response.data['access'],
+			httponly=True,
+			samesite='Strict'
+		)
+		response.data = {'detail': 'Success'}
+		return response
