@@ -17,20 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
-from rest_framework_simplejwt.views import (
-	TokenObtainPairView,
-	TokenRefreshView,
-	TokenVerifyView,
-)
-from main_app.views import CustomTokenObtainView
+from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView
 
 # def home(request):
 # 	return HttpResponse("Home Page")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-	path("token/", CustomTokenObtainView.as_view(), name="token_obtain_pair"),
-	path("token/resresh/", TokenRefreshView.as_view(), name="token_resresh"),
-	path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+	path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+	path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_resresh"),
+	path("token/verify/", CustomTokenVerifyView.as_view(), name="token_verify"),
 	path("", include("main_app.urls")),
 ]
