@@ -1,17 +1,16 @@
 from django.shortcuts import render
-from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import authentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from rest_framework import permissions
-from rest_framework import status
+from rest_framework import status, permissions, authentication, generics
 from django.http import Http404
 from django.http import JsonResponse
 from django.conf import settings
+import logging
 
 from .web3 import get_tournament_data, add_tournament_data
+from .authentication import CustomJWTAuthentication 
 
 from django.contrib.auth.models import User
 from .models import UserProfile
@@ -25,12 +24,15 @@ from .serializers import MatchHistorySerializer
 from .serializers import TournamentSerializer
 
 
+logger = logging.getLogger(__name__)
+
+
 class UserListAPIView(generics.ListAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
@@ -47,7 +49,7 @@ class UserProfileListAPIView(generics.ListAPIView):
 	queryset = UserProfile.objects.all()
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
@@ -57,7 +59,7 @@ class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     authentication_classes = [
         authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
         authentication.TokenAuthentication,
     ]
     permission_classes = [IsAuthenticated]
@@ -66,11 +68,11 @@ class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
         return UserProfile.objects.get(user=self.request.user)
 	
 
-class FriendListCreateAPIView(generics.ListCreateAPIView):
+class FriendListCreateAPIView(generics.ListCreateAPIView): # TODO: add authorization
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
@@ -87,7 +89,7 @@ class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
@@ -127,7 +129,7 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = MatchHistorySerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
@@ -147,7 +149,7 @@ class MatchHistoryDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = MatchHistorySerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
@@ -161,7 +163,7 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = TournamentSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
@@ -201,7 +203,7 @@ class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = TournamentSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
-		JWTAuthentication,
+		CustomJWTAuthentication,
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
@@ -230,4 +232,69 @@ class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 		return super().update(request, *args, **kwargs)
 
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+	def post(self, request, *args, **kwargs):
+		response = super().post(request, *args, **kwargs)
+		access_token = response.data.get('access')
+		refresh_token = response.data.get('refresh')
 
+		# logger.debug(f"Generated Access Token: {access_token}")
+		# logger.debug(f"Generated Refresh Token: {refresh_token}")
+
+		if access_token:
+			response.set_cookie(
+				'access_token',
+				access_token,
+				expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+				httponly=True,
+				samesite='Strict',
+				secure=True
+			)
+		if refresh_token:
+			response.set_cookie(
+				'refresh_token',
+				refresh_token,
+				httponly=True,
+				samesite='Strict',
+				expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+				secure=True
+			)
+
+		response.data = {'detail': 'Success'}
+		return response
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+	def post(self, request, *args, **kwargs):
+		refresh_token = request.COOKIES.get('refresh_token')
+		# logger.debug(f"Refresh Token from Cookie: {refresh_token}")
+		if not refresh_token:
+			return JsonResponse({'detail': 'Refresh token not found'}, status=400)
+		
+		request_data = request.data.copy()
+		request_data['refresh'] = refresh_token
+
+		response = super().post(request, data=request_data, *args, **kwargs)
+		access_token = response.data.get('access')
+		# logger.debug(f"New Access Token: {access_token}")
+		if access_token:
+			response.set_cookie(
+				'access_token',
+				access_token,
+				httponly=True,
+				samesite='Strict',
+				secure=True
+			)
+		response.data = {'detail': 'Success'}
+		return response
+	
+
+class CustomTokenVerifyView(TokenVerifyView):
+	def post(self, request, *args, **kwargs):
+		access_token = request.COOKIES.get('access_token')
+		# logger.debug(f"Access Token from Cookie: {access_token}")
+		if not access_token:
+			return JsonResponse({'detail': 'Access token not found'}, status=400)
+		request_data = request.data.copy()
+		request_data['token'] = access_token
+		return super().post(request, data=request_data ,*args, **kwargs)
