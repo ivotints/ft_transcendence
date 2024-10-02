@@ -1,10 +1,15 @@
 import logging
+import pyotp
+
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.exceptions import InvalidToken
 from django.conf import settings
-from rest_framework.authentication import CSRFCheck
+from django.core.exceptions import ValidationError
 from rest_framework import exceptions
 from django.utils.translation import gettext_lazy as _
+
+from .models import UserTwoFactorAuthData
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,3 +46,15 @@ class CustomJWTAuthentication(JWTAuthentication):
 			return None
 
 		return (user, validated_token)
+	
+
+def user_two_factor_auth_data_create(*, user) -> UserTwoFactorAuthData:
+	if hasattr(user, 'two_factor_auth_data'):
+		raise ValidationError('Can not have more than one 2FA related data.')
+	
+	two_factor_auth_data = UserTwoFactorAuthData.objects.create(
+		user=user,
+		otp_secret=pyotp.random_base32()
+	)
+
+	return two_factor_auth_data

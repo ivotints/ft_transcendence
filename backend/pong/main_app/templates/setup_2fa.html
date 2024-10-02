@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Two-Factor Authentication</title>
+    <!-- Include any necessary CSS or JavaScript here -->
+</head>
+<body>
+    <h1>Setup Two-Factor Authentication</h1>
+    {% if otp_secret %}
+        <p>Your OTP secret is: {{ otp_secret }}</p>
+        <p>Scan this QR code in your 2FA app:</p>
+        <div>{{ qr_code|safe }}</div>
+    {% else %}
+        {% if form_errors %}
+            <p>There were errors:</p>
+            <ul>
+            {% for error in form_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <form method="post">
+                {% csrf_token %}
+                <label for="setup">Setup Two-Factor Authentication</label>
+                <button type="submit" id="setup">Setup</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
