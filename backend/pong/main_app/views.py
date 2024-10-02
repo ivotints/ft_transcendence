@@ -1,19 +1,27 @@
-from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import status, permissions, authentication, generics
+
 from django.http import Http404
+from django import forms
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.views.generic import TemplateView, FormView
+from django.core.exceptions import ValidationError
+from django.views.generic import TemplateView
+
 import logging
 
 from .web3 import get_tournament_data, add_tournament_data
-from .authentication import CustomJWTAuthentication 
+from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create
 
 from django.contrib.auth.models import User
 from .models import UserProfile
+from .models import UserTwoFactorAuthData
 from .models import Friend
 from .models import MatchHistory
 from .models import Tournament
@@ -27,6 +35,65 @@ from .serializers import TournamentSerializer
 logger = logging.getLogger(__name__)
 
 
+class SetupTwoFactorView(TemplateView):
+	template_name = "setup_2fa.html"
+
+	def post(self, request):
+		context = {}
+		user = request.user
+
+		try:
+			two_factor_auth_data = user_two_factor_auth_data_create(user=user)
+			otp_secret = two_factor_auth_data.otp_secret
+
+			context["otp_secret"] = otp_secret
+			context["qr_code"] = two_factor_auth_data.generate_qr_code(name=user.email)
+		except ValidationError as exc:
+			context["form_errors"] = exc.messages
+
+		return self.render_to_response(context)
+	
+
+class ConfirmTwoFactorAuthView(FormView):
+	template_name = "confirm_2fa.html"
+	success_url = ""
+
+	class Form(forms.Form):
+		otp = forms.CharField(required=True)
+
+		def clean_otp(self):
+			self.two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=self.user).first()
+
+			if self.two_factor_auth_data is None:
+				raise ValidationError('2FA not set up.')
+			
+			otp = self.cleaned_data.get('otp')
+
+			if not self.two_factor_auth_data.validate_otp(otp):
+				raise ValidationError('Invalid 2FA code.')
+			
+			return otp
+		
+	def get_form_class(self):
+		return self.Form
+
+	def get_form(self, *args, **kwargs):
+		form = super().get_form(*args, **kwargs)
+
+		form.user = self.request.user
+
+		return form
+	
+	def form_valid(self, form):
+		return super().form_valid(form)
+
+
+class UserCreateAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+
+
 class UserListAPIView(generics.ListAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
@@ -36,12 +103,6 @@ class UserListAPIView(generics.ListAPIView):
 		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
-
-
-class UserCreateAPIView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
 
 
 class UserProfileListAPIView(generics.ListAPIView):
@@ -234,6 +295,32 @@ class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
 	def post(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.data)
+
+		try:
+			serializer.is_valid(raise_exception=True)
+		except TokenError as e:
+			raise InvalidToken(e.args[0])
+
+		# user = serializer.validated_data['user']
+		username = request.data.get('username')
+		User = get_user_model()
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			return Response({"error": "User not found"}, status=400)
+
+		# Check if the user has two-factor authentication enabled
+		try:
+			two_factor_auth_data = UserTwoFactorAuthData.objects.get(user=user)
+		except UserTwoFactorAuthData.DoesNotExist:
+			# If the user does not have two-factor authentication data,
+			# they have not enabled two-factor authentication
+			pass
+		else:
+			# If the user has two-factor authentication data, they need to provide an OTP
+			return Response({'detail': 'OTP required'}, status=401)
+
 		response = super().post(request, *args, **kwargs)
 		access_token = response.data.get('access')
 		refresh_token = response.data.get('refresh')

@@ -1,13 +1,15 @@
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 from django.views.generic import TemplateView
-from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, MatchHistoryDetailAPIView, TournamentListCreateAPIView, TournamentDetailAPIView
+from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, MatchHistoryDetailAPIView, TournamentListCreateAPIView, TournamentDetailAPIView, SetupTwoFactorView, ConfirmTwoFactorAuthView
 
 
 urlpatterns = [
 	path("auth/", obtain_auth_token),
 	# path("", views.home),
 	path('users/register/', UserCreateAPIView.as_view(), name='user-register'),
+	path('setup-2fa/', SetupTwoFactorView.as_view(), name="setup-2fa"),
+	path('confirm-2fa/', ConfirmTwoFactorAuthView.as_view(), name="confirm-2fa"),
 	path('users/', UserListAPIView.as_view(), name='user-list'),
 	path('profiles/', UserProfileListAPIView.as_view(), name='userprofile-list-create'),
 	path('profiles/<int:pk>/', UserProfileDetailAPIView.as_view(), name='userprofile-detail'),
