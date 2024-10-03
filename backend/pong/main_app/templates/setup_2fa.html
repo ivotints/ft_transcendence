@@ -2,29 +2,49 @@
 <html>
 <head>
     <title>Setup Two-Factor Authentication</title>
-    <!-- Include any necessary CSS or JavaScript here -->
+    <script>
+        async function setupTwoFactor() {
+            const response = await fetch('/setup-2fa/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('otp_secret').innerText = data.otp_secret;
+                document.getElementById('qr_code').innerHTML = data.qr_code;
+            } else {
+                document.getElementById('errors').innerText = data.errors.join(', ');
+            }
+        }
+
+        // Function to retrieve CSRF token for POST requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </head>
 <body>
     <h1>Setup Two-Factor Authentication</h1>
-    {% if otp_secret %}
-        <p>Your OTP secret is: {{ otp_secret }}</p>
-        <p>Scan this QR code in your 2FA app:</p>
-        <div>{{ qr_code|safe }}</div>
-    {% else %}
-        {% if form_errors %}
-            <p>There were errors:</p>
-            <ul>
-            {% for error in form_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <form method="post">
-                {% csrf_token %}
-                <label for="setup">Setup Two-Factor Authentication</label>
-                <button type="submit" id="setup">Setup</button>
-            </form>
-        {% endif %}
-    {% endif %}
+
+    <button onclick="setupTwoFactor()">Setup Two-Factor Authentication</button>
+
+    <p>Your OTP secret is: <span id="otp_secret"></span></p>
+    <div id="qr_code"></div>
+
+    <div id="errors"></div>
 </body>
 </html>

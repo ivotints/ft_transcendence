@@ -4,6 +4,7 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import status, permissions, authentication, generics
+from rest_framework.views import APIView
 
 from django.http import Http404
 from django import forms
@@ -35,57 +36,68 @@ from .serializers import TournamentSerializer
 logger = logging.getLogger(__name__)
 
 
-class SetupTwoFactorView(TemplateView):
-	template_name = "setup_2fa.html"
+class TwoFactorSetupTemplateView(TemplateView):
+    template_name = "setup_2fa.html"
+
+class TwoFactorConfirmTemplateView(TemplateView):
+    template_name = "confirm_2fa.html"
+
+
+class SetupTwoFactorView(APIView):
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
-		context = {}
 		user = request.user
 
 		try:
+			# Generate 2FA data
 			two_factor_auth_data = user_two_factor_auth_data_create(user=user)
 			otp_secret = two_factor_auth_data.otp_secret
+			qr_code = two_factor_auth_data.generate_qr_code(name=user.email)
 
-			context["otp_secret"] = otp_secret
-			context["qr_code"] = two_factor_auth_data.generate_qr_code(name=user.email)
+			return JsonResponse({
+				"otp_secret": otp_secret,
+				"qr_code": qr_code
+			})
 		except ValidationError as exc:
-			context["form_errors"] = exc.messages
-
-		return self.render_to_response(context)
+			return JsonResponse({
+				"errors": exc.messages
+			}, status=400)
 	
 
-class ConfirmTwoFactorAuthView(FormView):
-	template_name = "confirm_2fa.html"
-	success_url = ""
+class ConfirmTwoFactorAuthView(APIView):
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        CustomJWTAuthentication,
+        authentication.TokenAuthentication,
+    ]
+    permission_classes = [permissions.IsAuthenticated]
 
-	class Form(forms.Form):
-		otp = forms.CharField(required=True)
+    def post(self, request):
+        user = request.user
+        otp = request.data.get('otp')  # Get OTP from request body
 
-		def clean_otp(self):
-			self.two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=self.user).first()
+        try:
+            # Fetch the 2FA data for the authenticated user
+            two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=user).first()
 
-			if self.two_factor_auth_data is None:
-				raise ValidationError('2FA not set up.')
-			
-			otp = self.cleaned_data.get('otp')
+            if two_factor_auth_data is None:
+                return Response({"error": "2FA is not set up for this user."}, status=status.HTTP_400_BAD_REQUEST)
 
-			if not self.two_factor_auth_data.validate_otp(otp):
-				raise ValidationError('Invalid 2FA code.')
-			
-			return otp
-		
-	def get_form_class(self):
-		return self.Form
+            # Validate the provided OTP
+            if not two_factor_auth_data.validate_otp(otp):
+                return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
 
-	def get_form(self, *args, **kwargs):
-		form = super().get_form(*args, **kwargs)
+            # If OTP is valid, return success response
+            return Response({"success": "2FA verified successfully."}, status=status.HTTP_200_OK)
 
-		form.user = self.request.user
-
-		return form
-	
-	def form_valid(self, form):
-		return super().form_valid(form)
+        except ValidationError as exc:
+            return Response({"error": exc.message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -318,8 +330,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			# they have not enabled two-factor authentication
 			pass
 		else:
-			# If the user has two-factor authentication data, they need to provide an OTP
-			return Response({'detail': 'OTP required'}, status=401)
+			 # If the user has two-factor authentication data, they need to provide an OTP
+			otp_provided = request.data.get('otp')
+
+			if not two_factor_auth_data.validate_otp(otp_provided):
+				return Response({'detail': 'Invalid OTP'}, status=401)
+
 
 		response = super().post(request, *args, **kwargs)
 		access_token = response.data.get('access')
