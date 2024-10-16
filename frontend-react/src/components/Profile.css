@@ -1,0 +1,103 @@
+.user-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    background-color: #2c2c2c;
+    position: relative;
+    margin-top: 80px;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #333;
+    padding: 20px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 10px 0;
+    color: #21db72;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.sidebar ul li:hover {
+    color: #27ae60;
+}
+
+.profileH2 {
+    color: #28a745;
+}
+
+.avatar-container {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
+
+.avatar-upload {
+    margin-top: 15px;
+    display: none;
+}
+
+.change-avatar-label {
+    cursor: pointer;
+}
+
+.change-avatar-text {
+    color: #21db72;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.change-avatar-text:hover {
+    color: #27ae60;
+}
+
+.user-info {
+    flex-grow: 1;
+    padding: 20px;
+    color: white;
+}
+
+.confirm-btn {
+    background-color: #28a745;
+    color: white;
+    border: 2px solid #28a745;
+    padding: 10px 20px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-btn:hover {
+    background-color: #218838;
+}
+
+.dropdown {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #f4f4f9;
+}
