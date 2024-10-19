@@ -40,6 +40,17 @@ services:
     environment:
       - NODE_ENV=development
 
+  nginx:
+    build: "../nginx/"
+    ports:
+      - "443:443"
+    volumes:
+      - /Users/androsov/Documents/42School/ft_transcendence/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - /Users/androsov/Documents/42School/ft_transcendence/nginx/entrypoint.sh:/entrypoint.sh
+    depends_on:
+      - frontend
+    # entrypoint: ["/entrypoint.sh"]
+
 volumes:
   postgres_data:
   
