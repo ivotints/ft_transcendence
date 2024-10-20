@@ -7,6 +7,7 @@ function AuthOptions() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLoginClick = () => {
     setFormType('login');
@@ -18,26 +19,56 @@ function AuthOptions() {
 
   const handleLoginSubmit = async () => {
     try {
-      const response = await axios.post('https://127.0.0.1:8000/token/', {
+      const response = await axios.post('https://localhost:8000/token/', {
         username,
         password,
+      }, {
+        withCredentials: true, // Include cookies in the request
       });
       console.log('Login successful:', response.data);
     } catch (error) {
       console.error('Error logging in:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        setErrorMessage('Error: No response received from server');
+      } else {
+        console.error('Error message:', error.message);
+        setErrorMessage(`Error: ${error.message}`);
+      }
     }
   };
 
   const handleCreateUserSubmit = async () => {
     try {
-      const response = await axios.post('https://127.0.0.1:8000/users/register/', {
+      const response = await axios.post('https://localhost:8000/users/register/', {
         username,
         email,
         password,
+      }, {
+        withCredentials: true, // Include cookies in the request
       });
       console.log('User created successfully:', response.data);
+      // Automatically log in the user after successful registration
+      await handleLoginSubmit();
     } catch (error) {
       console.error('Error creating user:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        setErrorMessage('Error: No response received from server');
+      } else {
+        console.error('Error message:', error.message);
+        setErrorMessage(`Error: ${error.message}`);
+      }
     }
   };
 
@@ -82,6 +113,8 @@ function AuthOptions() {
           </tbody>
         </table>
       )}
+
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
     </div>
   );
 }

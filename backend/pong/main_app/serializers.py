@@ -8,7 +8,7 @@ from .models import Tournament
 
 
 class UserSerializer(serializers.ModelSerializer):
-	password = serializers.CharField(write_only=True)
+	password = serializers.CharField(write_only=True, required=False)
 	class Meta:
 		model = User
 		fields = [
@@ -26,9 +26,22 @@ class UserSerializer(serializers.ModelSerializer):
 		user.set_password(password)
 		user.save()
 		return user
+	
+	def update(self, instance, validated_data):
+		password = validated_data.pop('password', None)
+
+		for attr, value in validated_data.items():
+			setattr(instance, attr, value)
+
+		if password:
+			instance.set_password(password)
+
+		instance.save()
+		return instance
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+	user = UserSerializer()
 	wins = serializers.SerializerMethodField()
 	losses = serializers.SerializerMethodField()
 
@@ -48,6 +61,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	
 	def get_losses(self, obj):
 		return obj.calculate_losses()
+	
+	def update(self, instance, validated_data):
+		user_data = validated_data.pop('user', None)
+
+		super().update(instance, validated_data)
+
+		if user_data:
+			user = instance.user
+			user_serializer = UserSerializer(instance=user, data=user_data, partial=True)
+			if user_serializer.is_valid(raise_exception=True):
+				user_serializer.save()
+
+		return instance
 
 class MatchHistorySerializer(serializers.ModelSerializer):
 	class Meta:

@@ -11,7 +11,7 @@ done
 
 >&2 echo "Postgres is up - executing command"
 
-openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/private/key.pem -out /etc/ssl/certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
+# openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/private/key.pem -out /etc/ssl/certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
 
 python3 manage.py makemigrations
 python3 manage.py migrate

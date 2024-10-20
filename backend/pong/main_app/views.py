@@ -350,17 +350,19 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				access_token,
 				expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
 				httponly=True,
-				samesite='Strict',
-				secure=True
+				samesite='None',
+				secure=True,
+				domain='localhost',
 			)
 		if refresh_token:
 			response.set_cookie(
 				'refresh_token',
 				refresh_token,
 				httponly=True,
-				samesite='Strict',
+				samesite='None',
 				expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-				secure=True
+				secure=True,
+				domain='localhost',
 			)
 
 		response.data = {'detail': 'Success'}
@@ -385,8 +387,9 @@ class CustomTokenRefreshView(TokenRefreshView):
 				'access_token',
 				access_token,
 				httponly=True,
-				samesite='Strict',
-				secure=True
+				samesite='None',
+				secure=True,
+				domain='localhost',
 			)
 		response.data = {'detail': 'Success'}
 		return response

@@ -30,9 +30,27 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "https://localhost",
+	"https://127.0.0.1",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 # Application definition
 
@@ -151,10 +169,10 @@ SIMPLE_JWT = {
 	"REFRESH_TOKEN_LIFETIME": datetime.timedelta(minutes=30),
 	"AUTH_COOKIE": "access_token",  # Cookie name. Enables cookies if value is set.
     "AUTH_COOKIE_DOMAIN": None,     # A string like "example.com", or None for standard domain cookie.
-    "AUTH_COOKIE_SECURE": False,    # Whether the auth cookies should be secure (https:// only).
+    "AUTH_COOKIE_SECURE": True,    # Whether the auth cookies should be secure (https:// only).
     "AUTH_COOKIE_HTTP_ONLY" : True, # Http only cookie flag.It's not fetch by javascript.
     "AUTH_COOKIE_PATH": "/",        # The path of the auth cookie.
-    "AUTH_COOKIE_SAMESITE": "Strict",  # Whether to set the flag restricting cookie leaks on cross-site requests.
+    # "AUTH_COOKIE_SAMESITE": "Lax",  # Whether to set the flag restricting cookie leaks on cross-site requests.
                                     # This can be 'Lax', 'Strict', or None to disable the flag.
 }
 

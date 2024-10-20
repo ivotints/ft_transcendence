@@ -30,8 +30,6 @@ services:
 
   frontend:
     build: ../frontend-react/
-    ports:
-      - "3000:3000"
     volumes:
       - ../frontend-react/:/app
       - /app/node_modules
@@ -45,8 +43,10 @@ services:
     ports:
       - "443:443"
     volumes:
-      - /Users/androsov/Documents/42School/ft_transcendence/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - /Users/androsov/Documents/42School/ft_transcendence/nginx/entrypoint.sh:/entrypoint.sh
+      - ../nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../nginx/entrypoint.sh:/entrypoint.sh
+      - ./localhost+1.pem:/etc/ssl/certs/cert.pem
+      - ./localhost+1-key.pem:/etc/ssl/private/key.pem
     depends_on:
       - frontend
     # entrypoint: ["/entrypoint.sh"]
