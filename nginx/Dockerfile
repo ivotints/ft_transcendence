@@ -6,7 +6,8 @@ RUN apt update -y && \
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./entrypoint.sh /entrypoint.sh
-COPY . .
+COPY ./localhost+1.pem /etc/ssl/certs/cert.pem
+COPY ./localhost+1-key.pem /etc/ssl/private/key.pem
 
 RUN chmod +x /entrypoint.sh
 

@@ -1,15 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Profile.css';
 
 function Profile() {
   const [activeSection, setActiveSection] = useState('info');
   const [avatar, setAvatar] = useState(null);
+  const [userInfo, setUserInfo] = useState({
+    username: '',
+    email: '',
+  });
+  const [profileId, setProfileId] = useState(null);
 
-  const handleAvatarChange = (e) => {
+  useEffect(() => {
+    // Fetch user profile data
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
+        const profile = response.data;
+        setUserInfo({
+          username: profile.user.username,
+          email: profile.user.email,
+        });
+        setAvatar(profile.avatar_url);
+        setProfileId(profile.id);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const avatarURL = URL.createObjectURL(file);
-      setAvatar(avatarURL);
+    if (file && profileId) {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      try {
+        const response = await axios.patch(`https://localhost:8000/profiles/me/`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        });
+        setAvatar(response.data.avatar_url);
+      } catch (error) {
+        console.error('Error updating avatar:', error);
+      }
+    }
+  };
+
+  const handleEmailChange = async (e) => {
+    e.preventDefault();
+    const newEmail = e.target.newEmail.value;
+
+    try {
+      await axios.patch(`https://localhost:8000/profiles/me/`, { user: { email: newEmail } }, { withCredentials: true });
+      setUserInfo((prev) => ({ ...prev, email: newEmail }));
+    } catch (error) {
+      console.error('Error updating email:', error);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    const newPassword = e.target.newPassword.value;
+
+    try {
+      await axios.patch(`https://localhost:8000/profiles/me/`, { user: { password: newPassword } }, { withCredentials: true });
+    } catch (error) {
+      console.error('Error updating password:', error);
     }
   };
 
@@ -19,14 +80,11 @@ function Profile() {
         return (
           <div>
             <h2 className="profileH2">Change Email</h2>
-            <form>
-              <label>Old Email: </label>
-              <input type="email" placeholder="Old Email" />
-              <br />
+            <form onSubmit={handleEmailChange}>
               <label>New Email: </label>
-              <input type="email" placeholder="New Email" />
+              <input type="email" name="newEmail" placeholder="New Email" />
               <br />
-              <button className="confirm-btn">Confirm</button>
+              <button className="confirm-btn" type="submit">Confirm</button>
             </form>
           </div>
         );
@@ -34,14 +92,11 @@ function Profile() {
         return (
           <div>
             <h2 className="profileH2">Change Password</h2>
-            <form>
-              <label>Old Password: </label>
-              <input type="password" placeholder="Old Password" />
-              <br />
+            <form onSubmit={handlePasswordChange}>
               <label>New Password: </label>
-              <input type="password" placeholder="New Password" />
+              <input type="password" name="newPassword" placeholder="New Password" />
               <br />
-              <button className="confirm-btn">Confirm</button>
+              <button className="confirm-btn" type="submit">Confirm</button>
             </form>
           </div>
         );
@@ -73,8 +128,8 @@ function Profile() {
         return (
           <div className="user-info">
             <h2 className="profileH2">User Info</h2>
-            <p>Username: diaraz</p>
-            <p>Email: diaraz@example.com</p>
+            <p>Username: {userInfo.username}</p>
+            <p>Email: {userInfo.email}</p>
           </div>
         );
     }
@@ -100,13 +155,13 @@ function Profile() {
           className="avatar"
         />
         <label className="change-avatar-label">
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="avatar-upload"
-            />
-            <p className="change-avatar-text">Change Avatar</p>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="avatar-upload"
+          />
+          <p className="change-avatar-text">Change Avatar</p>
         </label>
       </div>
 

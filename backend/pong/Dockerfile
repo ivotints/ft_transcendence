@@ -11,6 +11,9 @@ RUN pip install django psycopg2-binary djangorestframework djangorestframework-s
 COPY ./entrypoint.sh /entrypoint.sh
 COPY . .
 
+COPY ./localhost+1.pem /etc/ssl/certs/cert.pem
+COPY ./localhost+1-key.pem /etc/ssl/private/key.pem
+
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
