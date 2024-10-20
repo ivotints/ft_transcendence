@@ -1,47 +1,48 @@
 # ft_transcendence
-````
-ft_transcendence/
-├── backend/                  # Backend logic (if applicable)
-│   ├── src/
-│   │   ├── controllers/      # Request/response handlers
-│   │   ├── models/           # Database models (ORM, Schema definitions)
-│   │   ├── routes/           # API endpoints
-│   │   ├── services/         # Business logic and services
-│   │   └── app.js            # Main backend app entry point
-│   ├── config/               # Configuration files (database, environment)
-│   ├── middlewares/          # Custom middlewares (auth, logging, etc.)
-│   ├── tests/                # Backend-specific tests
-│   └── package.json          # Dependencies for the backend
-│
-├── frontend/                 # Frontend logic (React or Vanilla JS)
-│   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   ├── assets/           # Static files like images, fonts, etc.
-│   │   ├── views/            # Main pages or views
-│   │   ├── utils/            # Helper functions for frontend logic
-│   │   ├── styles/           # CSS or SCSS files
-│   │   └── index.js          # Frontend entry point
-│   ├── public/               # Static public files (index.html, favicon)
-│   └── package.json          # Dependencies for the frontend
-│
-├── database/                 # Database-related files
-│   ├── migrations/           # SQL migrations or ORM migrations
-│   ├── seeds/                # Database seeding files
-│   └── config.js             # Database configuration
-│
-├── docker/                   # Docker setup and environment
-│   ├── Dockerfile            # Dockerfile for building the container
-│   ├── docker-compose.yml    # Compose configuration
-│   └── env/                  # Environment-specific variables (ignored by git)
-│
-├── tests/                    # Testing suite (if combined)
-│   ├── integration/          # Integration tests (backend + frontend)
-│   └── unit/                 # Unit tests for isolated components
-│
-├── blockchain/               # Optional: Blockchain-related files (if used)
-│   └── score_storage.sol     # Solidity smart contract for storing scores
-│
-├── .env                      # Environment variables (ignored by git)
-├── .gitignore                # List of files and directories to ignore by Git
-└── README.md                 # Documentation about the project
-````
+This project is a web application that includes a backend, frontend, and an Nginx server for serving the application. The application is containerized using Docker and can be easily run using Docker Compose.
+
+
+## Prerequisites
+Before you begin, ensure you have the following installed on your machine:
+
+- Docker
+- Docker Compose
+
+
+## Getting Started
+Follow these steps to get the application up and running:
+
+### 1. Clone the Repository
+First, clone the repository to your local machine:
+```
+git clone https://github.com/0xSuitQ/ft_transcendence.git
+cd ft_transcendence
+```
+
+### 2. Navigate to the Docker Directory
+Navigate to the docker directory where the docker-compose.yml file is located:
+```
+cd docker
+```
+
+### 3. Run Docker Compose
+Run the following command to build and start the Docker containers:
+```
+docker-compose up --build
+```
+
+This command will build the Docker images and start the containers for the database, backend, frontend, and Nginx server.
+
+### 4. Access the Application
+Once the containers are up and running, open your browser and navigate to:
+```
+https://localhost/
+```
+You should see the application running.
+
+### Stopping the Application
+To stop the application, press Ctrl+C in the terminal where docker-compose up is running. Alternatively, you can run the following command in the docker directory:
+```
+docker-compose down
+```
+This command will stop and remove the containers.
