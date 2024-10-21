@@ -14,7 +14,7 @@ import qrcode.image.svg
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE) # , related_name="profile")
-	avatar_url = models.URLField(blank=True, default="")
+	avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 	is_online = models.BooleanField(default=False)
 	# wins = models.IntegerField(default=0)
 	# losses = models.IntegerField(default=0)
@@ -66,7 +66,7 @@ class UserTwoFactorAuthData(models.Model):
 class Friend(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friendships")
 	friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friends")
-	status = models.CharField(max_length=10, choices=[("pending", "Pending"), ("accepted", "Accepted"), ("rejected", "Rejected")])
+	status = models.CharField(max_length=10, choices=[("pending", "Pending"), ("accepted", "Accepted"), ("rejected", "Rejected")], default="pending")
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
