@@ -1,7 +1,9 @@
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 from django.views.generic import TemplateView
-from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, MatchHistoryDetailAPIView, TournamentListCreateAPIView, TournamentDetailAPIView, SetupTwoFactorView, ConfirmTwoFactorAuthView, TwoFactorSetupTemplateView, TwoFactorConfirmTemplateView
+from django.conf import settings
+from django.conf.urls.static import static
+from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, MatchHistoryDetailAPIView, TournamentListCreateAPIView, TournamentDetailAPIView, SetupTwoFactorView, ConfirmTwoFactorAuthView, TwoFactorSetupTemplateView, TwoFactorConfirmTemplateView, ProtectedMediaView
 
 
 urlpatterns = [
@@ -21,5 +23,9 @@ urlpatterns = [
 	path('matches/<int:pk>/', MatchHistoryDetailAPIView.as_view(), name='matchhistory-detail'),
 	path('tournaments/', TournamentListCreateAPIView.as_view(), name='tournament-list-create'),
 	path('tournaments/<int:pk>/', TournamentDetailAPIView.as_view(), name='tournament-detail'),
+    path('media/<path:path>', ProtectedMediaView.as_view(), name='protected_media'),
 	path('', TemplateView.as_view(template_name='404.html'), name='404'),
 ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

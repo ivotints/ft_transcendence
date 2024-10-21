@@ -6,9 +6,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status, permissions, authentication, generics
 from rest_framework.views import APIView
 
-from django.http import Http404
 from django import forms
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404, FileResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView, FormView
@@ -16,6 +15,7 @@ from django.core.exceptions import ValidationError
 from django.views.generic import TemplateView
 
 import logging
+import os
 
 from .web3 import get_tournament_data, add_tournament_data
 from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create
@@ -404,3 +404,19 @@ class CustomTokenVerifyView(TokenVerifyView):
 		request_data = request.data.copy()
 		request_data['token'] = access_token
 		return super().post(request, data=request_data ,*args, **kwargs)
+	
+
+class ProtectedMediaView(APIView):
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        CustomJWTAuthentication,
+        authentication.TokenAuthentication,
+    ]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, path, format=None):
+        file_path = os.path.join(settings.MEDIA_ROOT, path)
+        if os.path.exists(file_path):
+            return FileResponse(open(file_path, 'rb'))
+        else:
+            raise Http404

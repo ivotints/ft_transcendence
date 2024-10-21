@@ -9,7 +9,6 @@ function Profile() {
     username: '',
     email: '',
   });
-  const [profileId, setProfileId] = useState(null);
 
   useEffect(() => {
     // Fetch user profile data
@@ -21,8 +20,7 @@ function Profile() {
           username: profile.user.username,
           email: profile.user.email,
         });
-        setAvatar(profile.avatar_url);
-        setProfileId(profile.id);
+        setAvatar(profile.avatar);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -33,18 +31,18 @@ function Profile() {
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file && profileId) {
+    if (file) {
       const formData = new FormData();
       formData.append('avatar', file);
 
       try {
-        const response = await axios.patch(`https://localhost:8000/profiles/me/`, formData, {
+        const response = await axios.patch('https://localhost:8000/profiles/me/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
           withCredentials: true,
         });
-        setAvatar(response.data.avatar_url);
+        setAvatar(response.data.avatar);
       } catch (error) {
         console.error('Error updating avatar:', error);
       }
@@ -56,7 +54,7 @@ function Profile() {
     const newEmail = e.target.newEmail.value;
 
     try {
-      await axios.patch(`https://localhost:8000/profiles/me/`, { user: { email: newEmail } }, { withCredentials: true });
+      await axios.patch('https://localhost:8000/profiles/me/', { user: { email: newEmail } }, { withCredentials: true });
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
     } catch (error) {
       console.error('Error updating email:', error);
@@ -68,7 +66,7 @@ function Profile() {
     const newPassword = e.target.newPassword.value;
 
     try {
-      await axios.patch(`https://localhost:8000/profiles/me/`, { user: { password: newPassword } }, { withCredentials: true });
+      await axios.patch('https://localhost:8000/profiles/me/', { user: { password: newPassword } }, { withCredentials: true });
     } catch (error) {
       console.error('Error updating password:', error);
     }

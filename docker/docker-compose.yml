@@ -49,7 +49,6 @@ services:
       - ./localhost+1-key.pem:/etc/ssl/private/key.pem
     depends_on:
       - frontend
-    # entrypoint: ["/entrypoint.sh"]
 
 volumes:
   postgres_data:

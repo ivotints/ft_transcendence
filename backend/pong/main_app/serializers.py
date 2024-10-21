@@ -44,6 +44,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	user = UserSerializer()
 	wins = serializers.SerializerMethodField()
 	losses = serializers.SerializerMethodField()
+	avatar = serializers.ImageField(required=False)
 
 	class Meta:
 		model = UserProfile
@@ -52,7 +53,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			'wins',
 			'losses',
 			'match_history',
-			'avatar_url',
+			'avatar',
 			'is_online',
 		]
 
@@ -64,6 +65,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	
 	def update(self, instance, validated_data):
 		user_data = validated_data.pop('user', None)
+		avatar = validated_data.pop('avatar', None)
 
 		super().update(instance, validated_data)
 
@@ -72,6 +74,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			user_serializer = UserSerializer(instance=user, data=user_data, partial=True)
 			if user_serializer.is_valid(raise_exception=True):
 				user_serializer.save()
+
+		if avatar:
+			instance.avatar = avatar
+			instance.save()
 
 		return instance
 
