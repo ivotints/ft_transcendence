@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView, FormView
 from django.core.exceptions import ValidationError
 from django.views.generic import TemplateView
+from django.db.models import Q
 
 import logging
 import os
@@ -141,7 +142,7 @@ class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
         return UserProfile.objects.get(user=self.request.user)
 	
 
-class FriendListCreateAPIView(generics.ListCreateAPIView): # TODO: add authorization
+class FriendListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		authentication.SessionAuthentication,
@@ -157,6 +158,36 @@ class FriendListCreateAPIView(generics.ListCreateAPIView): # TODO: add authoriza
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)
 
+
+class AcceptedFriendsAPIView(generics.ListAPIView):
+    serializer_class = FriendSerializer
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        CustomJWTAuthentication,
+        authentication.TokenAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Friend.objects.filter(
+            (Q(user=user) | Q(friend=user)) & Q(status="accepted")
+        )
+	
+
+class PendingFriendRequestsAPIView(generics.ListAPIView):
+    serializer_class = FriendSerializer
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        CustomJWTAuthentication,
+        authentication.TokenAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Friend.objects.filter(friend=user, status="pending")
+	
 
 class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = FriendSerializer
@@ -187,14 +218,22 @@ class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 			return Response({'detail': 'You do not have permission to update this friend request.'},
 							status=status.HTTP_403_FORBIDDEN)
 		
+		print("Request data: ", request.data)
+		
 		serializer = self.get_serializer(instance, data=request.data, partial=True)
-		serializer.is_valid(raise_exception=True)
+		try:
+			serializer.is_valid(raise_exception=True)
+		except ValidationError as e:
+			print("Serializer errors: ", serializer.errors)
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		
 		self.perform_update(serializer)
 
 		if serializer.instance.status == 'rejected':
 			serializer.instance.delete()
 			return Response({'detail': 'Friend request rejected and deleted.'}, status=status.HTTP_200_OK)
 
+		print("Updated instance data: ", serializer.data)  # Log the updated instance data
 		return Response(serializer.data)
 
 

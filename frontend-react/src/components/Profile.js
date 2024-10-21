@@ -9,8 +9,12 @@ function Profile() {
     username: '',
     email: '',
   });
+  const [acceptedFriends, setAcceptedFriends] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [friendUsername, setFriendUsername] = useState(''); // State for friend's username
 
   useEffect(() => {
+    console.log('Component mounted, fetching data...');
     // Fetch user profile data
     const fetchUserProfile = async () => {
       try {
@@ -28,6 +32,40 @@ function Profile() {
 
     fetchUserProfile();
   }, []);
+
+  useEffect(() => {
+    if (activeSection === 'pendingRequests') {
+      console.log('Fetching pending requests for pendingRequests section...');
+      const fetchPendingRequests = async () => {
+        try {
+          const response = await axios.get('https://localhost:8000/friends/pending/', { withCredentials: true });
+          console.log('Pending friends response:', response.data);
+          setPendingRequests(response.data);
+        } catch (error) {
+          console.error('Error fetching pending friend requests:', error);
+        }
+      };
+
+      fetchPendingRequests();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === 'friendList') {
+      console.log('Fetching accepted friends for friendList section...');
+      const fetchAcceptedFriends = async () => {
+        try {
+          const response = await axios.get('https://localhost:8000/friends/accepted/', { withCredentials: true });
+          console.log('Accepted friends response:', response.data);
+          setAcceptedFriends(response.data);
+        } catch (error) {
+          console.error('Error fetching accepted friends:', error);
+        }
+      };
+
+      fetchAcceptedFriends();
+    }
+  }, [activeSection]);
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -72,7 +110,39 @@ function Profile() {
     }
   };
 
+  const handleAcceptRequest = async (requestId) => {
+    try {
+      await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
+      setPendingRequests((prev) => prev.filter((request) => request.id !== requestId));
+      setAcceptedFriends((prev) => [...prev, { ...prev.find((request) => request.id === requestId), status: 'accepted' }]);
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    try {
+      await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'rejected' }, { withCredentials: true });
+      setPendingRequests((prev) => prev.filter((request) => request.id !== requestId));
+    } catch (error) {
+      console.error('Error rejecting friend request:', error);
+    }
+  };
+
+  const handleAddFriend = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
+      setFriendUsername(''); // Clear the input field after successful request
+      // Optionally, you can refetch pending requests or show a success message
+      console.log('Friend request sent:', response.data);
+    } catch (error) {
+      console.error('Error sending friend request:', error.response.data);
+    }
+  };
+
   const renderContent = () => {
+    console.log('Rendering content for section:', activeSection);
     switch (activeSection) {
       case 'changeEmail':
         return (
@@ -102,14 +172,48 @@ function Profile() {
         return (
           <div>
             <h2 className="profileH2">Add Friend</h2>
-            <label>Friend's Name: </label>
-            <input type="text" placeholder="Friend's Name" />
-            <br />
-            <button className="confirm-btn">Confirm</button>
+            <form onSubmit={handleAddFriend}>
+              <label>Friend's Name: </label>
+              <input
+                type="text"
+                value={friendUsername}
+                onChange={(e) => setFriendUsername(e.target.value)}
+                placeholder="Friend's Name"
+              />
+              <br />
+              <button className="confirm-btn" type="submit">Confirm</button>
+            </form>
           </div>
         );
       case 'friendList':
-        return <h2 className="profileH2">Friend List</h2>;
+        console.log('Accepted friends state:', acceptedFriends); // Log the accepted friends state
+        return (
+          <div>
+            <h2 className="profileH2">Friend List</h2>
+            <ul>
+              {acceptedFriends.map((friend) => (
+                <li key={friend.id}>
+                  {friend.user_detail.username === userInfo.username ? friend.friend_detail.username : friend.user_detail.username}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      case 'pendingRequests':
+        return (
+          <div>
+            <h2 className="profileH2">Pending Friend Requests</h2>
+            <ul>
+              {pendingRequests.map((request) => (
+                <li key={request.id}>
+                  {request.user.username}
+                  <button onClick={() => handleAcceptRequest(request.id)}>Accept</button>
+                  <button onClick={() => handleRejectRequest(request.id)}>Reject</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
       case 'matchHistory':
         return (
           <div>
@@ -142,6 +246,7 @@ function Profile() {
           <li onClick={() => setActiveSection('changePassword')}>Change Password</li>
           <li onClick={() => setActiveSection('addFriend')}>Add Friend</li>
           <li onClick={() => setActiveSection('friendList')}>Friend List</li>
+          <li onClick={() => setActiveSection('pendingRequests')}>Pending Friend Requests</li>
           <li onClick={() => setActiveSection('matchHistory')}>Match History</li>
         </ul>
       </div>

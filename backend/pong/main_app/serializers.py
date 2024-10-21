@@ -13,11 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
 		model = User
 		fields = [
 			'username',
-            'email',
+			'email',
 			'password',
-            'first_name',
-            'last_name',
-            'is_active',
+			'first_name',
+			'last_name',
+			'is_active',
 		]
 
 	def create(self, validate_data):
@@ -109,23 +109,58 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 		return data
 
 class FriendSerializer(serializers.ModelSerializer):
+	friend_username = serializers.CharField(write_only=True, required=False)
+	friend_detail = UserSerializer(source='friend', read_only=True)  # For output
+	user_detail = UserSerializer(source='user', read_only=True)  # For output
+
 	class Meta:
 		model = Friend
 		fields = [
+			'id',
 			'user',
 			'friend',
+			'friend_username',
+			'friend_detail',
+			'user_detail',
 			'status',
 			'created_at'
 		]
+		read_only_fields = ['id', 'user', 'user_detail', 'friend', 'friend_detail', 'created_at']
 
 	def validate(self, data):
 		user = self.context['request'].user
-		friend = data['friend']
-		if user == friend: # TODO: doesn't work
-			raise serializers.ValidationError("You cannot send a friend request to yourself.")
-		if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
-			raise serializers.ValidationError("A friend request already exists between these users.")
+		friend_username = data.get('friend_username')
+
+		if self.context['request'].method == 'POST':
+			if not friend_username:
+				raise serializers.ValidationError("Friend username is required.")
+
+			try:
+				friend = User.objects.get(username=friend_username)
+			except User.DoesNotExist:
+				raise serializers.ValidationError("Friend with this username does not exist.")
+
+			if user == friend:
+				raise serializers.ValidationError("You cannot send a friend request to yourself.")
+
+			if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
+				raise serializers.ValidationError("A friend request already exists between these users.")
+
+			data['friend_instance'] = friend
+
 		return data
+
+	def create(self, validated_data):
+		user = self.context['request'].user
+		friend = validated_data.pop('friend_instance')  # Retrieve the friend instance
+
+		friend_request = Friend.objects.create(
+			user=user,
+			friend=friend,
+			status='pending'
+		)
+		return friend_request
+
 
 class TournamentSerializer(serializers.ModelSerializer):
 	class Meta:
