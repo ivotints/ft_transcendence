@@ -82,16 +82,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
 		return instance
 
 class MatchHistorySerializer(serializers.ModelSerializer):
+	player1_username = serializers.SerializerMethodField()
 	class Meta:
 		model = MatchHistory
 		fields = [
 			'player1',
 			'player2',
+			'player1_username',
 			'winner',
 			'match_date',
 			'match_score'
 		]
 		read_only_fields = ['winner']
+
+	def get_player1_username(self, obj):
+		return obj.player1.username
 
 	def validate_match_score(self, value):
 		try:

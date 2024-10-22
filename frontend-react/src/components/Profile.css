@@ -101,3 +101,90 @@
     background-color: #333;
     color: #f4f4f9;
 }
+
+/* Pending friend requests section */
+.pending-requests-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pending-request-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+.pending-request-username {
+    color: #f4f4f9;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.pending-request-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.accept-btn, .reject-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.accept-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.accept-btn:hover {
+    background-color: #218838;
+}
+
+.reject-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.reject-btn:hover {
+    background-color: #c82333;
+}
+
+/* Friend List section */
+.friend-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.friend-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.friend-list-item:hover {
+    background-color: #444;
+}
+
+.friend-username {
+    color: #f4f4f9;
+    font-size: 18px;
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.friend-list-item:before {
+    content: "👤";
+    margin-right: 10px;
+    font-size: 18px;
+}

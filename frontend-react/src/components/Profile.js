@@ -11,7 +11,9 @@ function Profile() {
   });
   const [acceptedFriends, setAcceptedFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [friendUsername, setFriendUsername] = useState(''); // State for friend's username
+  const [friendUsername, setFriendUsername] = useState('');
+  const [matchType, setMatchType] = useState('1v1');
+  const [matchHistory, setMatchHistory] = useState([]);
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -66,6 +68,26 @@ function Profile() {
       fetchAcceptedFriends();
     }
   }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === 'matchHistory') {
+      const fetchMatchHistory = async () => {
+        try {
+          let response;
+          if (matchType === '1v1') {
+            response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
+          } else if (matchType === 'tournament') {
+            response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true});
+          }
+          setMatchHistory(response.data);
+      } catch (error) {
+        console.error('Error fetching match history:', error);
+      }
+    }
+
+      fetchMatchHistory();
+    }
+  }, [activeSection, matchType]);
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -143,6 +165,10 @@ function Profile() {
     }
   };
 
+  const handleMatchTypeChange = (e) => {
+    setMatchType(e.target.value);
+  };
+
   const renderContent = () => {
     console.log('Rendering content for section:', activeSection);
     switch (activeSection) {
@@ -188,49 +214,62 @@ function Profile() {
           </div>
         );
         case 'friendList':
-          console.log('Accepted friends state:', acceptedFriends); // Log the accepted friends state
+          console.log('Accepted friends state:', acceptedFriends);
           return (
             <div>
               <h2 className="profileH2">Friend List</h2>
-              <ul>
+              <ul className="friend-list">
                 {acceptedFriends.map((friend) => {
                   const username = friend.user_detail?.username === userInfo.username
                     ? friend.friend_detail?.username
                     : friend.user_detail?.username;
-        
+
                   return (
-                    <li key={friend.id}>
-                      {username || 'Unknown User'}
+                    <li key={friend.id} className="friend-list-item">
+                      <span className="friend-username">{username || 'Unknown User'}</span>
                     </li>
                   );
                 })}
               </ul>
             </div>
           );
-      case 'pendingRequests':
-        return (
-          <div>
-            <h2 className="profileH2">Pending Friend Requests</h2>
-            <ul>
-              {pendingRequests.map((request) => (
-                <li key={request.id}>
-                  {request.user_detail.username}
-                  <button onClick={() => handleAcceptRequest(request.id)}>Accept</button>
-                  <button onClick={() => handleRejectRequest(request.id)}>Reject</button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
+        case 'pendingRequests':
+          return (
+            <div>
+              <h2 className="profileH2">Pending Friend Requests</h2>
+              <ul className="pending-requests-list">
+                {pendingRequests.map((request) => (
+                  <li key={request.id} className="pending-request-item">
+                    <span className="pending-request-username">{request.user_detail.username}</span>
+                    <div className="pending-request-buttons">
+                      <button className="accept-btn" onClick={() => handleAcceptRequest(request.id)}>Accept</button>
+                      <button className="reject-btn" onClick={() => handleRejectRequest(request.id)}>Reject</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
       case 'matchHistory':
         return (
           <div>
             <h2 className="profileH2">Match History</h2>
             <label htmlFor="match-type">Select Match Type: </label>
-            <select id="match-type" className="dropdown">
+            <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
               <option value="1v1">1 vs 1</option>
               <option value="tournament">Tournament</option>
             </select>
+            <ul>
+              {matchHistory.map((match) => (
+                <li key={match.id}>
+                  <p><strong>Player1:</strong> {match.player1_username}</p>
+                  <p><strong>Player2:</strong> {match.player2}</p>
+                  <p><strong>Winner:</strong> {match.winner}</p>
+                  <p><strong>Match date:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                  <p><strong>Match score:</strong> {match.match_score}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         );
       case 'info':
