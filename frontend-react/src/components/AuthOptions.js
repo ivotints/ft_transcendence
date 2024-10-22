@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AuthOptions.css';
 
-function AuthOptions() {
+function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
   const [formType, setFormType] = useState(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -26,6 +26,7 @@ function AuthOptions() {
         withCredentials: true, // Include cookies in the request
       });
       console.log('Login successful:', response.data);
+      onLoginSuccess(); // Notify parent that login was successful
     } catch (error) {
       console.error('Error logging in:', error);
       if (error.response) {
@@ -41,7 +42,7 @@ function AuthOptions() {
         setErrorMessage(`Error: ${error.message}`);
       }
     }
-  };
+  };  
 
   const handleCreateUserSubmit = async () => {
     try {
