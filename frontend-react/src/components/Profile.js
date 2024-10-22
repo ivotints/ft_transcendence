@@ -112,9 +112,11 @@ function Profile() {
 
   const handleAcceptRequest = async (requestId) => {
     try {
-      await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
+      const response = await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
+      const acceptedFriend = response.data;
+  
       setPendingRequests((prev) => prev.filter((request) => request.id !== requestId));
-      setAcceptedFriends((prev) => [...prev, { ...prev.find((request) => request.id === requestId), status: 'accepted' }]);
+      setAcceptedFriends((prev) => [...prev, acceptedFriend]);
     } catch (error) {
       console.error('Error accepting friend request:', error);
     }
@@ -185,20 +187,26 @@ function Profile() {
             </form>
           </div>
         );
-      case 'friendList':
-        console.log('Accepted friends state:', acceptedFriends); // Log the accepted friends state
-        return (
-          <div>
-            <h2 className="profileH2">Friend List</h2>
-            <ul>
-              {acceptedFriends.map((friend) => (
-                <li key={friend.id}>
-                  {friend.user_detail.username === userInfo.username ? friend.friend_detail.username : friend.user_detail.username}
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
+        case 'friendList':
+          console.log('Accepted friends state:', acceptedFriends); // Log the accepted friends state
+          return (
+            <div>
+              <h2 className="profileH2">Friend List</h2>
+              <ul>
+                {acceptedFriends.map((friend) => {
+                  const username = friend.user_detail?.username === userInfo.username
+                    ? friend.friend_detail?.username
+                    : friend.user_detail?.username;
+        
+                  return (
+                    <li key={friend.id}>
+                      {username || 'Unknown User'}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
       case 'pendingRequests':
         return (
           <div>
@@ -206,7 +214,7 @@ function Profile() {
             <ul>
               {pendingRequests.map((request) => (
                 <li key={request.id}>
-                  {request.user.username}
+                  {request.user_detail.username}
                   <button onClick={() => handleAcceptRequest(request.id)}>Accept</button>
                   <button onClick={() => handleRejectRequest(request.id)}>Reject</button>
                 </li>
