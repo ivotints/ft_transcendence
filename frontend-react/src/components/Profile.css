@@ -199,3 +199,81 @@
     color: red;
     margin-top: 10px;
   }  
+
+  /* Match History */
+
+  .match-history {
+    background-color: #4CAF50; /* Green background */
+    border: 1px solid #28a745; /* Darker green border */
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 600px; /* Increased width for more space */
+    margin: 20px auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.match-history h2 {
+    color: #333; /* Darker text color */
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.match-history ul {
+    list-style: none; /* Remove default list style */
+    padding: 0;
+    margin: 0;
+}
+
+.match-history li {
+    background-color: #ffffff; /* White background for items */
+    color: #333;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: column; /* Stack items vertically */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.match-history li:last-child {
+    margin-bottom: 0; /* Remove margin from last item */
+}
+
+.match-history li p {
+    margin: 5px 0; /* Space between paragraphs */
+}
+
+.match-history li strong {
+    color: #333; /* Darker text for labels */
+}
+
+.tournament {
+    background-color: #f9f9f9; /* Light gray background for tournaments */
+    border-left: 4px solid #28a745; /* Green left border */
+    padding: 10px 15px;
+}
+
+.match-history label {
+    font-size: 16px; /* Adjust the font size */
+    color: #333; /* Text color */
+    font-weight: bold;
+    margin-right: 10px; /* Space between label and dropdown */
+}
+
+.match-history .dropdown {
+    background-color: #ffffff; /* Background color for dropdown */
+    color: #333; /* Text color for options */
+    border: 1px solid #28a745; /* Border color */
+    border-radius: 5px; /* Rounded corners */
+    padding: 8px 12px; /* Padding inside the dropdown */
+    cursor: pointer; /* Change cursor on hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+/* Optional: Change background color on focus */
+.match-history .dropdown:focus {
+    background-color: #f0f8ff; /* Light blue background on focus */
+    outline: none; /* Remove default outline */
+}

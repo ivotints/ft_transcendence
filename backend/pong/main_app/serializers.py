@@ -1,6 +1,7 @@
 from rest_framework import serializers
-
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.conf import settings
 from .models import MatchHistory
 from .models import UserProfile
@@ -25,11 +26,34 @@ class UserSerializer(serializers.ModelSerializer):
 			'is_active',
 		]
 
+	def validate(self, data):
+		if 'email' in data:
+			email = data.get('email')
+			if email is None or email.strip() == "":
+				raise serializers.ValidationError({"email": "Email cannot be empty"})
+			try:
+				validate_email(email)
+			except ValidationError:
+				raise serializers.ValidationError({"email": "Invalid email address"})
+
+		if 'password' in data:
+			password = data.get('password')
+			if password:
+				if len(password) < 8:
+					raise serializers.ValidationError({"password": "Password must be at least 8 characters long"})
+				if not any(char.isdigit() for char in password):
+					raise serializers.ValidationError({"password": "Password must contain at least one digit"})
+				if not any(char.isalpha() for char in password):
+					raise serializers.ValidationError({"password": "Password must contain at least one letter"})
+
+		return data
+
 	def create(self, validate_data):
 		password = validate_data.pop('password')
 		user = User(**validate_data)
 		user.set_password(password)
 		user.save()
+
 		return user
 	
 	def update(self, instance, validated_data):
