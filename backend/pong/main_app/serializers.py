@@ -1,12 +1,15 @@
 from rest_framework import serializers
 
 from django.contrib.auth.models import User
+from django.conf import settings
 from .models import MatchHistory
 from .models import UserProfile
 from .models import Friend
 from .models import Tournament
 
-from .web3 import get_tournament_data
+from .web3 import get_tournament_data, add_tournament_data
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -186,8 +189,29 @@ class TournamentSerializer(serializers.ModelSerializer):
 
 	def get_winners_order(self, obj):
 		try:
-			blockchain_data = get_tournament_data(obj.id)
+			blockchain_data = get_tournament_data(obj.tournament_id)
 			print("Blockchain data:", blockchain_data)
 			return blockchain_data
 		except Exception as e:
 			return {'error': str(e)}
+		
+	def create(self, validated_data):
+		# winners_order = validated_data.pop('winners_order', None)
+		winners_order = ["player1", "player2", "player3", "player4"]
+		participants = validated_data.pop('participants', None)
+		tournament = Tournament.objects.create(**validated_data)
+
+		if participants:
+			tournament.participants.set(participants)
+
+		if winners_order:
+			tournament_id = tournament.id + 60035
+
+			tournament.tournament_id = tournament_id
+
+			tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
+
+			tournament.blockchain_tx_hash = tx_hash
+			tournament.save()
+
+		return tournament

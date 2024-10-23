@@ -14,6 +14,13 @@ function Profile() {
   const [friendUsername, setFriendUsername] = useState('');
   const [matchType, setMatchType] = useState('1v1');
   const [matchHistory, setMatchHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
+  const [messagePass, setMessagePass] = useState('');
+  const [messagePassType, setMessagePassType] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -72,18 +79,21 @@ function Profile() {
   useEffect(() => {
     if (activeSection === 'matchHistory') {
       const fetchMatchHistory = async () => {
+        setLoading(true);
         try {
           let response;
           if (matchType === '1v1') {
             response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
           } else if (matchType === 'tournament') {
-            response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true});
+            response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
           }
           setMatchHistory(response.data);
-      } catch (error) {
-        console.error('Error fetching match history:', error);
-      }
-    }
+        } catch (error) {
+          console.error('Error fetching match history:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
       fetchMatchHistory();
     }
@@ -111,26 +121,43 @@ function Profile() {
 
   const handleEmailChange = async (e) => {
     e.preventDefault();
-    const newEmail = e.target.newEmail.value;
-
+  
     try {
       await axios.patch('https://localhost:8000/profiles/me/', { user: { email: newEmail } }, { withCredentials: true });
+      
+      // Update userInfo state with new email and set success message
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
+      setMessage('Email updated successfully.');
+      setMessageType('success');
+      setNewEmail(''); // Clear the input field after submission
     } catch (error) {
       console.error('Error updating email:', error);
+      
+      // Set error message on failure
+      setMessage('Failed to update email. Please try again.');
+      setMessageType('error');
     }
-  };
+  };  
+
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    const newPassword = e.target.newPassword.value;
-
+  
     try {
       await axios.patch('https://localhost:8000/profiles/me/', { user: { password: newPassword } }, { withCredentials: true });
+      
+      // Set success message
+      setMessagePass('Password updated successfully.');
+      setMessagePassType('success');
+      setNewPassword(''); // Clear the input field after submission
     } catch (error) {
       console.error('Error updating password:', error);
+      
+      // Set error message on failure
+      setMessagePass('Failed to update password. Please try again.');
+      setMessagePassType('error');
     }
-  };
+  };  
 
   const handleAcceptRequest = async (requestId) => {
     try {
@@ -178,10 +205,22 @@ function Profile() {
             <h2 className="profileH2">Change Email</h2>
             <form onSubmit={handleEmailChange}>
               <label>New Email: </label>
-              <input type="email" name="newEmail" placeholder="New Email" />
+              <input
+                type="email"
+                name="newEmail"
+                autoComplete="off"
+                placeholder="New Email"
+                value={newEmail} // Controlled input
+                onChange={(e) => setNewEmail(e.target.value)} // Update state on input change
+              />
               <br />
               <button className="confirm-btn" type="submit">Confirm</button>
             </form>
+            {message && (
+              <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
+                {message}
+              </p>
+            )}
           </div>
         );
       case 'changePassword':
@@ -190,10 +229,22 @@ function Profile() {
             <h2 className="profileH2">Change Password</h2>
             <form onSubmit={handlePasswordChange}>
               <label>New Password: </label>
-              <input type="password" name="newPassword" placeholder="New Password" />
+              <input
+                type="password"
+                name="newPassword"
+                autoComplete="new-password"
+                placeholder="New Password"
+                value={newPassword} // Controlled input
+                onChange={(e) => setNewPassword(e.target.value)} // Update state on input change
+              />
               <br />
               <button className="confirm-btn" type="submit">Confirm</button>
             </form>
+            {messagePass && (
+              <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+                {messagePass}
+              </p>
+            )}
           </div>
         );
       case 'addFriend':
@@ -250,28 +301,48 @@ function Profile() {
               </ul>
             </div>
           );
-      case 'matchHistory':
-        return (
-          <div>
-            <h2 className="profileH2">Match History</h2>
-            <label htmlFor="match-type">Select Match Type: </label>
-            <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
-              <option value="1v1">1 vs 1</option>
-              <option value="tournament">Tournament</option>
-            </select>
-            <ul>
-              {matchHistory.map((match) => (
-                <li key={match.id}>
-                  <p><strong>Player1:</strong> {match.player1_username}</p>
-                  <p><strong>Player2:</strong> {match.player2}</p>
-                  <p><strong>Winner:</strong> {match.winner}</p>
-                  <p><strong>Match date:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                  <p><strong>Match score:</strong> {match.match_score}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
+        case 'matchHistory':
+          return (
+            <div>
+              <h2 className="profileH2">Match History</h2>
+              <label htmlFor="match-type">Select Match Type: </label>
+              <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
+                <option value="1v1">1 vs 1</option>
+                <option value="tournament">Tournament</option>
+              </select>
+              {loading ? (
+                <p>Loading...</p>
+              ) : (
+                matchType === 'tournament' ? (
+                  <div>
+                    <ul>
+                      {matchHistory.map((tournament) => (
+                        <li key={tournament.tournament_id}>
+                          <p><strong>Name:</strong> {tournament.name}</p>
+                          <p><strong>Match Date:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
+                          <p><strong>Winners Order:</strong> {Array.isArray(tournament.winners_order) ? tournament.winners_order.join(', ') : (tournament.winners_order && tournament.winners_order.error ? tournament.winners_order.error : 'N/A')}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div>
+                    <ul>
+                      {matchHistory.map((match) => (
+                        <li key={match.id}>
+                          <p><strong>Player1:</strong> {match.player1_username}</p>
+                          <p><strong>Player2:</strong> {match.player2}</p>
+                          <p><strong>Winner:</strong> {match.winner}</p>
+                          <p><strong>Match date:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                          <p><strong>Match score:</strong> {match.match_score}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              )}
+            </div>
+          );
       case 'info':
       default:
         return (

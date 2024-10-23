@@ -299,36 +299,36 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 
 	# 	return Response(tournaments)
 
-	def create(self, request, *args, **kwargs): # TODO: change it for a frontend
-		# winners_order = request.data.get('winners_order')
-		winners_order = ["player1", "player2", "player3", "player4"]
+	# def create(self, request, *args, **kwargs): # TODO: change it for a frontend
+	# 	# winners_order = request.data.get('winners_order')
+	# 	winners_order = ["player1", "player2", "player3", "player4"]
 
-		if winners_order is not None:
-			# user_ids = [int(id) for id in user_ids.split(',')]
-			# print(user_ids)
-			if len(winners_order) != 4:
-				return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
+	# 	if winners_order is not None:
+	# 		# user_ids = [int(id) for id in user_ids.split(',')]
+	# 		# print(user_ids)
+	# 		if len(winners_order) != 4:
+	# 			return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
 
-			try:
-				serializer = self.get_serializer(data=request.data)
-				serializer.is_valid(raise_exception=True)
-				self.perform_create(serializer)
+	# 		try:
+	# 			serializer = self.get_serializer(data=request.data)
+	# 			serializer.is_valid(raise_exception=True)
+	# 			self.perform_create(serializer)
 
-				tournament = serializer.instance
+	# 			tournament = serializer.instance
 
-				tournament_id = tournament.id + 60000 # TODO
+	# 			tournament_id = tournament.id + 60000 # TODO
 				
-				tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
+	# 			tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
 
-				tournament.blockchain_tx_hash = tx_hash
-				tournament.save()
+	# 			tournament.blockchain_tx_hash = tx_hash
+	# 			tournament.save()
 
-				headers = self.get_success_headers(serializer.data)
-				return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-			except Exception as e:
-				return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+	# 			headers = self.get_success_headers(serializer.data)
+	# 			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+	# 		except Exception as e:
+	# 			return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-		return super().create(request, *args, **kwargs)
+	# 	return super().create(request, *args, **kwargs)
 
 
 class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
