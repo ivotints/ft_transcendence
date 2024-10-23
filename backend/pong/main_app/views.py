@@ -280,9 +280,28 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	]
 	permission_classes = [IsAuthenticated]
 
+	def get_queryset(self):
+		user = self.request.user
+		return Tournament.objects.filter(participants=user)
+	
+	# def list(self, request, *args, **kwargs):
+	# 	queryset = self.get_queryset()
+	# 	serializer = self.get_serializer(queryset, many=True)
+	# 	tournaments = serializer.data
+
+	# 	for tournament in tournaments:
+	# 		tournament_id = tournament['id']
+	# 		try:
+	# 			blockchain_data = get_tournament_data(1000)
+	# 			tournament['blockchain_data'] = blockchain_data
+	# 		except Exception as e:
+	# 			tournament['blockchain_data'] = {'error': str(e)}
+
+	# 	return Response(tournaments)
+
 	def create(self, request, *args, **kwargs): # TODO: change it for a frontend
-		# user_ids = request.data.get('user_ids')
-		winners_order = ['daniel', 'olaf', 'jackob', 'semolina']
+		# winners_order = request.data.get('winners_order')
+		winners_order = ["player1", "player2", "player3", "player4"]
 
 		if winners_order is not None:
 			# user_ids = [int(id) for id in user_ids.split(',')]
@@ -291,14 +310,16 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 				return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
 
 			try:
-				tx_hash = add_tournament_data(request.data.get('tournament_id'), winners_order, settings.METAMASK_PRIVATE_KEY)
-
-				# Use the serializer to validate the data and create the new object
 				serializer = self.get_serializer(data=request.data)
 				serializer.is_valid(raise_exception=True)
 				self.perform_create(serializer)
 
 				tournament = serializer.instance
+
+				tournament_id = tournament.id + 60000 # TODO
+				
+				tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
+
 				tournament.blockchain_tx_hash = tx_hash
 				tournament.save()
 

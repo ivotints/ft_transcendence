@@ -122,6 +122,7 @@ def get_tournament_data(tournament_id):
 	return tournament_data
 
 def add_tournament_data(tournament_id, winners_order, private_key):
+	print("Calling add_tournament_data...")
 	tournament_id = int(tournament_id)
 	# user_ids = [int(uid) for uid in user_ids]
 	account = web3.eth.account.from_key(private_key)
@@ -144,6 +145,7 @@ def add_tournament_data(tournament_id, winners_order, private_key):
 	if receipt['status'] == 0:
 		raise Exception("Transaction failed")
 
+	print(f"Transaction hash: {web3.to_hex(tx_hash)}")
 	print(f"Tournament's {tournament_id} data stored on blockchain: {get_tournament_data(tournament_id)}")
 
 	return web3.to_hex(tx_hash)
