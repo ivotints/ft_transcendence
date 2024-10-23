@@ -188,3 +188,14 @@
     margin-right: 10px;
     font-size: 18px;
 }
+
+/* Change email warning */
+.success-message {
+    color: #21db72;
+    margin-top: 10px;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 10px;
+  }  
