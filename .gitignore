@@ -1,2 +1,6 @@
 docker/.env
 backend/pong/main_app/__pycache__/
+
+# Ignore Python bytecode
+__pycache__/
+*.pyc

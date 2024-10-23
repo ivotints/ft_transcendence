@@ -13,6 +13,7 @@ function Header() {
 
   const changeLanguage = (lang) => {
       Language = lang;
+      setDropdownOpen(false);
   };
 
   const translate = (word) => {
