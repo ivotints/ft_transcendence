@@ -6,6 +6,8 @@ from .models import UserProfile
 from .models import Friend
 from .models import Tournament
 
+from .web3 import get_tournament_data
+
 
 class UserSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
@@ -168,6 +170,8 @@ class FriendSerializer(serializers.ModelSerializer):
 
 
 class TournamentSerializer(serializers.ModelSerializer):
+	winners_order = serializers.SerializerMethodField()
+
 	class Meta:
 		model = Tournament
 		fields = [
@@ -179,3 +183,11 @@ class TournamentSerializer(serializers.ModelSerializer):
 			'blockchain_tx_hash',
 		]
 		read_only_fields = ['blockchain_tx_hash']
+
+	def get_winners_order(self, obj):
+		try:
+			blockchain_data = get_tournament_data(obj.id)
+			print("Blockchain data:", blockchain_data)
+			return blockchain_data
+		except Exception as e:
+			return {'error': str(e)}
