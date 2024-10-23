@@ -301,32 +301,29 @@ function Profile() {
               </ul>
             </div>
           );
-        case 'matchHistory':
-          return (
-            <div>
-              <h2 className="profileH2">Match History</h2>
-              <label htmlFor="match-type">Select Match Type: </label>
-              <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
-                <option value="1v1">1 vs 1</option>
-                <option value="tournament">Tournament</option>
-              </select>
-              {loading ? (
-                <p>Loading...</p>
-              ) : (
-                matchType === 'tournament' ? (
-                  <div>
+          case 'matchHistory':
+            return (
+              <div className="match-history">
+                <h2 className="profileH2">Match History</h2>
+                <label htmlFor="match-type">Select Match Type: </label>
+                <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
+                  <option value="1v1">1 vs 1</option>
+                  <option value="tournament">Tournament</option>
+                </select>
+                {loading ? (
+                  <p>Loading...</p>
+                ) : (
+                  matchType === 'tournament' ? (
                     <ul>
                       {matchHistory.map((tournament) => (
-                        <li key={tournament.tournament_id}>
+                        <li key={tournament.tournament_id} className="tournament">
                           <p><strong>Name:</strong> {tournament.name}</p>
                           <p><strong>Match Date:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
                           <p><strong>Winners Order:</strong> {Array.isArray(tournament.winners_order) ? tournament.winners_order.join(', ') : (tournament.winners_order && tournament.winners_order.error ? tournament.winners_order.error : 'N/A')}</p>
                         </li>
                       ))}
                     </ul>
-                  </div>
-                ) : (
-                  <div>
+                  ) : (
                     <ul>
                       {matchHistory.map((match) => (
                         <li key={match.id}>
@@ -338,11 +335,10 @@ function Profile() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )
-              )}
-            </div>
-          );
+                  )
+                )}
+              </div>
+            );
       case 'info':
       default:
         return (
