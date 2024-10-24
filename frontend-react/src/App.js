@@ -11,6 +11,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-route
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { refreshToken } from './utils/auth';
+import { LanguageProvider } from './components/LanguageContext';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,7 +41,7 @@ function App() {
 
   useEffect(() => {
     const intervalId = setInterval(checkLoginStatus, 600000); // Check every 10 minutes
-    return () => clearInterval(intervalId); // Clean up the interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleLoginSuccess = () => {
@@ -48,29 +49,31 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {isLoggedIn && <Header />}
-      <Routes>
-        <Route path="/" element={
-          !isLoggedIn ? (
-            <>
-              <h1>Welcome to Pong Transcendence</h1>
-              <AuthOptions onLoginSuccess={handleLoginSuccess} />
-            </>
-          ) : (
-            <>
-              <h1>Choose Your Game Option</h1>
-              <GameOptions />
-            </>
-          )
-        } />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/game" element={<Game />} />
-        <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
-        <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
-        <Route path="/tournament" element={<Tournament />} />
-      </Routes>
-    </div>
+    <LanguageProvider>
+      <div className="App">
+        {isLoggedIn && <Header />}
+        <Routes>
+          <Route path="/" element={
+            !isLoggedIn ? (
+              <>
+                <h1>Welcome to Pong Transcendence</h1>
+                <AuthOptions onLoginSuccess={handleLoginSuccess} />
+              </>
+            ) : (
+              <>
+                <h1>Choose Your Game Option</h1>
+                <GameOptions />
+              </>
+            )
+          } />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/game" element={<Game />} />
+          <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
+          <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
+          <Route path="/tournament" element={<Tournament />} />
+        </Routes>
+      </div>
+    </LanguageProvider>
   );
 }
 
