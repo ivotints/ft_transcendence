@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Profile.css';
-import { translate, setLanguage } from './Translations';
+import { useTranslate } from './useTranslate';
 
 function Profile() {
   const [activeSection, setActiveSection] = useState('info');
@@ -22,6 +22,8 @@ function Profile() {
   const [messagePassType, setMessagePassType] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const { translate } = useTranslate();  // Get translate function from the hook
+
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
