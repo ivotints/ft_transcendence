@@ -14,6 +14,7 @@ from django.views.generic import TemplateView, FormView
 from django.core.exceptions import ValidationError
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 import logging
 import os
@@ -480,3 +481,7 @@ class ProtectedMediaView(APIView):
             return FileResponse(open(file_path, 'rb'))
         else:
             raise Http404
+		
+@login_required
+def check_login_status(request):
+    return JsonResponse({'detail': 'User is authenticated'}, status=200)
