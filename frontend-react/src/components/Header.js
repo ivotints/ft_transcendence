@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
-import { useTranslate } from './useTranslate';
-import { useLanguage } from './LanguageContext';  // Import useLanguage
+import { useTranslate } from './Translate/useTranslate';
+import { useLanguage } from './Translate/LanguageContext';  // Import useLanguage
 
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { translate } = useTranslate();  // Get translate function from the hook
-  const { changeLanguage } = useLanguage();  // Use context to change language
+  const { translate } = useTranslate();  // Get the translation function
+  const { changeLanguage } = useLanguage();  // Get the changeLanguage function from context
 
   const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+    setDropdownOpen(!dropdownOpen);  // Toggle dropdown state
+  };
+
+  const handleLanguageChange = (lang) => {
+    changeLanguage(lang);  // Change the language
+    setDropdownOpen(false);  // Close the dropdown
   };
 
   return (
@@ -28,9 +33,9 @@ function Header() {
           </button>
           {dropdownOpen && (
             <ul className="dropdown-menu">
-              <li><button onClick={() => changeLanguage('en')}>EN</button></li>
-              <li><button onClick={() => changeLanguage('ru')}>RU</button></li>
-              <li><button onClick={() => changeLanguage('cz')}>CZ</button></li>
+              <li><button onClick={() => handleLanguageChange('en')}>EN</button></li>
+              <li><button onClick={() => handleLanguageChange('ru')}>RU</button></li>
+              <li><button onClick={() => handleLanguageChange('cz')}>CZ</button></li>
             </ul>
           )}
         </div>

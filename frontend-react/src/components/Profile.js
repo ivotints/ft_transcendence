@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Profile.css';
-import { useTranslate } from './useTranslate';
+import { useTranslate } from './Translate/useTranslate';
 
 function Profile() {
   const [activeSection, setActiveSection] = useState('info');
@@ -205,19 +205,19 @@ function Profile() {
       case 'changeEmail':
         return (
           <div>
-            <h2 className="profileH2">Change Email</h2>
+            <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
-              <label>New Email: </label>
+              <label>{translate('New Email')}: </label>
               <input
                 type="email"
                 name="newEmail"
                 autoComplete="off"
-                placeholder="New Email"
+                placeholder={translate('New Email')}
                 value={newEmail} // Controlled input
                 onChange={(e) => setNewEmail(e.target.value)} // Update state on input change
               />
               <br />
-              <button className="confirm-btn" type="submit">Confirm</button>
+              <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
             {message && (
               <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
@@ -229,19 +229,19 @@ function Profile() {
       case 'changePassword':
         return (
           <div>
-            <h2 className="profileH2">Change Password</h2>
+            <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
-              <label>New Password: </label>
+              <label>{translate('New Password')}: </label>
               <input
                 type="password"
                 name="newPassword"
                 autoComplete="new-password"
-                placeholder="New Password"
+                placeholder={translate('New Password')}
                 value={newPassword} // Controlled input
                 onChange={(e) => setNewPassword(e.target.value)} // Update state on input change
               />
               <br />
-              <button className="confirm-btn" type="submit">Confirm</button>
+              <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
             {messagePass && (
               <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
@@ -253,17 +253,17 @@ function Profile() {
       case 'addFriend':
         return (
           <div>
-            <h2 className="profileH2">Add Friend</h2>
+            <h2 className="profileH2">{translate('Add Friend')}</h2>
             <form onSubmit={handleAddFriend}>
-              <label>Friend's Name: </label>
+              <label>{translate("Friend's Name")}: </label>
               <input
                 type="text"
                 value={friendUsername}
                 onChange={(e) => setFriendUsername(e.target.value)}
-                placeholder="Friend's Name"
+                placeholder={translate("Friend's Name")}
               />
               <br />
-              <button className="confirm-btn" type="submit">Confirm</button>
+              <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
           </div>
         );
@@ -271,7 +271,7 @@ function Profile() {
           console.log('Accepted friends state:', acceptedFriends);
           return (
             <div>
-              <h2 className="profileH2">Friend List</h2>
+              <h2 className="profileH2">{translate('Friend List')}</h2>
               <ul className="friend-list">
                 {acceptedFriends.map((friend) => {
                   const username = friend.user_detail?.username === userInfo.username
@@ -290,14 +290,14 @@ function Profile() {
         case 'pendingRequests':
           return (
             <div>
-              <h2 className="profileH2">Pending Friend Requests</h2>
+              <h2 className="profileH2">{translate('Pending Friend Requests')}</h2>
               <ul className="pending-requests-list">
                 {pendingRequests.map((request) => (
                   <li key={request.id} className="pending-request-item">
                     <span className="pending-request-username">{request.user_detail.username}</span>
                     <div className="pending-request-buttons">
-                      <button className="accept-btn" onClick={() => handleAcceptRequest(request.id)}>Accept</button>
-                      <button className="reject-btn" onClick={() => handleRejectRequest(request.id)}>Reject</button>
+                      <button className="accept-btn" onClick={() => handleAcceptRequest(request.id)}>{translate('Accept')}</button>
+                      <button className="reject-btn" onClick={() => handleRejectRequest(request.id)}>{translate('Reject')}</button>
                     </div>
                   </li>
                 ))}
@@ -307,22 +307,22 @@ function Profile() {
           case 'matchHistory':
             return (
               <div className="match-history">
-                <h2 className="profileH2">Match History</h2>
-                <label htmlFor="match-type">Select Match Type: </label>
+                <h2 className="profileH2">{translate('Match History')}</h2>
+                <label htmlFor="match-type">{translate('Select Match Type')}: </label>
                 <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
-                  <option value="1v1">1 vs 1</option>
-                  <option value="tournament">Tournament</option>
+                  <option value="1v1">{translate('1 vs 1')}</option>
+                  <option value="tournament">{translate('Tournament')}</option>
                 </select>
                 {loading ? (
-                  <p>Loading...</p>
+                  <p>{translate('Loading')}...</p>
                 ) : (
                   matchType === 'tournament' ? (
                     <ul>
                       {matchHistory.map((tournament) => (
                         <li key={tournament.tournament_id} className="tournament">
-                          <p><strong>Name:</strong> {tournament.name}</p>
-                          <p><strong>Match Date:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
-                          <p><strong>Winners Order:</strong> {Array.isArray(tournament.winners_order) ? tournament.winners_order.join(', ') : (tournament.winners_order && tournament.winners_order.error ? tournament.winners_order.error : 'N/A')}</p>
+                          <p><strong>{translate('Name')}:</strong> {tournament.name}</p>
+                          <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
+                          <p><strong>{translate('Winners Order')}:</strong> {Array.isArray(tournament.winners_order) ? tournament.winners_order.join(', ') : (tournament.winners_order && tournament.winners_order.error ? tournament.winners_order.error : 'N/A')}</p>
                         </li>
                       ))}
                     </ul>
@@ -330,11 +330,11 @@ function Profile() {
                     <ul>
                       {matchHistory.map((match) => (
                         <li key={match.id}>
-                          <p><strong>Player1:</strong> {match.player1_username}</p>
-                          <p><strong>Player2:</strong> {match.player2}</p>
-                          <p><strong>Winner:</strong> {match.winner}</p>
-                          <p><strong>Match date:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                          <p><strong>Match score:</strong> {match.match_score}</p>
+                          <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                          <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                          <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                          <p><strong>{translate('Match date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                          <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
                         </li>
                       ))}
                     </ul>
@@ -347,8 +347,8 @@ function Profile() {
         return (
           <div className="user-info">
             <h2 className="profileH2">{translate('User Info')}</h2>
-            <p>Username: {userInfo.username}</p>
-            <p>Email: {userInfo.email}</p>
+            <p>{translate('Username')}: {userInfo.username}</p>
+            <p>{translate('Email')}: {userInfo.email}</p>
           </div>
         );
     }
@@ -381,7 +381,7 @@ function Profile() {
             onChange={handleAvatarChange}
             className="avatar-upload"
           />
-          <p className="change-avatar-text">Change Avatar</p>
+          <p className="change-avatar-text">{translate('Change Avatar')}</p>
         </label>
       </div>
 

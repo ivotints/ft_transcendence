@@ -10,7 +10,7 @@ import Tournament from './components/Tournament';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { LanguageProvider } from './components/LanguageContext';  // Import LanguageProvider
+import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
