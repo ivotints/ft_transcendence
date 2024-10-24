@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
-import { translate } from './Translations';
+import { useTranslate } from './useTranslate';
 import { useLanguage } from './LanguageContext';  // Import useLanguage
 
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { translate } = useTranslate();  // Get translate function from the hook
   const { changeLanguage } = useLanguage();  // Use context to change language
 
   const toggleDropdown = () => {
