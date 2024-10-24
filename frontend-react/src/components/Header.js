@@ -1,50 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
-
-var Language = "en";
+import { translate } from './Translations';
+import { useLanguage } from './LanguageContext';  // Import useLanguage
 
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { changeLanguage } = useLanguage();  // Use context to change language
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
-
-  const changeLanguage = (lang) => {
-      Language = lang;
-      setDropdownOpen(false);
-  };
-
-  const translate = (word) => {
-    if (Language == 'ru')
-    {
-      if (word == 'Home')
-        return ("Дом");
-      if (word == "Profile")
-        return ("Профиль");
-      if (word == "Game")
-        return ("Игра");
-      if (word == "Tournament")
-        return ("Турнир");
-      if (word == "Language")
-        return ("Язык");
-    };
-    if (Language == 'cz')
-      {
-        if (word == 'Home')
-          return ("Dům");
-        if (word == "Profile")
-          return ("Profil");
-        if (word == "Game")
-          return ("Hra");
-        if (word == "Tournament")
-          return ("Turnaj");
-        if (word == "Language")
-          return ("Jazyk");
-      };
-    return (word);
-};
 
   return (
     <header className="header">
@@ -57,7 +23,7 @@ function Header() {
         </ul>
         <div className="language-dropdown">
           <button className="dropdown-button" onClick={toggleDropdown}>
-          <b>{translate('Language')}</b>
+            <b>{translate('Language')}</b>
           </button>
           {dropdownOpen && (
             <ul className="dropdown-menu">
@@ -73,4 +39,3 @@ function Header() {
 }
 
 export default Header;
-

@@ -10,6 +10,7 @@ import Tournament from './components/Tournament';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { LanguageProvider } from './components/LanguageContext';  // Import LanguageProvider
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,29 +42,31 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {isLoggedIn && <Header />}
-      <Routes>
-        <Route path="/" element={
-          !isLoggedIn ? (
-            <>
-              <h1>Welcome to Pong Transcendence</h1>
-              <AuthOptions onLoginSuccess={handleLoginSuccess} />
-            </>
-          ) : (
-            <>
-              <h1>Choose Your Game Option</h1>
-              <GameOptions />
-            </>
-          )
-        } />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/game" element={<Game />} />
-        <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
-        <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
-        <Route path="/tournament" element={<Tournament />} />
-      </Routes>
-    </div>
+    <LanguageProvider>
+      <div className="App">
+        {isLoggedIn && <Header />}
+        <Routes>
+          <Route path="/" element={
+            !isLoggedIn ? (
+              <>
+                <h1>Welcome to Pong Transcendence</h1>
+                <AuthOptions onLoginSuccess={handleLoginSuccess} />
+              </>
+            ) : (
+              <>
+                <h1>Choose Your Game Option</h1>
+                <GameOptions />
+              </>
+            )
+          } />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/game" element={<Game />} />
+          <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
+          <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
+          <Route path="/tournament" element={<Tournament />} />
+        </Routes>
+      </div>
+    </LanguageProvider>
   );
 }
 
