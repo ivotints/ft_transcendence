@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
-from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView
+from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView, check_login_status
 
 # def home(request):
 # 	return HttpResponse("Home Page")
@@ -27,5 +27,6 @@ urlpatterns = [
 	path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
 	path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_resresh"),
 	path("token/verify/", CustomTokenVerifyView.as_view(), name="token_verify"),
+    path('check-login/', check_login_status, name='check_login_status'),
 	path("", include("main_app.urls")),
 ]

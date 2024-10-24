@@ -11,6 +11,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-route
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
+import { refreshToken } from './utils/auth';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -33,8 +34,14 @@ function App() {
   };
 
   useEffect(() => {
+    // Refresh the token every 9 minutes
+    const interval = setInterval(refreshToken, 9 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     const intervalId = setInterval(checkLoginStatus, 600000); // Check every 10 minutes
-    return () => clearInterval(intervalId); // Clean up the interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleLoginSuccess = () => {

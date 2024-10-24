@@ -38,13 +38,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 		if 'password' in data:
 			password = data.get('password')
-			if password:
-				if len(password) < 8:
-					raise serializers.ValidationError({"password": "Password must be at least 8 characters long"})
-				if not any(char.isdigit() for char in password):
-					raise serializers.ValidationError({"password": "Password must contain at least one digit"})
-				if not any(char.isalpha() for char in password):
-					raise serializers.ValidationError({"password": "Password must contain at least one letter"})
+			if len(password) < 8:
+				raise serializers.ValidationError({"password": "Password must be at least 8 characters long"})
+			if not any(char.isdigit() for char in password):
+				raise serializers.ValidationError({"password": "Password must contain at least one digit"})
+			if not any(char.isalpha() for char in password):
+				raise serializers.ValidationError({"password": "Password must contain at least one letter"})
 
 		return data
 
