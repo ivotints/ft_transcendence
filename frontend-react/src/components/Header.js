@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
-
-var Language = "en";
+import { translate, setLanguage } from './Translations';
 
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -12,39 +11,9 @@ function Header() {
   };
 
   const changeLanguage = (lang) => {
-      Language = lang;
+      setLanguage(lang);
       setDropdownOpen(false);
   };
-
-  const translate = (word) => {
-    if (Language == 'ru')
-    {
-      if (word == 'Home')
-        return ("Дом");
-      if (word == "Profile")
-        return ("Профиль");
-      if (word == "Game")
-        return ("Игра");
-      if (word == "Tournament")
-        return ("Турнир");
-      if (word == "Language")
-        return ("Язык");
-    };
-    if (Language == 'cz')
-      {
-        if (word == 'Home')
-          return ("Dům");
-        if (word == "Profile")
-          return ("Profil");
-        if (word == "Game")
-          return ("Hra");
-        if (word == "Tournament")
-          return ("Turnaj");
-        if (word == "Language")
-          return ("Jazyk");
-      };
-    return (word);
-};
 
   return (
     <header className="header">

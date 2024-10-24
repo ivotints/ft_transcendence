@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Profile.css';
+import { translate, setLanguage } from './Translations';
 
 function Profile() {
   const [activeSection, setActiveSection] = useState('info');
@@ -121,10 +122,10 @@ function Profile() {
 
   const handleEmailChange = async (e) => {
     e.preventDefault();
-  
+
     try {
       await axios.patch('https://localhost:8000/profiles/me/', { user: { email: newEmail } }, { withCredentials: true });
-      
+
       // Update userInfo state with new email and set success message
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
       setMessage('Email updated successfully.');
@@ -132,38 +133,38 @@ function Profile() {
       setNewEmail(''); // Clear the input field after submission
     } catch (error) {
       console.error('Error updating email:', error);
-      
+
       // Set error message on failure
       setMessage('Failed to update email. Please try again.');
       setMessageType('error');
     }
-  };  
+  };
 
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-  
+
     try {
       await axios.patch('https://localhost:8000/profiles/me/', { user: { password: newPassword } }, { withCredentials: true });
-      
+
       // Set success message
       setMessagePass('Password updated successfully.');
       setMessagePassType('success');
       setNewPassword(''); // Clear the input field after submission
     } catch (error) {
       console.error('Error updating password:', error);
-      
+
       // Set error message on failure
       setMessagePass('Failed to update password. Please try again.');
       setMessagePassType('error');
     }
-  };  
+  };
 
   const handleAcceptRequest = async (requestId) => {
     try {
       const response = await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
       const acceptedFriend = response.data;
-  
+
       setPendingRequests((prev) => prev.filter((request) => request.id !== requestId));
       setAcceptedFriends((prev) => [...prev, acceptedFriend]);
     } catch (error) {
@@ -343,7 +344,7 @@ function Profile() {
       default:
         return (
           <div className="user-info">
-            <h2 className="profileH2">User Info</h2>
+            <h2 className="profileH2">{translate('User Info')}</h2>
             <p>Username: {userInfo.username}</p>
             <p>Email: {userInfo.email}</p>
           </div>
@@ -355,20 +356,20 @@ function Profile() {
     <div className="user-container">
       <div className="sidebar">
         <ul>
-          <li onClick={() => setActiveSection('info')}>User Info</li>
-          <li onClick={() => setActiveSection('changeEmail')}>Change Email</li>
-          <li onClick={() => setActiveSection('changePassword')}>Change Password</li>
-          <li onClick={() => setActiveSection('addFriend')}>Add Friend</li>
-          <li onClick={() => setActiveSection('friendList')}>Friend List</li>
-          <li onClick={() => setActiveSection('pendingRequests')}>Pending Friend Requests</li>
-          <li onClick={() => setActiveSection('matchHistory')}>Match History</li>
+          <li onClick={() => setActiveSection('info')}>{translate('User Info')}</li>
+          <li onClick={() => setActiveSection('changeEmail')}>{translate('Change Email')}</li>
+          <li onClick={() => setActiveSection('changePassword')}>{translate('Change Password')}</li>
+          <li onClick={() => setActiveSection('addFriend')}>{translate('Add Friend')}</li>
+          <li onClick={() => setActiveSection('friendList')}>{translate('Friend List')}</li>
+          <li onClick={() => setActiveSection('pendingRequests')}>{translate('Pending Friend Requests')}</li>
+          <li onClick={() => setActiveSection('matchHistory')}>{translate('Match History')}</li>
         </ul>
       </div>
-      
+
       <div className="avatar-container">
-        <img 
-          src={avatar || 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg?t=st=1728555835~exp=1728559435~hmac=d755d92883b6e90517bb85a9f4873282fbf000290f17eeddd79afdcddaee9ac7&w=826'} 
-          alt="Avatar" 
+        <img
+          src={avatar || 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg?t=st=1728555835~exp=1728559435~hmac=d755d92883b6e90517bb85a9f4873282fbf000290f17eeddd79afdcddaee9ac7&w=826'}
+          alt="Avatar"
           className="avatar"
         />
         <label className="change-avatar-label">
