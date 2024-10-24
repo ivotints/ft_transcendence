@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from rest_framework import status, permissions, authentication, generics
+from rest_framework import status, permissions, authentication, generics, serializers
 from rest_framework.views import APIView
 
 from django import forms
@@ -15,6 +15,9 @@ from django.core.exceptions import ValidationError
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
+from datetime import datetime
 
 import logging
 import os
@@ -33,6 +36,7 @@ from .serializers import UserProfileSerializer
 from .serializers import FriendSerializer
 from .serializers import MatchHistorySerializer
 from .serializers import TournamentSerializer
+from .serializers import CustomTokenRefreshSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -409,11 +413,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			response.set_cookie(
 				'access_token',
 				access_token,
-				expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
 				httponly=True,
 				samesite='None',
 				secure=True,
-				domain='localhost',
 			)
 		if refresh_token:
 			response.set_cookie(
@@ -421,39 +424,44 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				refresh_token,
 				httponly=True,
 				samesite='None',
-				expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+        		expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
 				secure=True,
-				domain='localhost',
 			)
 
 		response.data = {'detail': 'Success'}
 		return response
+
 
 
 class CustomTokenRefreshView(TokenRefreshView):
-	def post(self, request, *args, **kwargs):
-		refresh_token = request.COOKIES.get('refresh_token')
-		# logger.debug(f"Refresh Token from Cookie: {refresh_token}")
-		if not refresh_token:
-			return JsonResponse({'detail': 'Refresh token not found'}, status=400)
-		
-		request_data = request.data.copy()
-		request_data['refresh'] = refresh_token
+    serializer_class = CustomTokenRefreshSerializer
 
-		response = super().post(request, data=request_data, *args, **kwargs)
-		access_token = response.data.get('access')
-		# logger.debug(f"New Access Token: {access_token}")
-		if access_token:
-			response.set_cookie(
-				'access_token',
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh_token')
+        if not refresh_token:
+            return Response({'detail': 'Refresh token not found'}, status=400)
+
+        serializer = self.get_serializer(data={'refresh': refresh_token})
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError as e:
+            return Response({'detail': 'Invalid token'}, status=400)
+
+        access_token = serializer.validated_data.get('access')
+
+        response = Response({'detail': 'Success'})
+        if access_token:
+            response.set_cookie(
+                'access_token',
 				access_token,
-				httponly=True,
-				samesite='None',
-				secure=True,
-				domain='localhost',
-			)
-		response.data = {'detail': 'Success'}
-		return response
+                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                httponly=True,
+                samesite='None',
+                secure=True,
+            )
+
+        return response
 	
 
 class CustomTokenVerifyView(TokenVerifyView):
@@ -482,6 +490,12 @@ class ProtectedMediaView(APIView):
         else:
             raise Http404
 		
-@login_required
+@api_view(['GET'])
+@authentication_classes([
+    authentication.SessionAuthentication,
+    CustomJWTAuthentication,
+    authentication.TokenAuthentication,
+])
+@permission_classes([IsAuthenticated])
 def check_login_status(request):
     return JsonResponse({'detail': 'User is authenticated'}, status=200)
