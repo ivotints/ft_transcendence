@@ -1,7 +1,9 @@
-let Language = 'en';  // Default language
+import { useLanguage } from './LanguageContext';  // Import context
 
 export function translate(word) {
-  if (Language === 'ru') {
+  const { language } = useLanguage();  // Get language from context
+
+  if (language === 'ru') {
     switch (word) {
       case 'Home':
         return 'Дом';
@@ -30,7 +32,7 @@ export function translate(word) {
       default:
         return word;
     }
-  } else if (Language === 'cz') {
+  } else if (language === 'cz') {
     switch (word) {
       case 'Home':
         return 'Dům';
@@ -61,8 +63,4 @@ export function translate(word) {
     }
   }
   return word;
-}
-
-export function setLanguage(lang) {
-  Language = lang;  // Update the current language
 }

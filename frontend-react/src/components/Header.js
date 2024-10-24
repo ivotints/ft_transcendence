@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
-import { translate, setLanguage } from './Translations';
+import { translate } from './Translations';
+import { useLanguage } from './LanguageContext';  // Import useLanguage
 
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { changeLanguage } = useLanguage();  // Use context to change language
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
-  };
-
-  const changeLanguage = (lang) => {
-      setLanguage(lang);
-      setDropdownOpen(false);
   };
 
   return (
@@ -26,7 +23,7 @@ function Header() {
         </ul>
         <div className="language-dropdown">
           <button className="dropdown-button" onClick={toggleDropdown}>
-          <b>{translate('Language')}</b>
+            <b>{translate('Language')}</b>
           </button>
           {dropdownOpen && (
             <ul className="dropdown-menu">
@@ -42,4 +39,3 @@ function Header() {
 }
 
 export default Header;
-
