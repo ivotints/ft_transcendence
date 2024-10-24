@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import datetime
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
     "https://localhost",
 	"https://127.0.0.1",
+	"http://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -53,6 +54,11 @@ CORS_ALLOW_METHODS = [
     'PATCH',
     'POST',
     'PUT',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+	"http://localhost",
 ]
 
 # Application definition
@@ -168,8 +174,8 @@ METAMASK_PRIVATE_KEY = os.environ.get('METAMASK_PRIVATE_KEY')
 
 
 SIMPLE_JWT = {
-	"ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=10),
-	"REFRESH_TOKEN_LIFETIME": datetime.timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=3),
 	"AUTH_COOKIE": "access_token",  # Cookie name. Enables cookies if value is set.
     "AUTH_COOKIE_DOMAIN": None,     # A string like "example.com", or None for standard domain cookie.
     "AUTH_COOKIE_SECURE": True,    # Whether the auth cookies should be secure (https:// only).
@@ -177,6 +183,10 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_PATH": "/",        # The path of the auth cookie.
     # "AUTH_COOKIE_SAMESITE": "Lax",  # Whether to set the flag restricting cookie leaks on cross-site requests.
                                     # This can be 'Lax', 'Strict', or None to disable the flag.
+}
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'main_app.exceptions.custom_exception_handler',
 }
 
 LOGGING = {

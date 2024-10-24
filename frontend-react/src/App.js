@@ -35,14 +35,14 @@ function App() {
 
   useEffect(() => {
     // Refresh the token every 9 minutes
-    const interval = setInterval(refreshToken, 9 * 60 * 1000);
+    const interval = setInterval(refreshToken, 1 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(checkLoginStatus, 600000); // Check every 10 minutes
+    const intervalId = setInterval(checkLoginStatus, 10000); // Check every 10 minutes
     return () => clearInterval(intervalId);
-  }, []);
+  }, [checkLoginStatus]);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
