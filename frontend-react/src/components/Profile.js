@@ -130,14 +130,14 @@ function Profile() {
 
       // Update userInfo state with new email and set success message
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
-      setMessage('Email updated successfully.');
+      setMessage(translate('Email') + translate('updated successfully.'));
       setMessageType('success');
       setNewEmail(''); // Clear the input field after submission
     } catch (error) {
       console.error('Error updating email:', error);
 
       // Set error message on failure
-      setMessage('Failed to update email. Please try again.');
+      setMessage(translate('Failed to update email. Please try again.'));
       setMessageType('error');
     }
   };
@@ -150,14 +150,14 @@ function Profile() {
       await axios.patch('https://localhost:8000/profiles/me/', { user: { password: newPassword } }, { withCredentials: true });
 
       // Set success message
-      setMessagePass('Password updated successfully.');
+      setMessagePass(translate('Password') + translate('updated successfully.'));
       setMessagePassType('success');
       setNewPassword(''); // Clear the input field after submission
     } catch (error) {
       console.error('Error updating password:', error);
 
       // Set error message on failure
-      setMessagePass('Failed to update password. Please try again.');
+      setMessagePass(translate('Failed to update password. Please try again.'));
       setMessagePassType('error');
     }
   };

@@ -11,11 +11,14 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-route
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
+import { useTranslate } from './components/Translate/useTranslate';
 import { refreshToken } from './utils/auth';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const { translate } = useTranslate();  // Get the translation function
 
   const checkLoginStatus = async () => {
     try {
@@ -49,19 +52,18 @@ function App() {
   };
 
   return (
-    <LanguageProvider>
       <div className="App">
         {isLoggedIn && <Header />}
         <Routes>
           <Route path="/" element={
             !isLoggedIn ? (
               <>
-                <h1>Welcome to Pong Transcendence</h1>
+                <h1>{translate('Welcome to Pong Transcendence')}</h1>
                 <AuthOptions onLoginSuccess={handleLoginSuccess} />
               </>
             ) : (
               <>
-                <h1>Choose Your Game Option</h1>
+                <h1>{translate('Choose Your Game Option')}</h1>
                 <GameOptions />
               </>
             )
@@ -73,14 +75,15 @@ function App() {
           <Route path="/tournament" element={<Tournament />} />
         </Routes>
       </div>
-    </LanguageProvider>
   );
 }
 
 const AppWrapper = () => (
-  <Router>
-    <App />
-  </Router>
+  <LanguageProvider>
+    <Router>
+      <App />
+    </Router>
+  </LanguageProvider>
 );
 
 export default AppWrapper;

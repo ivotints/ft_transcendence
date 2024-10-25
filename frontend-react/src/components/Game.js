@@ -1,9 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Game.css';
+import { useTranslate } from './Translate/useTranslate';
 
 function Game() {
   const navigate = useNavigate();
+  const { translate } = useTranslate();  // Get the translation function
+
 
   const handlePvPClick = () => {
     navigate('/game/player-vs-player');
@@ -15,10 +18,10 @@ function Game() {
 
   return (
     <div className="game-container">
-      <h1 className="profileH2">Select Match Type</h1>
+      <h1 className="profileH2">{translate('Select Match Type')}</h1>
       <div className="button-group">
-        <button className="submit-button" onClick={handlePvPClick}>Player vs Player</button>
-        <button className="submit-button" onClick={handlePvAIClick}>Player vs AI</button>
+        <button className="submit-button" onClick={handlePvPClick}>{translate('Player vs Player')}</button>
+        <button className="submit-button" onClick={handlePvAIClick}>{translate('Player vs AI')}</button>
       </div>
     </div>
   );

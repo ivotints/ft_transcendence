@@ -5,6 +5,7 @@ import MatchDisplay from './MatchDisplay';
 import NextMatch from './NextMatch';
 import ScoreTracker from './ScoreTracker';
 import MatchQueue from './MatchQueue'; // Importing the MatchQueue component
+import { useTranslate } from './Translate/useTranslate';
 
 function Tournament() {
   const [players, setPlayers] = useState([]);
@@ -13,6 +14,7 @@ function Tournament() {
   const [matchQueue, setMatchQueue] = useState([]);
   const [scores, setScores] = useState({});
   const [error, setError] = useState('');
+  const { translate } = useTranslate();
 
   const addPlayer = (alias) => {
     setPlayers([...players, alias]);
@@ -30,7 +32,7 @@ function Tournament() {
       setCurrentMatch(generatedQueue[0]);
       setError('');
     } else {
-      setError('At least two players are required to start the tournament.');
+      setError(translate('At least two players are required to start the tournament.'));
     }
   };
 
@@ -47,7 +49,7 @@ function Tournament() {
   const handleNextMatch = () => {
     const nextQueue = matchQueue.slice(1);
     setMatchQueue(nextQueue);
-    setCurrentMatch(nextQueue[0] || 'No more matches scheduled.');
+    setCurrentMatch(nextQueue[0] || translate('No more matches scheduled.'));
   };
 
   const updateScore = (winner) => {
@@ -59,12 +61,12 @@ function Tournament() {
 
   return (
     <div className="tournament-container">
-      <h1 className="profileH2">Tournament</h1>
+      <h1 className="profileH2">{translate("Tournament")}</h1>
       {!isTournamentStarted ? (
         <>
           <PlayerRegistration addPlayer={addPlayer} players={players} />
           <button className="start-button" onClick={startTournament}>
-            Start Tournament
+            {translate("Start Tournament")}
           </button>
           {error && <p className="error-message">{error}</p>}
         </>
@@ -81,7 +83,7 @@ function Tournament() {
         </div>
       )}
     </div>
-  );  
+  );
 }
 
 export default Tournament;
