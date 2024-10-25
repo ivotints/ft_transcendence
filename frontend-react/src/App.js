@@ -13,10 +13,12 @@ import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 import { useTranslate } from './components/Translate/useTranslate';
 import { refreshToken } from './utils/auth';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { translate } = useTranslate();  // Get the translation function
 
@@ -25,31 +27,44 @@ function App() {
       const response = await axios.get('https://localhost:8000/check-login/', {
         withCredentials: true,
       });
-
-      if (response.status !== 200) {
+  
+      if (response.status === 200) {
+        setIsLoggedIn(true);
+      } else {
         setIsLoggedIn(false);
-        navigate('/'); // Redirect to the base window with login options
       }
     } catch (error) {
       setIsLoggedIn(false);
-      navigate('/'); // Redirect to the base window with login options
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    // Refresh the token every 9 minutes
-    const interval = setInterval(refreshToken, 1 * 60 * 1000);
+    checkLoginStatus(); // Check login status on component mount
+    const intervalId = setInterval(checkLoginStatus, 1 * 60 * 1000); // Check every 1 minute minus 100 ms
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array
+
+  useEffect(() => {
+    refreshToken();
+    const interval = setInterval(refreshToken, 1 * 60 * 1000 - 100); // Refresh token every 1 minute
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(checkLoginStatus, 10000); // Check every 10 minutes
-    return () => clearInterval(intervalId);
-  }, [checkLoginStatus]);
+    if (!isLoading && !isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, isLoading, navigate]);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Show loading indicator while checking login status
+  }
 
   return (
       <div className="App">
@@ -68,11 +83,13 @@ function App() {
               </>
             )
           } />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
-          <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
-          <Route path="/tournament" element={<Tournament />} />
+          <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/game" element={<Game />} />
+            <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
+            <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
+            <Route path="/tournament" element={<Tournament />} />
+          </Route>
         </Routes>
       </div>
   );
