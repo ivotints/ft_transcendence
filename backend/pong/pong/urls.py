@@ -25,7 +25,7 @@ from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, Cu
 urlpatterns = [
     path("admin/", admin.site.urls),
 	path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
-	path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_resresh"),
+	path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
 	path("token/verify/", CustomTokenVerifyView.as_view(), name="token_verify"),
     path('check-login/', check_login_status, name='check_login_status'),
 	path("", include("main_app.urls")),

@@ -1,10 +1,12 @@
 import React from 'react';
 import './MatchQueue.css';
+import { useTranslate } from './Translate/useTranslate';
 
 function MatchQueue({ matchQueue }) {
+  const { translate } = useTranslate();
   return (
     <div className="match-queue">
-      <h2>Upcoming Matches</h2>
+      <h2>{translate("Upcoming Matches")}</h2>
       {matchQueue.length > 0 ? (
         <ul>
           {matchQueue.map((match, index) => (
@@ -12,7 +14,7 @@ function MatchQueue({ matchQueue }) {
           ))}
         </ul>
       ) : (
-        <p>No more matches scheduled.</p>
+        <p>{translate("No more matches scheduled.")}</p>
       )}
     </div>
   );

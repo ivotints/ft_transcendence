@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -238,3 +239,15 @@ class TournamentSerializer(serializers.ModelSerializer):
 			tournament.save()
 
 		return tournament
+	
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
+	def validate(self, attrs):
+		request = self.context.get('request')
+		refresh_token = request.COOKIES.get('refresh_token')
+
+		if not refresh_token:
+			raise serializers.ValidationError({'detail': 'Refresh token not found in cookies'})
+
+		attrs['refresh'] = refresh_token
+		return super().validate(attrs)
