@@ -24,6 +24,11 @@ function Profile() {
   const [newPassword, setNewPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
 
+  const [errorKey, setErrorKey] = useState(''); // State to store error key
+  const translatedErrorMessage = errorKey ? translate(errorKey) : ''; // Derived variable for translation
+
+  const [errorKeyMail, setErrorKeyMail] = useState(''); // State to store error key
+  const translatedErrorMessageMail = errorKeyMail ? translate(errorKeyMail) : ''; // Derived variable for translation
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -133,11 +138,12 @@ function Profile() {
       setMessage(translate('Email') + translate('updated successfully.'));
       setMessageType('success');
       setNewEmail(''); // Clear the input field after submission
+      setErrorKeyMail('');
     } catch (error) {
       console.error('Error updating email:', error);
 
       // Set error message on failure
-      setMessage(translate('Failed to update email. Please try again.'));
+      setErrorKeyMail('Failed to update email. Please try again.');
       setMessageType('error');
     }
   };
@@ -153,11 +159,12 @@ function Profile() {
       setMessagePass(translate('Password') + translate('updated successfully.'));
       setMessagePassType('success');
       setNewPassword(''); // Clear the input field after submission
+      setErrorKey(''); // Clear error key on success
     } catch (error) {
       console.error('Error updating password:', error);
 
-      // Set error message on failure
-      setMessagePass(translate('Failed to update password. Please try again.'));
+      // Set error key instead of hard-coded message
+      setErrorKey('Failed to update password. Please try again.');
       setMessagePassType('error');
     }
   };
@@ -219,9 +226,9 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
-            {message && (
-              <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
-                {message}
+            {translatedErrorMessageMail && (
+  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+    {translatedErrorMessageMail}
               </p>
             )}
           </div>
@@ -243,11 +250,11 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
-            {messagePass && (
-              <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
-                {messagePass}
-              </p>
-            )}
+           {translatedErrorMessage && (
+  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+    {translatedErrorMessage}
+  </p>
+)}
           </div>
         );
       case 'addFriend':
