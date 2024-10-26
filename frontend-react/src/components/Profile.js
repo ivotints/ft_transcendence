@@ -30,6 +30,9 @@ function Profile() {
   const [errorKeyMail, setErrorKeyMail] = useState(''); // State to store error key
   const translatedErrorMessageMail = errorKeyMail ? translate(errorKeyMail) : ''; // Derived variable for translation
 
+  const [errorKeyFriend, setErrorKeyFriend] = useState(''); // State to store error key
+  const translatedErrorMessageFriend = errorKeyFriend ? translate(errorKeyFriend) : ''; // Derived variable for translation
+
   useEffect(() => {
     console.log('Component mounted, fetching data...');
     // Fetch user profile data
@@ -169,6 +172,20 @@ function Profile() {
     }
   };
 
+  const handleAddFriend = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
+      setFriendUsername(''); // Clear the input field after successful request
+      // Optionally, you can refetch pending requests or show a success message
+      console.log('Friend request sent:', response.data);
+      setErrorKeyFriend('');
+    } catch (error) {
+      setErrorKeyFriend('Failed to update friend. Please try again.');
+      console.error('Error sending friend request:', error.response.data);
+    }
+  };
+
   const handleAcceptRequest = async (requestId) => {
     try {
       const response = await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
@@ -190,17 +207,7 @@ function Profile() {
     }
   };
 
-  const handleAddFriend = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
-      setFriendUsername(''); // Clear the input field after successful request
-      // Optionally, you can refetch pending requests or show a success message
-      console.log('Friend request sent:', response.data);
-    } catch (error) {
-      console.error('Error sending friend request:', error.response.data);
-    }
-  };
+
 
   const handleMatchTypeChange = (e) => {
     setMatchType(e.target.value);
@@ -272,6 +279,11 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
+            {translatedErrorMessageFriend && (
+  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+    {translatedErrorMessageFriend}
+    </p>
+)}
           </div>
         );
         case 'friendList':
@@ -340,7 +352,7 @@ function Profile() {
                           <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
                           <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
                           <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
-                          <p><strong>{translate('Match date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                          <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                           <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
                         </li>
                       ))}
