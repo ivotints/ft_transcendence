@@ -117,7 +117,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
         </table>
       )}
 
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {errorMessage && <div className="error-message">{translate(errorMessage)}</div>}
     </div>
   );
 }
