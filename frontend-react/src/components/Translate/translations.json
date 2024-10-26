@@ -52,6 +52,11 @@
       "Password": "Пароль",
       "Log In": "Авторизоваться",
       "Create User": "Создать пользователя",
+      "Username or Email": "Имя пользователя или почта",
+      "Failed to update friend. Please try again.": "Не удалось обновить друга. Попробуйте еще раз.",
+      "Error: No active account found with the given credentials": "Ошибка: активная учетная запись с указанными учетными данными не найдена",
+      "Error: No response received from server": "Ошибка: ответ от сервера не получен",
+      "11111": "2222222",
 
 
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
@@ -109,6 +114,11 @@
       "Password": "Heslo",
       "Log In": "Přihlaste se",
       "Create User": "Vytvořit uživatele",
+      "Username or Email": "Uživatelské jméno nebo e-mail",
+      "Failed to update friend. Please try again.": "Aktualizace přítele se nezdařila. Zkuste to prosím znovu.",
+      "Error: No active account found with the given credentials": "Chyba: Nebyl nalezen žádný aktivní účet s danými přihlašovacími údaji",
+      "Error: No response received from server": "Chyba: Ze serveru nebyla přijata žádná odpověď",
+
 
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"
 	}
