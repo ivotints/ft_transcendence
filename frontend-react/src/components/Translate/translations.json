@@ -50,6 +50,10 @@
       "Failed to update password. Please try again.": "Не удалось обновить пароль. Попробуйте еще раз.",
       "updated successfully.": "обновлен успешно.",
       "Password": "Пароль",
+      "Log In": "Авторизоваться",
+      "Create User": "Создать пользователя",
+
+
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
 	},
 	"cz": {
@@ -103,6 +107,9 @@
       "Failed to update password. Please try again.": "Nepodařilo se aktualizovat heslo. Zkuste to prosím znovu.",
       "updated successfully.": "úspěšně aktualizováno.",
       "Password": "Heslo",
+      "Log In": "Přihlaste se",
+      "Create User": "Vytvořit uživatele",
+
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"
 	}
 }

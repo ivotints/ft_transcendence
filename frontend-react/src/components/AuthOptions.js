@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './AuthOptions.css';
+import { useTranslate } from './Translate/useTranslate';
 
 function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
   const [formType, setFormType] = useState(null);
@@ -8,6 +9,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { translate } = useTranslate();
 
   const handleLoginClick = () => {
     setFormType('login');
@@ -42,7 +44,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
         setErrorMessage(`Error: ${error.message}`);
       }
     }
-  };  
+  };
 
   const handleCreateUserSubmit = async () => {
     try {
@@ -76,10 +78,10 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
   return (
     <div className="auth-options">
       <div className="auth-buttons">
-        <button className="auth-button" onClick={handleLoginClick}>Log In</button>
-        <button className="auth-button" onClick={handleCreateUserClick}>Create User</button>
+        <button className="auth-button" onClick={handleLoginClick}>{translate('Log In')}</button>
+        <button className="auth-button" onClick={handleCreateUserClick}>{translate('Create User')}</button>
       </div>
-      
+
       {formType === 'login' && (
         <table className="auth-table">
           <tbody>
@@ -90,7 +92,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
               <td><input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} /></td>
             </tr>
             <tr>
-              <td><button className="submit-button" onClick={handleLoginSubmit}>Log In</button></td>
+              <td><button className="submit-button" onClick={handleLoginSubmit}>{translate('Log In')}</button></td>
             </tr>
           </tbody>
         </table>
@@ -109,7 +111,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
               <td><input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} /></td>
             </tr>
             <tr>
-              <td><button className="submit-button" onClick={handleCreateUserSubmit}>Create User</button></td>
+              <td><button className="submit-button" onClick={handleCreateUserSubmit}>{translate('Create User')}</button></td>
             </tr>
           </tbody>
         </table>

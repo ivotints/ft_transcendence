@@ -4,23 +4,26 @@ import PlayerRegistration from './PlayerRegistration';
 import MatchDisplay from './MatchDisplay';
 import NextMatch from './NextMatch';
 import ScoreTracker from './ScoreTracker';
-import MatchQueue from './MatchQueue'; // Importing the MatchQueue component
+import MatchQueue from './MatchQueue';
 import { useTranslate } from './Translate/useTranslate';
+import { useLanguage } from './Translate/LanguageContext';
 
 function Tournament() {
   const [players, setPlayers] = useState([]);
-  const [currentMatch, setCurrentMatch] = useState(null);
+  const [currentMatchKey, setCurrentMatchKey] = useState(null);  // Store current match key
   const [isTournamentStarted, setIsTournamentStarted] = useState(false);
   const [matchQueue, setMatchQueue] = useState([]);
   const [scores, setScores] = useState({});
-  const [error, setError] = useState('');
+  const [errorKey, setErrorKey] = useState('');
+
   const { translate } = useTranslate();
+  const { language } = useLanguage();  // To trigger re-render on language change
 
   const addPlayer = (alias) => {
     setPlayers([...players, alias]);
     setScores((prevScores) => ({
       ...prevScores,
-      [alias]: 0 // Set initial score to 0 for each player
+      [alias]: 0
     }));
   };
 
@@ -29,10 +32,10 @@ function Tournament() {
       setIsTournamentStarted(true);
       const generatedQueue = generateMatches();
       setMatchQueue(generatedQueue);
-      setCurrentMatch(generatedQueue[0]);
-      setError('');
+      setCurrentMatchKey(generatedQueue[0] || 'No more matches scheduled');  // Set initial match or key
+      setErrorKey('');
     } else {
-      setError(translate('At least two players are required to start the tournament.'));
+      setErrorKey('At least two players are required to start the tournament.');
     }
   };
 
@@ -49,15 +52,19 @@ function Tournament() {
   const handleNextMatch = () => {
     const nextQueue = matchQueue.slice(1);
     setMatchQueue(nextQueue);
-    setCurrentMatch(nextQueue[0] || translate('No more matches scheduled.'));
+    setCurrentMatchKey(nextQueue[0] || 'No more matches scheduled.');  // Update match or fallback key
   };
 
   const updateScore = (winner) => {
     setScores((prevScores) => ({
       ...prevScores,
-      [winner]: prevScores[winner] + 1 // Increment winner's score
+      [winner]: prevScores[winner] + 1
     }));
   };
+
+  // Derived variables that translate error and match messages
+  const errorMessage = errorKey ? translate(errorKey) : '';
+  const currentMatchMessage = currentMatchKey ? translate(currentMatchKey) : '';
 
   return (
     <div className="tournament-container">
@@ -68,13 +75,13 @@ function Tournament() {
           <button className="start-button" onClick={startTournament}>
             {translate("Start Tournament")}
           </button>
-          {error && <p className="error-message">{error}</p>}
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
         </>
       ) : (
         <div className="tournament-content">
           <div className="left-column">
-            <MatchDisplay match={currentMatch} />
-            <NextMatch currentMatch={currentMatch} onNextMatch={handleNextMatch} />
+            <MatchDisplay match={currentMatchMessage} />
+            <NextMatch currentMatch={currentMatchMessage} onNextMatch={handleNextMatch} />
             <ScoreTracker scores={scores} />
           </div>
           <div className="right-column">
