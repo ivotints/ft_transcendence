@@ -8,7 +8,7 @@ import PlayerVsPlayer from './components/PlayerVsPlayer';
 import PlayerVsAI from './components/PlayerVsAI';
 import Tournament from './components/Tournament';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 import { useTranslate } from './components/Translate/useTranslate';
@@ -20,7 +20,9 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { translate } = useTranslate();  // Get the translation function
+  const { translate } = useTranslate();
+  const checkLoginIntervalRef = useRef(null);
+  const refreshTokenIntervalRef = useRef(null);
 
   const checkLoginStatus = async () => {
     try {
@@ -40,17 +42,27 @@ function App() {
     }
   };
 
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  
   useEffect(() => {
-    checkLoginStatus(); // Check login status on component mount
-    const intervalId = setInterval(checkLoginStatus, 1 * 60 * 1000); // Check every 1 minute minus 100 ms
-    return () => clearInterval(intervalId);
-  }, []); // Empty dependency array
+    const initializeIntervals = async () => {
+      refreshToken();
+      await sleep(1000);
+      checkLoginStatus();
 
-  useEffect(() => {
-    refreshToken();
-    const interval = setInterval(refreshToken, 1 * 60 * 1000 - 100); // Refresh token every 1 minute
-    return () => clearInterval(interval);
+      refreshTokenIntervalRef.current = setInterval(refreshToken, 60 * 1000);
+      await sleep(1000);
+      checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
+    };
+
+    initializeIntervals();
+
+    return () => {
+      clearInterval(refreshTokenIntervalRef.current);
+      clearInterval(checkLoginIntervalRef.current);
+    };
   }, []);
+
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
