@@ -52,6 +52,8 @@
       "Password": "Пароль",
       "Log In": "Авторизоваться",
       "Create User": "Создать пользователя",
+      "Username or Email": "Имя пользователя или почта",
+      "Failed to update friend. Please try again.": "Не удалось обновить друга. Попробуйте еще раз.",
 
 
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
@@ -109,6 +111,10 @@
       "Password": "Heslo",
       "Log In": "Přihlaste se",
       "Create User": "Vytvořit uživatele",
+      "Username or Email": "Uživatelské jméno nebo e-mail",
+      "Failed to update friend. Please try again.": "Aktualizace přítele se nezdařila. Zkuste to prosím znovu.",
+
+
 
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"
 	}
