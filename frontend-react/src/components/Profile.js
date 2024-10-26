@@ -297,8 +297,13 @@ function Profile() {
                     ? friend.friend_detail?.username
                     : friend.user_detail?.username;
 
+                    const isOnline = friend.user_detail?.username === userInfo.username
+                      ? friend.is_friend_online
+                      : friend.is_user_online;
+
                   return (
                     <li key={friend.id} className="friend-list-item">
+                      <span className={`status-circle ${isOnline ? 'online' : 'offline'}`}></span>
                       <span className="friend-username">{username || 'Unknown User'}</span>
                     </li>
                   );
