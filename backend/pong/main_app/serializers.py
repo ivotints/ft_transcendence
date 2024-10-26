@@ -142,10 +142,28 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("A player cannot play against themselves.")
 		return data
 
+
+class IsOnlineField(serializers.Field):
+    def get_attribute(self, instance):
+        user = super().get_attribute(instance)
+        return user
+
+    def to_representation(self, user):
+        if user is None:
+            return False
+        try:
+            profile = UserProfile.objects.get(user=user)
+            return profile.is_online
+        except UserProfile.DoesNotExist:
+            return False
+
+
 class FriendSerializer(serializers.ModelSerializer):
 	friend_username = serializers.CharField(write_only=True, required=False)
-	friend_detail = UserSerializer(source='friend', read_only=True)  # For output
-	user_detail = UserSerializer(source='user', read_only=True)  # For output
+	friend_detail = UserSerializer(source='friend', read_only=True)
+	user_detail = UserSerializer(source='user', read_only=True)
+	is_friend_online = IsOnlineField(source='friend', read_only=True)
+	is_user_online = IsOnlineField(source='user', read_only=True)
 
 	class Meta:
 		model = Friend
@@ -155,7 +173,9 @@ class FriendSerializer(serializers.ModelSerializer):
 			'friend',
 			'friend_username',
 			'friend_detail',
+			'is_friend_online',
 			'user_detail',
+			'is_user_online',
 			'status',
 			'created_at'
 		]
