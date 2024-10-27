@@ -428,6 +428,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				secure=True,
 			)
 
+		profile = UserProfile.objects.get(user=user)
+		profile.is_online = True
+		profile.save()
+
 		response.data = {'detail': 'Success'}
 		return response
 

@@ -277,3 +277,19 @@
     background-color: #f0f8ff; /* Light blue background on focus */
     outline: none; /* Remove default outline */
 }
+
+.status-circle {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  
+  .status-circle.online {
+    background-color: green;
+  }
+  
+  .status-circle.offline {
+    background-color: red;
+  }

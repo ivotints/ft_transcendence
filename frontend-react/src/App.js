@@ -8,48 +8,75 @@ import PlayerVsPlayer from './components/PlayerVsPlayer';
 import PlayerVsAI from './components/PlayerVsAI';
 import Tournament from './components/Tournament';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 import { useTranslate } from './components/Translate/useTranslate';
 import { refreshToken } from './utils/auth';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { translate } = useTranslate();  // Get the translation function
+  const { translate } = useTranslate();
+  const checkLoginIntervalRef = useRef(null);
+  const refreshTokenIntervalRef = useRef(null);
 
   const checkLoginStatus = async () => {
     try {
       const response = await axios.get('https://localhost:8000/check-login/', {
         withCredentials: true,
       });
-
-      if (response.status !== 200) {
+  
+      if (response.status === 200) {
+        setIsLoggedIn(true);
+      } else {
         setIsLoggedIn(false);
-        navigate('/'); // Redirect to the base window with login options
       }
     } catch (error) {
       setIsLoggedIn(false);
-      navigate('/'); // Redirect to the base window with login options
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  
   useEffect(() => {
-    // Refresh the token every 9 minutes
-    const interval = setInterval(refreshToken, 1 * 60 * 1000);
-    return () => clearInterval(interval);
+    const initializeIntervals = async () => {
+      refreshToken();
+      await sleep(1000);
+      checkLoginStatus();
+
+      refreshTokenIntervalRef.current = setInterval(refreshToken, 60 * 1000);
+      await sleep(1000);
+      checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
+    };
+
+    initializeIntervals();
+
+    return () => {
+      clearInterval(refreshTokenIntervalRef.current);
+      clearInterval(checkLoginIntervalRef.current);
+    };
   }, []);
 
+
   useEffect(() => {
-    const intervalId = setInterval(checkLoginStatus, 10000); // Check every 10 minutes
-    return () => clearInterval(intervalId);
-  }, [checkLoginStatus]);
+    if (!isLoading && !isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, isLoading, navigate]);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
   };
+
+  if (isLoading) {
+    return <div>{translate("Loading")}...</div>; // Show loading indicator while checking login status
+  }
 
   return (
       <div className="App">
@@ -68,11 +95,13 @@ function App() {
               </>
             )
           } />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
-          <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
-          <Route path="/tournament" element={<Tournament />} />
+          <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/game" element={<Game />} />
+            <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
+            <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
+            <Route path="/tournament" element={<Tournament />} />
+          </Route>
         </Routes>
       </div>
   );
