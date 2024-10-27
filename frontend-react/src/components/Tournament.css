@@ -1,6 +1,8 @@
    .tournament-container {
      text-align: center;
      padding: 20px;
+     overflow-wrap: break-word;
+     word-wrap: break-word;
    }
 
    .tournament-content {

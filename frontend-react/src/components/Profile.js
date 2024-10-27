@@ -144,9 +144,9 @@ function Profile() {
       setNewEmail(''); // Clear the input field after submission
     } catch (error) {
 
-      console.error('Error updating email:', error);
-      console.log('Error response:', error.response); // Check if response exists
-      console.log('Error response data:', error.response?.data); // Inspect data in the response
+      //console.error('Error updating email:', error);
+      //console.log('Error response:', error.response); // Check if response exists
+      //console.log('Error response data:', error.response?.data); // Inspect data in the response
 
       setMessageType('error');
       setMessage(error.response.data.user.email[0]);
@@ -184,10 +184,19 @@ function Profile() {
       const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
       setFriendUsername('');
       console.log('Friend request sent:', response.data);
-      setErrorKeyFriend('');
+      setErrorKeyFriend();
     } catch (error) {
-      setErrorKeyFriend('Failed to update friend. Please try again.');
-      console.error('Error sending friend request:', error.response.data);
+
+      //console.error('Full password error object:', error); // Log the entire error
+      //console.log('Error response:', error.response); // Check if response exists
+      //console.log('Error response data:', error.response?.data); // Inspect data in the response
+      //setErrorKeyFriend(error.response.data);
+      setErrorKeyFriend(
+        error.response.data.friend_username?.[0] ?? 
+        error.response.data.non_field_errors?.[0] ?? 
+        'Error sending friend request'
+      );
+      //console.error('Error sending friend request:', error.response.data);
     }
   };
 
@@ -227,7 +236,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
               <label>{translate('New Email')}: </label>
-              <input
+              <input  maxLength={100}
                 type="email"
                 name="newEmail"
                 autoComplete="email"
@@ -252,7 +261,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
               <label>{translate('New Password')}: </label>
-              <input
+              <input  maxLength={100}
                 type="password"
                 name="newPassword"
                 id="newPassword"
@@ -277,7 +286,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Add Friend')}</h2>
             <form onSubmit={handleAddFriend}>
               <label>{translate("Friend's Name")}: </label>
-              <input
+              <input  maxLength={100}
                 type="text"
                 value={friendUsername}
                 onChange={(e) => setFriendUsername(e.target.value)}
@@ -406,7 +415,7 @@ function Profile() {
           className="avatar"
         />
         <label className="change-avatar-label">
-          <input
+          <input  maxLength={100}
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}

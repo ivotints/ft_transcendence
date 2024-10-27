@@ -64,8 +64,12 @@
       "Password must contain at least one digit": "Пароль должен содержать хотя бы одну цифру",
       "Email cannot be empty": "Электронная почта не может быть пустой",
       "Enter a valid email address.": "Введите действительный адрес электронной почты.",
+      "Friend with this username does not exist.": "Друг с таким именем пользователя не существует.",
+      "A friend request already exists between these users.": "Запрос на добавление в друзья у этих пользователей уже существует.",
+      "You cannot send a friend request to yourself.": "Вы не можете отправить запрос на добавление в друзья самому себе.",
+      "Error sending friend request": "Ошибка отправки запроса на добавление в друзья",
 
-
+      
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
 	},
 	"cz": {
@@ -133,7 +137,11 @@
       "Password must contain at least one digit": "Heslo musí obsahovat alespoň jednu číslici",
       "Email cannot be empty": "E-mail nesmí být prázdný",
       "Enter a valid email address.": "Zadejte platnou e-mailovou adresu.",
-
+      "Friend with this username does not exist.": "Přítel s tímto uživatelským jménem neexistuje.",
+      "A friend request already exists between these users.": "Mezi těmito uživateli již existuje žádost o přátelství.",
+      "You cannot send a friend request to yourself.": "Nemůžete poslat žádost o přátelství sami sobě.",
+      "Error sending friend request": "Chyba při odesílání žádosti o přátelství",
+      
       
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"
 	}
