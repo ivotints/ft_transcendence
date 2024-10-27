@@ -48,5 +48,7 @@
     border-radius: 5px;
     text-align: center;
     font-weight: bold;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
   

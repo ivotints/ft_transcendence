@@ -26,7 +26,8 @@ function PlayerRegistration({ addPlayer, players }) {
     <div className="player-registration">
       <h2>{translate('Player Registration')}</h2>
       <div className="input-group">
-        <input
+        <input  
+          maxLength={43}
           type="text"
           value={alias}
           onChange={(e) => setAlias(e.target.value)}
