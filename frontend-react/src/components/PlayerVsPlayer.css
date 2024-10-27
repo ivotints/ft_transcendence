@@ -1,12 +1,39 @@
+/* PlayerVsPlayer.css */
 .match-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #2c2c2c;
-  }
-  
-  h1 {
-    color: white;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Center vertically */
+  text-align: center;
+  color: #fff;
+  background-color: #282c34; /* Optional: background color for better visibility */
+}
+
+.menu, .pong-game {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.start-button, .reset-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.start-button:hover {
+  background-color: #218838;
+}
+
+.reset-button {
+  background-color: #dc3545;
+}
+
+.reset-button:hover {
+  background-color: #c82333;
+}
