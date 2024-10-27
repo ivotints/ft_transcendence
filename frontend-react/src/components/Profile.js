@@ -16,19 +16,20 @@ function Profile() {
   const [matchType, setMatchType] = useState('1v1');
   const [matchHistory, setMatchHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState('');
-  const [messagePass, setMessagePass] = useState('');
-  const [messagePassType, setMessagePassType] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
-
+  
   const [errorKey, setErrorKey] = useState(''); // State to store error key
-  const translatedErrorMessage = errorKey ? translate(errorKey) : ''; // Derived variable for translation
+  
+  const [message, setMessage] = useState(''); // State to store error key
+  const translatedMessageMail = message ? translate(message) : ''; // Derived variable for translation
+  const [messageType, setMessageType] = useState('');
 
-  const [errorKeyMail, setErrorKeyMail] = useState(''); // State to store error key
-  const translatedErrorMessageMail = errorKeyMail ? translate(errorKeyMail) : ''; // Derived variable for translation
+  const [messagePass, setMessagePass] = useState(''); // State to store error key
+  const translatedMessagePass = messagePass ? translate(messagePass) : ''; // Derived variable for translation
+  const [messagePassType, setMessagePassType] = useState('');
+
 
   const [errorKeyFriend, setErrorKeyFriend] = useState(''); // State to store error key
   const translatedErrorMessageFriend = errorKeyFriend ? translate(errorKeyFriend) : ''; // Derived variable for translation
@@ -138,16 +139,19 @@ function Profile() {
 
       // Update userInfo state with new email and set success message
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
-      setMessage(translate('Email') + translate('updated successfully.'));
       setMessageType('success');
+      setMessage('Email updated successfully.');
       setNewEmail(''); // Clear the input field after submission
-      setErrorKeyMail('');
     } catch (error) {
-      console.error('Error updating email:', error);
 
-      // Set error message on failure
-      setErrorKeyMail('Failed to update email. Please try again.');
+      console.error('Error updating email:', error);
+      console.log('Error response:', error.response); // Check if response exists
+      console.log('Error response data:', error.response?.data); // Inspect data in the response
+
       setMessageType('error');
+      setMessage(error.response.data.user.email[0]);
+
+      //setMessage('Failed to update email. Please try again.');
     }
   };
 
@@ -156,19 +160,21 @@ function Profile() {
     e.preventDefault();
 
     try {
-      await axios.patch('https://localhost:8000/profiles/me/', { user: { password: newPassword } }, { withCredentials: true });
-
-      // Set success message
-      setMessagePass(translate('Password') + translate('updated successfully.'));
+      await axios.patch('https://localhost:8000/profiles/me/',
+        { user: { password: newPassword } },
+        { withCredentials: true }
+      );
+      setNewPassword('');
       setMessagePassType('success');
-      setNewPassword(''); // Clear the input field after submission
-      setErrorKey(''); // Clear error key on success
+      setMessagePass('Password updated successfully.');
     } catch (error) {
-      console.error('Error updating password:', error);
 
-      // Set error key instead of hard-coded message
-      setErrorKey('Failed to update password. Please try again.');
+      //console.error('Full password error object:', error); // Log the entire error
+      //console.log('Error response:', error.response); // Check if response exists
+      //console.log('Error response data:', error.response?.data); // Inspect data in the response
+
       setMessagePassType('error');
+      setMessagePass(error.response.data.user.password[0]);
     }
   };
 
@@ -176,8 +182,7 @@ function Profile() {
     e.preventDefault();
     try {
       const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
-      setFriendUsername(''); // Clear the input field after successful request
-      // Optionally, you can refetch pending requests or show a success message
+      setFriendUsername('');
       console.log('Friend request sent:', response.data);
       setErrorKeyFriend('');
     } catch (error) {
@@ -225,7 +230,8 @@ function Profile() {
               <input
                 type="email"
                 name="newEmail"
-                autoComplete="off"
+                autoComplete="email"
+                id="newEmail"
                 placeholder={translate('New Email')}
                 value={newEmail} // Controlled input
                 onChange={(e) => setNewEmail(e.target.value)} // Update state on input change
@@ -233,9 +239,9 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
-            {translatedErrorMessageMail && (
-  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
-    {translatedErrorMessageMail}
+            {translatedMessageMail && (
+  <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
+    {translatedMessageMail}
               </p>
             )}
           </div>
@@ -249,6 +255,7 @@ function Profile() {
               <input
                 type="password"
                 name="newPassword"
+                id="newPassword"
                 autoComplete="new-password"
                 placeholder={translate('New Password')}
                 value={newPassword} // Controlled input
@@ -257,11 +264,11 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
-           {translatedErrorMessage && (
+          {translatedMessagePass && (
   <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
-    {translatedErrorMessage}
-  </p>
-)}
+    {translatedMessagePass}
+              </p>
+            )}
           </div>
         );
       case 'addFriend':

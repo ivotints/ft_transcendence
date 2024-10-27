@@ -56,7 +56,14 @@
       "Failed to update friend. Please try again.": "Не удалось обновить друга. Попробуйте еще раз.",
       "Error: No active account found with the given credentials": "Ошибка: активная учетная запись с указанными учетными данными не найдена",
       "Error: No response received from server": "Ошибка: ответ от сервера не получен",
-      "11111": "2222222",
+      "Email updated successfully.": "Адрес электронной почты успешно обновлен.",
+      "Password updated successfully.": "Пароль успешно обновлен.",
+      "This field may not be blank.": "Это поле не может быть пустым.",
+      "Password must be at least 8 characters long": "Пароль должен быть длиной не менее 8 символов.",
+      "Password must contain at least one letter": "Пароль должен содержать хотя бы одну букву",
+      "Password must contain at least one digit": "Пароль должен содержать хотя бы одну цифру",
+      "Email cannot be empty": "Электронная почта не может быть пустой",
+      "Enter a valid email address.": "Введите действительный адрес электронной почты.",
 
 
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
@@ -118,8 +125,16 @@
       "Failed to update friend. Please try again.": "Aktualizace přítele se nezdařila. Zkuste to prosím znovu.",
       "Error: No active account found with the given credentials": "Chyba: Nebyl nalezen žádný aktivní účet s danými přihlašovacími údaji",
       "Error: No response received from server": "Chyba: Ze serveru nebyla přijata žádná odpověď",
+      "Email updated successfully.": "E-mail byl úspěšně aktualizován.",
+      "Password updated successfully.": "Heslo bylo úspěšně aktualizováno.",
+      "This field may not be blank.": "Toto pole nesmí být prázdné.",
+      "Password must be at least 8 characters long": "Heslo musí mít alespoň 8 znaků",
+      "Password must contain at least one letter": "Heslo musí obsahovat alespoň jedno písmeno",
+      "Password must contain at least one digit": "Heslo musí obsahovat alespoň jednu číslici",
+      "Email cannot be empty": "E-mail nesmí být prázdný",
+      "Enter a valid email address.": "Zadejte platnou e-mailovou adresu.",
 
-
+      
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"
 	}
 }

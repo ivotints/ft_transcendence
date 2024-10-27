@@ -75,7 +75,7 @@ function App() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>; // Show loading indicator while checking login status
+    return <div>{translate("Loading")}...</div>; // Show loading indicator while checking login status
   }
 
   return (
