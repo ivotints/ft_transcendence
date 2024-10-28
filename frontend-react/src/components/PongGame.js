@@ -17,7 +17,6 @@ function PongGame({ player1Name, player2Name }) {
   const gameRef = useRef(null);
   const { translate } = useTranslate();
 
-
   useEffect(() => {
     const Ball = {
       new: function (incrementedSpeed) {

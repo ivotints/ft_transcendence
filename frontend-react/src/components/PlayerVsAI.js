@@ -19,6 +19,7 @@ function PlayerVsAI() {
   return (
     <div className="match-container">
       <h1 className="profileH2">{translate('Player vs AI Ping-Pong')}</h1>
+
       {!gameStarted ? (
         <div className="menu">
           <p>{translate('Challenge the AI to a game of Ping-Pong!')}</p>

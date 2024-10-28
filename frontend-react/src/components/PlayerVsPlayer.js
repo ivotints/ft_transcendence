@@ -11,6 +11,7 @@ function PlayerVsPlayer() {
   const [player1Name, setPlayer1Name] = useState('');
   const { translate } = useTranslate();
 
+
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
@@ -53,11 +54,13 @@ function PlayerVsPlayer() {
       {!gameStarted ? (
         <div className="menu">
           <p>{translate('Provide Player 2 name and press Start to play!')}</p>
+
           {!isNameConfirmed ? (
             <div>
               <input
                 type="text"
                 placeholder={translate("Player 2 Name")}
+
                 value={player2Name}
                 onChange={handleNameChange}
                 className="name-input"
@@ -66,12 +69,14 @@ function PlayerVsPlayer() {
             </div>
           ) : (
             <button onClick={startGame} className="start-button">{translate('Start Game')}</button>
+
           )}
         </div>
       ) : (
         <div>
           <PongGame player1Name={player1Name} player2Name={player2Name} />
           <button onClick={resetGame} className="reset-button">{translate('Reset Game')}</button>
+
         </div>
       )}
     </div>

@@ -17,7 +17,6 @@ function PongGameWithAI() {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
   const { translate } = useTranslate();
-
   useEffect(() => {
     const Ball = {
       new: function (incrementedSpeed) {
@@ -173,6 +172,7 @@ function PongGameWithAI() {
         } else if (this.ai.score === WINNING_SCORE) {
           this.over = true;
           setTimeout(() => { this.endGameMenu(translate('Game Over!')); }, 1000);
+
         }
       },
 
