@@ -10,6 +10,8 @@ function Profile() {
     username: '',
     email: '',
   });
+  const [winCount, setWinCount] = useState(0);
+  const [lossCount, setLossCount] = useState(0);
   const [acceptedFriends, setAcceptedFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendUsername, setFriendUsername] = useState('');
@@ -46,6 +48,8 @@ function Profile() {
           email: profile.user.email,
         });
         setAvatar(profile.avatar);
+        setWinCount(profile.wins);
+        setLossCount(profile.losses);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -400,15 +404,19 @@ function Profile() {
                 )}
               </div>
             );
-      case 'info':
-      default:
-        return (
-          <div className="user-info">
-            <h2 className="profileH2">{translate('User Info')}</h2>
-            <p>{translate('Username')}: {userInfo.username}</p>
-            <p>{translate('Email')}: {userInfo.email}</p>
-          </div>
-        );
+            case 'info':
+              default:
+                return (
+                  <div className="user-info">
+                    <h2 className="profileH2">{translate('User Info')}</h2>
+                    <p>{translate('Username')}: {userInfo.username}</p>
+                    <p>{translate('Email')}: {userInfo.email}</p>
+        
+                    <h3 className="profileH2">{translate('Player Statistics')}</h3>
+                    <p>{translate('Wins')}: {winCount}</p>
+                    <p>{translate('Losses')}: {lossCount}</p>
+                  </div>
+                );
     }
   };
 

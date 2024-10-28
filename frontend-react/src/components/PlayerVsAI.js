@@ -16,7 +16,7 @@ function PlayerVsAI() {
 
   return (
     <div className="match-container">
-      <h1>Player vs AI Ping-Pong</h1>
+      <h1 className="profileH2">Player vs AI Ping-Pong</h1>
       {!gameStarted ? (
         <div className="menu">
           <p>Challenge the AI to a game of Ping-Pong!</p>

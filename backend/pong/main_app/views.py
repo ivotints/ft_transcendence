@@ -275,7 +275,7 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return MatchHistory2v2.objects.filter(player1=user) | MatchHistory.objects.filter(player2=user.username) | MatchHistory.objects.filter(player3=user.username) | MatchHistory.objects.filter(player4=user.username)
+		return MatchHistory2v2.objects.filter(player1=user) | MatchHistory2v2.objects.filter(player2=user.username) | MatchHistory2v2.objects.filter(player3=user.username) | MatchHistory2v2.objects.filter(player4=user.username)
 	
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
