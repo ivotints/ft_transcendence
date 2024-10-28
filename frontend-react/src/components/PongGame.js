@@ -6,6 +6,8 @@ function PongGame() {
   const canvasRef = useRef(null);
   const [player1Score, setPlayer1Score] = useState(0);
   const [player2Score, setPlayer2Score] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState('');
 
   // Paddle and Ball settings
   const paddleWidth = 10;
@@ -40,6 +42,8 @@ function PongGame() {
     document.addEventListener('keyup', keyUpHandler);
 
     const draw = () => {
+      if (gameOver) return;
+
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw paddles

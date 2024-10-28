@@ -96,6 +96,8 @@ function Profile() {
           let response;
           if (matchType === '1v1') {
             response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
+          }  else if (matchType === '2v2') {
+            response = await axios.get('https://localhost:8000/matches/2v2', {withCredentials: true});
           } else if (matchType === 'tournament') {
             response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
           }
@@ -351,6 +353,7 @@ function Profile() {
                 <label htmlFor="match-type">{translate('Select Match Type')}: </label>
                 <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
                   <option value="1v1">{translate('1 vs 1')}</option>
+                  <option value="2v2">{translate('2 vs 2')}</option>
                   <option value="tournament">{translate('Tournament')}</option>
                 </select>
                 {loading ? (
@@ -366,13 +369,28 @@ function Profile() {
                         </li>
                       ))}
                     </ul>
-                  ) : (
+                  ) : matchType === '1v1' ? (
                     <ul>
                       {matchHistory.map((match) => (
                         <li key={match.id}>
                           <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
                           <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
                           <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                          <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                          <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <ul>
+                      {matchHistory.map((match) => (
+                        <li key={match.id}>
+                          <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                          <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                          <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
+                          <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
+                          <p><strong>{translate('Winner1')}:</strong> {match.winner1}</p>
+                          <p><strong>{translate('Winner2')}:</strong> {match.winner2}</p>
                           <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                           <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
                         </li>

@@ -30,6 +30,7 @@ from .models import UserProfile
 from .models import UserTwoFactorAuthData
 from .models import Friend
 from .models import MatchHistory
+from .models import MatchHistory2v2
 from .models import Tournament
 from .serializers import UserSerializer
 from .serializers import UserProfileSerializer
@@ -37,6 +38,7 @@ from .serializers import FriendSerializer
 from .serializers import MatchHistorySerializer
 from .serializers import TournamentSerializer
 from .serializers import CustomTokenRefreshSerializer
+from .serializers import MatchHistory2v2Serializer
 
 
 logger = logging.getLogger(__name__)
@@ -253,7 +255,27 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return MatchHistory.objects.filter(player1=user) | MatchHistory.objects.filter(player2=user.username)
+		return MatchHistory.objects.filter(player1=user)
+	
+	def perform_create(self, serializer):
+		player1 = serializer.validated_data.get('player1')
+		if player1 != self.request.user:
+			raise PermissionDenied("You can only create matches for yourself.")
+		serializer.save()
+
+
+class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
+	serializer_class = MatchHistory2v2Serializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		user = self.request.user
+		return MatchHistory2v2.objects.filter(player1=user)
 	
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
