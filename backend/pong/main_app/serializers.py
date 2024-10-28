@@ -8,6 +8,7 @@ from .models import MatchHistory
 from .models import UserProfile
 from .models import Friend
 from .models import Tournament
+from .models import MatchHistory2v2
 
 from .web3 import get_tournament_data, add_tournament_data
 
@@ -140,6 +141,42 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 		# Ensure player1 and player2 are not the same user
 		if data['player1'] == data['player2']:
 			raise serializers.ValidationError("A player cannot play against themselves.")
+		return data
+	
+
+class MatchHistory2v2Serializer(serializers.ModelSerializer):
+	player1_username = serializers.SerializerMethodField()
+	class Meta:
+		model = MatchHistory2v2
+		fields = [
+			'player1',
+			'player2',
+			'player3',
+			'player4',
+			'player1_username',
+			'winner1',
+			'winner2',
+			'match_date',
+			'match_score'
+		]
+		read_only_fields = ['winner1', 'winner2']
+
+	def get_player1_username(self, obj):
+		return obj.player1.username
+
+	def validate_match_score(self, value):
+		try:
+			team1_score, team2_score = map(int, value.strip().split('-'))
+			if team1_score < 0 or team2_score < 0:
+				raise serializers.ValidationError("Scores must be non-negative integers.")
+		except ValueError:
+			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
+		return value
+	
+	def validate(self, data):
+		players = [data.get('player1'), data.get('player2'), data.get('player3'), data.get('player4')]
+		if len(players) != len(set(players)):
+			raise serializers.ValidationError("All players must be unique.")
 		return data
 
 

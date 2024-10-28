@@ -37,3 +37,27 @@
 .reset-button:hover {
   background-color: #c82333;
 }
+
+.name-input {
+  padding: 10px;
+  font-size: 1rem;
+  margin-top: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.confirm-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: 15px;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+}

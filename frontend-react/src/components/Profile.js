@@ -10,6 +10,8 @@ function Profile() {
     username: '',
     email: '',
   });
+  const [winCount, setWinCount] = useState(0);
+  const [lossCount, setLossCount] = useState(0);
   const [acceptedFriends, setAcceptedFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendUsername, setFriendUsername] = useState('');
@@ -19,8 +21,6 @@ function Profile() {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
-  
-  const [errorKey, setErrorKey] = useState(''); // State to store error key
   
   const [message, setMessage] = useState(''); // State to store error key
   const translatedMessageMail = message ? translate(message) : ''; // Derived variable for translation
@@ -33,6 +33,7 @@ function Profile() {
 
   const [errorKeyFriend, setErrorKeyFriend] = useState(''); // State to store error key
   const translatedErrorMessageFriend = errorKeyFriend ? translate(errorKeyFriend) : ''; // Derived variable for translation
+  const [messageFriendType, setMessageFriendType] = useState('');
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -46,6 +47,8 @@ function Profile() {
           email: profile.user.email,
         });
         setAvatar(profile.avatar);
+        setWinCount(profile.wins);
+        setLossCount(profile.losses);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -96,6 +99,8 @@ function Profile() {
           let response;
           if (matchType === '1v1') {
             response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
+          }  else if (matchType === '2v2') {
+            response = await axios.get('https://localhost:8000/matches/2v2', {withCredentials: true});
           } else if (matchType === 'tournament') {
             response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
           }
@@ -184,6 +189,7 @@ function Profile() {
       const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
       setFriendUsername('');
       console.log('Friend request sent:', response.data);
+      setMessageFriendType("success")
       setErrorKeyFriend();
     } catch (error) {
 
@@ -191,6 +197,7 @@ function Profile() {
       //console.log('Error response:', error.response); // Check if response exists
       //console.log('Error response data:', error.response?.data); // Inspect data in the response
       //setErrorKeyFriend(error.response.data);
+      setMessageFriendType("error")
       setErrorKeyFriend(
         error.response.data.friend_username?.[0] ?? 
         error.response.data.non_field_errors?.[0] ?? 
@@ -296,7 +303,7 @@ function Profile() {
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
             {translatedErrorMessageFriend && (
-  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+  <p className={messageFriendType === 'success' ? 'success-message' : 'error-message'}>
     {translatedErrorMessageFriend}
     </p>
 )}
@@ -351,6 +358,7 @@ function Profile() {
                 <label htmlFor="match-type">{translate('Select Match Type')}: </label>
                 <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
                   <option value="1v1">{translate('1 vs 1')}</option>
+                  <option value="2v2">{translate('2 vs 2')}</option>
                   <option value="tournament">{translate('Tournament')}</option>
                 </select>
                 {loading ? (
@@ -366,7 +374,7 @@ function Profile() {
                         </li>
                       ))}
                     </ul>
-                  ) : (
+                  ) : matchType === '1v1' ? (
                     <ul>
                       {matchHistory.map((match) => (
                         <li key={match.id}>
@@ -378,19 +386,38 @@ function Profile() {
                         </li>
                       ))}
                     </ul>
+                  ) : (
+                    <ul>
+                      {matchHistory.map((match) => (
+                        <li key={match.id}>
+                          <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                          <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                          <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
+                          <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
+                          <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
+                          <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
+                          <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                          <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                        </li>
+                      ))}
+                    </ul>
                   )
                 )}
               </div>
             );
-      case 'info':
-      default:
-        return (
-          <div className="user-info">
-            <h2 className="profileH2">{translate('User Info')}</h2>
-            <p>{translate('Username')}: {userInfo.username}</p>
-            <p>{translate('Email')}: {userInfo.email}</p>
-          </div>
-        );
+            case 'info':
+              default:
+                return (
+                  <div className="user-info">
+                    <h2 className="profileH2">{translate('User Info')}</h2>
+                    <p>{translate('Username')}: {userInfo.username}</p>
+                    <p>{translate('Email')}: {userInfo.email}</p>
+        
+                    <h3 className="profileH2">{translate('Player Statistics')}</h3>
+                    <p>{translate('Wins')}: {winCount}</p>
+                    <p>{translate('Losses')}: {lossCount}</p>
+                  </div>
+                );
     }
   };
 
