@@ -389,8 +389,8 @@ function Profile() {
                           <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
                           <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
                           <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
-                          <p><strong>{translate('Winner1')}:</strong> {match.winner1}</p>
-                          <p><strong>{translate('Winner2')}:</strong> {match.winner2}</p>
+                          <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
+                          <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
                           <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                           <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
                         </li>

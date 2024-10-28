@@ -34,7 +34,6 @@ class CustomJWTAuthentication(JWTAuthentication):
 			logger.info(f"Token validated successfully. Expiry: {validated_token['exp']}")
 		except InvalidToken as e:
 			logger.error(f"Token validation failed: {str(e)}")
-			print('we are here1')
 			user = self.get_user_from_token(raw_token)
 			if user:
 				self.set_user_offline(user)

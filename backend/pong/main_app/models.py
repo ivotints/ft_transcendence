@@ -93,7 +93,7 @@ class MatchHistory(models.Model):
 	match_score = models.CharField(max_length=50)  # Store as string (e.g. "10-5")
 
 	def calculate_winner(self):
-		player1_score, player2_score = map(int, self.match_score.split('-')) #TODO: validate input in serializer
+		player1_score, player2_score = map(int, self.match_score.split('-'))
 		if player1_score > player2_score:
 			self.winner = self.player1.get_username()
 		elif player2_score > player1_score:
