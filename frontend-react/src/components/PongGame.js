@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslate } from './Translate/useTranslate';
 
 const DIRECTION = {
   IDLE: 0,
@@ -14,6 +15,7 @@ const BACKGROUND_COLOR = '#00cc00';
 function PongGame({ player1Name, player2Name }) {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
+  const { translate } = useTranslate();
 
   useEffect(() => {
     const Ball = {
@@ -103,7 +105,7 @@ function PongGame({ player1Name, player2Name }) {
 
         this.context.fillStyle = '#ffffff';
 
-        this.context.fillText('Press any key to begin',
+        this.context.fillText(translate('Press any key to begin'),
           this.canvas.width / 2,
           this.canvas.height / 2 + 15
         );
@@ -187,10 +189,10 @@ this.ball.y + this.ball.height >= this.player2.y) {
         // Check for game end (score of 5)
         if (this.player1.score === WINNING_SCORE) {
           this.over = true;
-          setTimeout(() => { this.endGameMenu(`${player1Name} Wins!`); }, 1000);
+          setTimeout(() => { this.endGameMenu(`${player1Name} ` + translate('Wins!')); }, 1000);
         } else if (this.player2.score === WINNING_SCORE) {
           this.over = true;
-          setTimeout(() => { this.endGameMenu(`${player2Name} Wins!`); }, 1000);
+          setTimeout(() => { this.endGameMenu(`${player2Name} ` + translate('Wins!')); }, 1000);
         }
       },
 

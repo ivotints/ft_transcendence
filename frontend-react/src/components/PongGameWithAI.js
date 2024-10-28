@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslate } from './Translate/useTranslate';
 
 const DIRECTION = {
   IDLE: 0,
@@ -15,7 +16,7 @@ const BACKGROUND_COLOR = '#00cc00';
 function PongGameWithAI() {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
-
+  const { translate } = useTranslate();
   useEffect(() => {
     const Ball = {
       new: function (incrementedSpeed) {
@@ -105,7 +106,7 @@ function PongGameWithAI() {
 
         this.context.fillStyle = '#ffffff';
 
-        this.context.fillText('Press any key to begin',
+        this.context.fillText(translate('Press any key to begin'),
           this.canvas.width / 2,
           this.canvas.height / 2 + 15
         );
@@ -167,10 +168,11 @@ function PongGameWithAI() {
         // Check for game end (score of 5)
         if (this.player.score === WINNING_SCORE) {
           this.over = true;
-          setTimeout(() => { this.endGameMenu('Winner!'); }, 1000);
+          setTimeout(() => { this.endGameMenu(translate('Winner!')); }, 1000);
         } else if (this.ai.score === WINNING_SCORE) {
           this.over = true;
-          setTimeout(() => { this.endGameMenu('Game Over!'); }, 1000);
+          setTimeout(() => { this.endGameMenu(translate('Game Over!')); }, 1000);
+
         }
       },
 

@@ -71,8 +71,21 @@
       "A friend request already exists between these users.": "Запрос на добавление в друзья у этих пользователей уже существует.",
       "You cannot send a friend request to yourself.": "Вы не можете отправить запрос на добавление в друзья самому себе.",
       "Error sending friend request": "Ошибка отправки запроса на добавление в друзья",
-
+      "Challenge the AI to a game of Ping-Pong!": "Бросьте вызов ИИ и сыграйте в пинг-понг!",
+      "Player vs AI Ping-Pong": "Игрок против ИИ Пинг-Понг",
+      "Start Game": "Начать игру",
+      "Reset Game": "Сбросить игру",
+      "Press any key to begin": "Нажмите любую клавишу, чтобы начать",
+      "Winner!": "Победитель!",
+      "Game Over!": "Игра закончена!",
+      "Player vs Player Ping-Pong": "Игрок против игрока Пинг-понг",
+      "Provide Player 2 name and press Start to play!": "Введите имя Игрока 2 и нажмите «Старт», чтобы начать игру!",
+      "Player 2 Name": "Имя игрока 2",
+      "Wins!": "Побеждает!",
       
+      
+      
+
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
 	},
 	"cz": {
@@ -147,7 +160,21 @@
       "A friend request already exists between these users.": "Mezi těmito uživateli již existuje žádost o přátelství.",
       "You cannot send a friend request to yourself.": "Nemůžete poslat žádost o přátelství sami sobě.",
       "Error sending friend request": "Chyba při odesílání žádosti o přátelství",
+      "Challenge the AI to a game of Ping-Pong!": "Vyzvěte AI na hru Ping-pong!",
+      "Player vs AI Ping-Pong": "Hráč vs AI Ping-Pong",
+      "Start Game": "Spustit hru",
+      "Reset Game": "Resetovat hru",
+      "Press any key to begin": "Začněte stisknutím libovolné klávesy",
+      "Winner!": "Vítěz!",
+      "Game Over!": "Konec hry!",
+      "Player vs Player Ping-Pong": "Hráč versus hráč ping-pongu",
+      "Provide Player 2 name and press Start to play!": "Zadejte jméno hráče 2 a stisknutím tlačítka Start začněte hrát!",
+      "Player 2 Name": "Jméno hráče 2",
+      "Wins!": "Vyhrává!",
       
+      
+      
+
       
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"
 	}

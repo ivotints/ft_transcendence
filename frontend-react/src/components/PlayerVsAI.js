@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import PongGameWithAI from './PongGameWithAI';
 import './PlayerVsAI.css';
+import { useTranslate } from './Translate/useTranslate';
 
 function PlayerVsAI() {
   const [gameStarted, setGameStarted] = useState(false);
+  const { translate } = useTranslate();
 
   const startGame = () => {
     setGameStarted(true);
@@ -16,16 +18,17 @@ function PlayerVsAI() {
 
   return (
     <div className="match-container">
-      <h1 className="profileH2">Player vs AI Ping-Pong</h1>
+      <h1 className="profileH2">{translate('Player vs AI Ping-Pong')}</h1>
+
       {!gameStarted ? (
         <div className="menu">
-          <p>Challenge the AI to a game of Ping-Pong!</p>
-          <button onClick={startGame} className="start-button">Start Game</button>
+          <p>{translate('Challenge the AI to a game of Ping-Pong!')}</p>
+          <button onClick={startGame} className="start-button">{translate('Start Game')}</button>
         </div>
       ) : (
         <div>
           <PongGameWithAI />
-          <button onClick={resetGame} className="reset-button">Reset Game</button>
+          <button onClick={resetGame} className="reset-button">{translate('Reset Game')}</button>
         </div>
       )}
     </div>

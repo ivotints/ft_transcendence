@@ -22,8 +22,6 @@ function Profile() {
   const [newPassword, setNewPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
   
-  const [errorKey, setErrorKey] = useState(''); // State to store error key
-  
   const [message, setMessage] = useState(''); // State to store error key
   const translatedMessageMail = message ? translate(message) : ''; // Derived variable for translation
   const [messageType, setMessageType] = useState('');
@@ -35,6 +33,7 @@ function Profile() {
 
   const [errorKeyFriend, setErrorKeyFriend] = useState(''); // State to store error key
   const translatedErrorMessageFriend = errorKeyFriend ? translate(errorKeyFriend) : ''; // Derived variable for translation
+  const [messageFriendType, setMessageFriendType] = useState('');
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -190,6 +189,7 @@ function Profile() {
       const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
       setFriendUsername('');
       console.log('Friend request sent:', response.data);
+      setMessageFriendType("success")
       setErrorKeyFriend();
     } catch (error) {
 
@@ -197,6 +197,7 @@ function Profile() {
       //console.log('Error response:', error.response); // Check if response exists
       //console.log('Error response data:', error.response?.data); // Inspect data in the response
       //setErrorKeyFriend(error.response.data);
+      setMessageFriendType("error")
       setErrorKeyFriend(
         error.response.data.friend_username?.[0] ?? 
         error.response.data.non_field_errors?.[0] ?? 
@@ -302,7 +303,7 @@ function Profile() {
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
             {translatedErrorMessageFriend && (
-  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+  <p className={messageFriendType === 'success' ? 'success-message' : 'error-message'}>
     {translatedErrorMessageFriend}
     </p>
 )}
