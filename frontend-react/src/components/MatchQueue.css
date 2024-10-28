@@ -7,6 +7,7 @@
   margin: 20px auto;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  overflow-wrap: break-word; /* Ensure long words wrap within container */
 }
 
 .match-queue h2 {
@@ -15,6 +16,9 @@
   margin-bottom: 15px;
   text-transform: uppercase;
   letter-spacing: 2px;
+  overflow: hidden; /* Hide overflowed content */
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+  white-space: nowrap; /* Prevent line wrapping */
 }
 
 .match-queue ul {
@@ -32,6 +36,9 @@
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Hide overflowed content */
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+  white-space: nowrap; /* Prevent line wrapping */
 }
 
 .match-queue li:nth-child(odd) {
@@ -44,4 +51,6 @@
   background-color: #ffe6e6;
   padding: 10px;
   border-radius: 5px;
+  overflow-wrap: break-word; /* Wrap long words within error message */
+  word-wrap: break-word;
 }

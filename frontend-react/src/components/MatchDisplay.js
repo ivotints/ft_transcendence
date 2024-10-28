@@ -8,10 +8,10 @@ function MatchDisplay({ match }) {
   return (
     <div className="match-display">
       <h2>{translate("Current Match")}</h2>
-      {match ? (
+      {match !== "No more matches scheduled." ? (
         <p>{match}</p>
       ) : (
-        <p className="no-match">{translate("No matches yet")}.</p>
+        <p className="no-match">{translate("No matches yet.")}</p>
       )}
     </div>
   );
