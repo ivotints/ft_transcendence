@@ -85,12 +85,12 @@ function App() {
           <Route path="/" element={
             !isLoggedIn ? (
               <>
-                <h1>{translate('Welcome to Pong Transcendence')}</h1>
+                <h1 className="profileH2">{translate('Welcome to Pong Transcendence')}</h1>
                 <AuthOptions onLoginSuccess={handleLoginSuccess} />
               </>
             ) : (
               <>
-                <h1>{translate('Choose Your Game Option')}</h1>
+                <h1 className="profileH2">{translate('Choose Your Game Option')}</h1>
                 <GameOptions />
               </>
             )

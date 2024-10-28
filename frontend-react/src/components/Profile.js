@@ -10,6 +10,8 @@ function Profile() {
     username: '',
     email: '',
   });
+  const [winCount, setWinCount] = useState(0);
+  const [lossCount, setLossCount] = useState(0);
   const [acceptedFriends, setAcceptedFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendUsername, setFriendUsername] = useState('');
@@ -46,6 +48,8 @@ function Profile() {
           email: profile.user.email,
         });
         setAvatar(profile.avatar);
+        setWinCount(profile.wins);
+        setLossCount(profile.losses);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -389,8 +393,8 @@ function Profile() {
                           <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
                           <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
                           <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
-                          <p><strong>{translate('Winner1')}:</strong> {match.winner1}</p>
-                          <p><strong>{translate('Winner2')}:</strong> {match.winner2}</p>
+                          <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
+                          <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
                           <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                           <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
                         </li>
@@ -400,15 +404,19 @@ function Profile() {
                 )}
               </div>
             );
-      case 'info':
-      default:
-        return (
-          <div className="user-info">
-            <h2 className="profileH2">{translate('User Info')}</h2>
-            <p>{translate('Username')}: {userInfo.username}</p>
-            <p>{translate('Email')}: {userInfo.email}</p>
-          </div>
-        );
+            case 'info':
+              default:
+                return (
+                  <div className="user-info">
+                    <h2 className="profileH2">{translate('User Info')}</h2>
+                    <p>{translate('Username')}: {userInfo.username}</p>
+                    <p>{translate('Email')}: {userInfo.email}</p>
+        
+                    <h3 className="profileH2">{translate('Player Statistics')}</h3>
+                    <p>{translate('Wins')}: {winCount}</p>
+                    <p>{translate('Losses')}: {lossCount}</p>
+                  </div>
+                );
     }
   };
 
