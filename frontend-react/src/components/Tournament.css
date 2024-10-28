@@ -1,52 +1,58 @@
-   .tournament-container {
-     text-align: center;
-     padding: 20px;
-     overflow-wrap: break-word;
-     word-wrap: break-word;
-   }
+.tournament-container {
+  text-align: center;
+  padding: 20px;
+  overflow-wrap: break-word; /* Ensure long words break */
+  word-wrap: break-word; /* Compatibility for legacy browsers */
+}
 
-   .tournament-content {
-     display: flex;
-     justify-content: space-between;
-     margin-top: 20px;
-   }
+.tournament-content {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap; /* Allow content to wrap if screen is too small */
+}
 
-   .left-column {
-     flex: 1;
-     padding: 20px;
-     margin-right: 10px;
-   }
+.left-column,
+.right-column {
+  flex: 1;
+  padding: 20px;
+  margin-right: 10px;
+  max-width: 48%; /* Constrain width for overflow control */
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Display ellipsis for long text */
+  white-space: nowrap; /* Prevent wrapping for overflowed text */
+}
 
-   .right-column {
-     flex: 1;
-     padding: 20px;
-   }
+.tournament-content > div {
+  width: 48%;
+}
 
-   .tournament-content>div {
-     width: 48%;
-   }
+.start-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+}
 
-   .start-button {
-     background-color: #4CAF50;
-     color: white;
-     padding: 10px 20px;
-     border: none;
-     border-radius: 5px;
-     font-size: 16px;
-     cursor: pointer;
-     margin-top: 20px;
-   }
+.start-button:hover {
+  background-color: #45a049;
+}
 
-   .start-button:hover {
-     background-color: #45a049;
-   }
+.match-display p {
+  font-size: 18px;
+  font-weight: bold;
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Display ellipsis for long text */
+  white-space: nowrap; /* Prevent wrapping for overflowed text */
+}
 
-   .match-display p {
-     font-size: 18px;
-     font-weight: bold;
-   }
-
-   .error-message {
-     color: red;
-     margin-top: 10px;
-   }
+.error-message {
+  color: red;
+  margin-top: 10px;
+  overflow-wrap: break-word; /* Ensure long error messages wrap */
+  word-wrap: break-word;
+}

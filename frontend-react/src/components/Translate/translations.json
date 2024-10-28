@@ -18,6 +18,7 @@
       "Reject": "Отклонить",
       "Select Match Type": "Выберите тип матча",
       "1 vs 1": "1 на 1",
+      "2 vs 2": "2 на 2",
       "Loading": "Загрузка",
       "Name": "Имя",
       "Match Date": "Дата матча",
@@ -82,6 +83,7 @@
       "Provide Player 2 name and press Start to play!": "Введите имя Игрока 2 и нажмите «Старт», чтобы начать игру!",
       "Player 2 Name": "Имя игрока 2",
       "Wins!": "Побеждает!",
+      "No matches yet.": "Турниров пока нет.",
       
       
       
@@ -107,6 +109,7 @@
       "Reject": "Odmítnout",
       "Select Match Type": "Vyberte typ zápasu",
       "1 vs 1": "1 na 1",
+      "2 vs 2": "2 na 2",
       "Loading": "Načítání",
       "Name": "Jméno",
       "Match Date": "Datum zápasu",
@@ -171,6 +174,7 @@
       "Provide Player 2 name and press Start to play!": "Zadejte jméno hráče 2 a stisknutím tlačítka Start začněte hrát!",
       "Player 2 Name": "Jméno hráče 2",
       "Wins!": "Vyhrává!",
+      "No matches yet.": "Zatím nejsou žádné turnaje.",
       
       
       
