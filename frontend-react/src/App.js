@@ -7,13 +7,15 @@ import Game from './components/Game';
 import PlayerVsPlayer from './components/PlayerVsPlayer';
 import PlayerVsAI from './components/PlayerVsAI';
 import Tournament from './components/Tournament';
+import TournamentGame from './components/TournamentGame';
+import WinTable from './components/WinTable';
+import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 import { useTranslate } from './components/Translate/useTranslate';
 // import { refreshToken } from './utils/auth';
-import ProtectedRoute from './components/ProtectedRoute';
 
 
 function App() {
@@ -120,6 +122,8 @@ function App() {
             <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
             <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
             <Route path="/tournament" element={<Tournament />} />
+            <Route path="/tournament-game" element={<TournamentGame />} />
+            <Route path="/win-table" element={<WinTable />} />
           </Route>
         </Routes>
       </div>

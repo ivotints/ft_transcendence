@@ -14,8 +14,8 @@
   font-size: 24px;
   color: #333;
   margin-bottom: 15px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  /* text-transform: uppercase; */
+  /* letter-spacing: 2px; */
   overflow: hidden; /* Hide overflowed content */
   text-overflow: ellipsis; /* Show ellipsis for overflowed text */
   white-space: nowrap; /* Prevent line wrapping */
