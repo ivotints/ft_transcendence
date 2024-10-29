@@ -8,7 +8,7 @@ export function refreshToken() {
         },
     })
     .then(response => {
-        if (response.data.detail === 'Success') {
+        if (response.status === 200) {
             console.log('Token refreshed successfully');
         } else {
             console.error('Failed to refresh token:', response.data);

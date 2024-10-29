@@ -100,7 +100,7 @@ function Profile() {
           if (matchType === '1v1') {
             response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
           }  else if (matchType === '2v2') {
-            response = await axios.get('https://localhost:8000/matches/2v2', {withCredentials: true});
+            response = await axios.get('https://localhost:8000/matches/2v2/', {withCredentials: true});
           } else if (matchType === 'tournament') {
             response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
           }
