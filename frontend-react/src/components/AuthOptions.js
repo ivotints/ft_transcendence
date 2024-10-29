@@ -75,11 +75,16 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
     }
   };
 
+  const handleOAuthClick = () => {
+    window.location.href = 'https://localhost:8000/oauth/redirect/';
+  };
+
   return (
     <div className="auth-options">
       <div className="auth-buttons">
         <button className="auth-button" onClick={handleLoginClick}>{translate('Log In')}</button>
         <button className="auth-button" onClick={handleCreateUserClick}>{translate('Create User')}</button>
+        <button className="auth-button" onClick={handleOAuthClick}>{translate('42')}</button>
       </div>
 
       {formType === 'login' && (

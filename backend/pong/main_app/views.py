@@ -1,5 +1,6 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
@@ -14,6 +15,7 @@ from django.views.generic import TemplateView, FormView
 from django.core.exceptions import ValidationError
 from django.views.generic import TemplateView
 from django.db.models import Q
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
@@ -21,6 +23,9 @@ from datetime import datetime
 
 import logging
 import os
+import random
+import string
+import requests
 
 from .web3 import get_tournament_data, add_tournament_data
 from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create
@@ -45,10 +50,10 @@ logger = logging.getLogger(__name__)
 
 
 class TwoFactorSetupTemplateView(TemplateView):
-    template_name = "setup_2fa.html"
+	template_name = "setup_2fa.html"
 
 class TwoFactorConfirmTemplateView(TemplateView):
-    template_name = "confirm_2fa.html"
+	template_name = "confirm_2fa.html"
 
 
 class SetupTwoFactorView(APIView):
@@ -79,39 +84,39 @@ class SetupTwoFactorView(APIView):
 	
 
 class ConfirmTwoFactorAuthView(APIView):
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        CustomJWTAuthentication,
-        authentication.TokenAuthentication,
-    ]
-    permission_classes = [permissions.IsAuthenticated]
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
-        user = request.user
-        otp = request.data.get('otp')  # Get OTP from request body
+	def post(self, request):
+		user = request.user
+		otp = request.data.get('otp')  # Get OTP from request body
 
-        try:
-            # Fetch the 2FA data for the authenticated user
-            two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=user).first()
+		try:
+			# Fetch the 2FA data for the authenticated user
+			two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=user).first()
 
-            if two_factor_auth_data is None:
-                return Response({"error": "2FA is not set up for this user."}, status=status.HTTP_400_BAD_REQUEST)
+			if two_factor_auth_data is None:
+				return Response({"error": "2FA is not set up for this user."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Validate the provided OTP
-            if not two_factor_auth_data.validate_otp(otp):
-                return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+			# Validate the provided OTP
+			if not two_factor_auth_data.validate_otp(otp):
+				return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # If OTP is valid, return success response
-            return Response({"success": "2FA verified successfully."}, status=status.HTTP_200_OK)
+			# If OTP is valid, return success response
+			return Response({"success": "2FA verified successfully."}, status=status.HTTP_200_OK)
 
-        except ValidationError as exc:
-            return Response({"error": exc.message}, status=status.HTTP_400_BAD_REQUEST)
+		except ValidationError as exc:
+			return Response({"error": exc.message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserCreateAPIView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = [permissions.AllowAny]
 
 
 class UserListAPIView(generics.ListAPIView):
@@ -137,16 +142,16 @@ class UserProfileListAPIView(generics.ListAPIView):
 	
 	
 class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserProfileSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication,
+	serializer_class = UserProfileSerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-        authentication.TokenAuthentication,
-    ]
-    permission_classes = [IsAuthenticated]
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        return UserProfile.objects.get(user=self.request.user)
+	def get_object(self):
+		return UserProfile.objects.get(user=self.request.user)
 	
 
 class FriendListCreateAPIView(generics.ListCreateAPIView):
@@ -167,33 +172,33 @@ class FriendListCreateAPIView(generics.ListCreateAPIView):
 
 
 class AcceptedFriendsAPIView(generics.ListAPIView):
-    serializer_class = FriendSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        CustomJWTAuthentication,
-        authentication.TokenAuthentication,
-    ]
-    permission_classes = [IsAuthenticated]
+	serializer_class = FriendSerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return Friend.objects.filter(
-            (Q(user=user) | Q(friend=user)) & Q(status="accepted")
-        )
+	def get_queryset(self):
+		user = self.request.user
+		return Friend.objects.filter(
+			(Q(user=user) | Q(friend=user)) & Q(status="accepted")
+		)
 	
 
 class PendingFriendRequestsAPIView(generics.ListAPIView):
-    serializer_class = FriendSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        CustomJWTAuthentication,
-        authentication.TokenAuthentication,
-    ]
-    permission_classes = [IsAuthenticated]
+	serializer_class = FriendSerializer
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return Friend.objects.filter(friend=user, status="pending")
+	def get_queryset(self):
+		user = self.request.user
+		return Friend.objects.filter(friend=user, status="pending")
 	
 
 class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
@@ -417,7 +422,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			# they have not enabled two-factor authentication
 			pass
 		else:
-			 # If the user has two-factor authentication data, they need to provide an OTP
+			# If the user has two-factor authentication data, they need to provide an OTP
 			otp_provided = request.data.get('otp')
 
 			if not two_factor_auth_data.validate_otp(otp_provided):
@@ -435,7 +440,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			response.set_cookie(
 				'access_token',
 				access_token,
-                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+				expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
 				httponly=True,
 				samesite='None',
 				secure=True,
@@ -446,7 +451,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				refresh_token,
 				httponly=True,
 				samesite='None',
-        		expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+				expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
 				secure=True,
 			)
 
@@ -460,34 +465,34 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class CustomTokenRefreshView(TokenRefreshView):
-    serializer_class = CustomTokenRefreshSerializer
+	serializer_class = CustomTokenRefreshSerializer
 
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get('refresh_token')
-        if not refresh_token:
-            return Response({'detail': 'Refresh token not found'}, status=400)
+	def post(self, request, *args, **kwargs):
+		refresh_token = request.COOKIES.get('refresh_token')
+		if not refresh_token:
+			return Response({'detail': 'Refresh token not found'}, status=400)
 
-        serializer = self.get_serializer(data={'refresh': refresh_token})
+		serializer = self.get_serializer(data={'refresh': refresh_token})
 
-        try:
-            serializer.is_valid(raise_exception=True)
-        except serializers.ValidationError as e:
-            return Response({'detail': 'Invalid token'}, status=400)
+		try:
+			serializer.is_valid(raise_exception=True)
+		except serializers.ValidationError as e:
+			return Response({'detail': 'Invalid token'}, status=400)
 
-        access_token = serializer.validated_data.get('access')
+		access_token = serializer.validated_data.get('access')
 
-        response = Response({'detail': 'Success'})
-        if access_token:
-            response.set_cookie(
-                'access_token',
+		response = Response({'detail': 'Success'})
+		if access_token:
+			response.set_cookie(
+				'access_token',
 				access_token,
-                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                httponly=True,
-                samesite='None',
-                secure=True,
-            )
+				expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+				httponly=True,
+				samesite='None',
+				secure=True,
+			)
 
-        return response
+		return response
 	
 
 class CustomTokenVerifyView(TokenVerifyView):
@@ -502,26 +507,114 @@ class CustomTokenVerifyView(TokenVerifyView):
 	
 
 class ProtectedMediaView(APIView):
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        CustomJWTAuthentication,
-        authentication.TokenAuthentication,
-    ]
-    permission_classes = [permissions.IsAuthenticated]
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, path, format=None):
-        file_path = os.path.join(settings.MEDIA_ROOT, path)
-        if os.path.exists(file_path):
-            return FileResponse(open(file_path, 'rb'))
-        else:
-            raise Http404
+	def get(self, request, path, format=None):
+		file_path = os.path.join(settings.MEDIA_ROOT, path)
+		if os.path.exists(file_path):
+			return FileResponse(open(file_path, 'rb'))
+		else:
+			raise Http404
 		
+
+def generate_state():
+	return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+
+
+def oauth_redirect(request):
+	client_id = settings.FT_CLIENT_ID
+	redirect_uri = settings.FT_REDIRECT_URI
+	state = generate_state()
+	request.session['oauth_state'] = state
+
+	authorization_url = (
+		f"https://api.intra.42.fr/oauth/authorize"
+		f"?client_id={client_id}"
+		f"&redirect_uri={redirect_uri}"
+		f"&response_type=code"
+		f"&scope=public"
+		f"&state={state}"
+	)
+
+	return redirect(authorization_url)
+
+
+def oauth_callback(request):
+	code = request.GET.get('code')
+	state = request.GET.get('state')
+	stored_state = request.session.pop('oauth_state', None)
+
+	if state != stored_state:
+		return JsonResponse({'error': 'Invalid state parameter'}, status=400)
+
+	token_url = "https://api.intra.42.fr/oauth/token"
+	data = {
+		'grant_type': 'authorization_code',
+		'client_id': settings.FT_CLIENT_ID,
+		'client_secret': settings.FT_CLIENT_SECRET,
+		'code': code,
+		'redirect_uri': settings.FT_REDIRECT_URI,
+	}
+
+	response = requests.post(token_url, data=data)
+	if response.status_code != 200:
+		return JsonResponse({'error': 'Failed to obtain access token'}, status=response.status_code)
+
+	token_data = response.json()
+	access_token = token_data.get('access_token')
+
+	# Fetch user info from 42 API
+	headers = {
+		'Authorization': f'Bearer {access_token}',
+	}
+	user_info_response = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
+	if user_info_response.status_code != 200:
+		return JsonResponse({'error': 'Failed to fetch user info'}, status=user_info_response.status_code)
+
+	user_info = user_info_response.json()
+	username = user_info['login']
+	email = user_info['email']
+
+	# Authenticate or create the user
+	User = get_user_model()
+	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+
+	refresh = RefreshToken.for_user(user)
+	access_token = str(refresh.access_token)
+	refresh_token = str(refresh)
+
+	response = redirect('https://localhost/')
+	response.set_cookie(
+		'access_token',
+		access_token,
+		httponly=True,
+		samesite='None',
+		secure=True,
+		expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+	)
+	response.set_cookie(
+		'refresh_token',
+		refresh_token,
+		httponly=True,
+		samesite='None',
+		secure=True,
+		expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+	)
+
+	return response
+
+
 @api_view(['GET'])
 @authentication_classes([
-    authentication.SessionAuthentication,
-    CustomJWTAuthentication,
-    authentication.TokenAuthentication,
+	authentication.SessionAuthentication,
+	CustomJWTAuthentication,
+	authentication.TokenAuthentication,
 ])
 @permission_classes([IsAuthenticated])
 def check_login_status(request):
-    return JsonResponse({'detail': 'User is authenticated'}, status=200)
+	return JsonResponse({'detail': 'User is authenticated'}, status=200)
