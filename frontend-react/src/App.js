@@ -12,7 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 import { useTranslate } from './components/Translate/useTranslate';
-import { refreshToken } from './utils/auth';
+// import { refreshToken } from './utils/auth';
 import ProtectedRoute from './components/ProtectedRoute';
 
 
@@ -24,13 +24,32 @@ function App() {
   const checkLoginIntervalRef = useRef(null);
   const refreshTokenIntervalRef = useRef(null);
 
-  const checkLoginStatus = async () => {
+  // const checkLoginStatus = async () => {
+  //   try {
+  //     const response = await axios.get('https://localhost:8000/check-login/', {
+  //       withCredentials: true,
+  //     });
+  
+  //     if (response.status === 200) {
+  //       setIsLoggedIn(true);
+  //     } else {
+  //       setIsLoggedIn(false);
+  //     }
+  //   } catch (error) {
+  //     setIsLoggedIn(false);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const refreshToken = async () => {
     try {
-      const response = await axios.get('https://localhost:8000/check-login/', {
+      const response = await axios.post('https://localhost:8000/token/refresh/', {}, {
         withCredentials: true,
       });
-  
+
       if (response.status === 200) {
+        console.log('Token refreshed successfully');
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
@@ -46,20 +65,20 @@ function App() {
   
   useEffect(() => {
     const initializeIntervals = async () => {
-      refreshToken();
-      await sleep(1000);
-      checkLoginStatus();
+      await refreshToken();
+      // await sleep(1000);
+      // await checkLoginStatus();
 
       refreshTokenIntervalRef.current = setInterval(refreshToken, 60 * 1000);
-      await sleep(1000);
-      checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
+      // await sleep(1000);
+      // checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
     };
 
     initializeIntervals();
 
     return () => {
       clearInterval(refreshTokenIntervalRef.current);
-      clearInterval(checkLoginIntervalRef.current);
+      // clearInterval(checkLoginIntervalRef.current);
     };
   }, []);
 

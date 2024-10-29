@@ -168,7 +168,7 @@ function PongGameWithAI() {
         // Check for game end (score of 5)
         if (this.player.score === WINNING_SCORE) {
           this.over = true;
-          setTimeout(() => { this.endGameMenu(translate('Winner!')); }, 1000);
+          setTimeout(() => { this.endGameMenu(translate('You won!')); }, 1000);
         } else if (this.ai.score === WINNING_SCORE) {
           this.over = true;
           setTimeout(() => { this.endGameMenu(translate('Game Over!')); }, 1000);

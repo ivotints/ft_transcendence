@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslate } from './Translate/useTranslate';
+import axios from 'axios';
 
 const DIRECTION = {
   IDLE: 0,
@@ -12,7 +13,7 @@ const DIRECTION = {
 const WINNING_SCORE = 5;
 const BACKGROUND_COLOR = '#00cc00';
 
-function PongGame({ player1Name, player2Name }) {
+function PongGame({ player1, player2Name }) {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
   const { translate } = useTranslate();
@@ -187,12 +188,26 @@ this.ball.y + this.ball.height >= this.player2.y) {
         }
 
         // Check for game end (score of 5)
-        if (this.player1.score === WINNING_SCORE) {
+        if (this.player1.score === WINNING_SCORE || this.player2.score === WINNING_SCORE) {
           this.over = true;
-          setTimeout(() => { this.endGameMenu(`${player1Name} ` + translate('Wins!')); }, 1000);
-        } else if (this.player2.score === WINNING_SCORE) {
-          this.over = true;
-          setTimeout(() => { this.endGameMenu(`${player2Name} ` + translate('Wins!')); }, 1000);
+        
+          const matchData = {
+            player1: player1.id,
+            player2: player2Name,
+            match_score: `${this.player1.score}-${this.player2.score}`,
+          };
+        
+          axios.post('https://localhost:8000/matches/', matchData, { withCredentials: true })
+            .then(response => {
+              console.log('Match data sent successfully:', response.data);
+            })
+            .catch(error => {
+              console.error('Error sending match data:', error);
+            });
+
+          const winner = this.player1.score === WINNING_SCORE ? player1.username : player2Name;
+
+          setTimeout(() => { this.endGameMenu(`${winner} ` + translate('Wins!')); }, 1000);
         }
       },
 
@@ -334,7 +349,7 @@ Pong.player2.move = DIRECTION.IDLE;
         gameRef.current.over = true;
       }
     };
-  }, [player1Name, player2Name]);
+  }, [player1, player2Name]);
 
   return (
     <div className="pong-game">

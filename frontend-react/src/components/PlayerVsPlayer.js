@@ -8,7 +8,7 @@ function PlayerVsPlayer() {
   const [gameStarted, setGameStarted] = useState(false);
   const [player2Name, setPlayer2Name] = useState('');
   const [isNameConfirmed, setIsNameConfirmed] = useState(false);
-  const [player1Name, setPlayer1Name] = useState('');
+  const [player1, setPlayer1] = useState(null);
   const { translate } = useTranslate();
 
 
@@ -16,7 +16,8 @@ function PlayerVsPlayer() {
     try {
       const response = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
       const profile = response.data;
-      setPlayer1Name(profile.user.username); // Set player1Name from profile
+      console.log(profile);
+      setPlayer1(profile.user);
     } catch (error) {
       console.error('Error fetching user profile:', error);
     }
@@ -74,7 +75,7 @@ function PlayerVsPlayer() {
         </div>
       ) : (
         <div>
-          <PongGame player1Name={player1Name} player2Name={player2Name} />
+          <PongGame player1={player1} player2Name={player2Name} />
           <button onClick={resetGame} className="reset-button">{translate('Reset Game')}</button>
 
         </div>
