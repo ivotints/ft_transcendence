@@ -140,10 +140,10 @@ class MatchHistory2v2(models.Model):
 	
 
 class Tournament(models.Model):
-	name = models.CharField(max_length=100)
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tournaments", default=1)
 	tournament_id = models.IntegerField(unique=True, null=True, blank=True)
 	match_date = models.DateTimeField(default=timezone.now)
-	participants = models.ManyToManyField(User, related_name='tournaments')
+	# participants = models.ManyToManyField(User, related_name='tournaments')
 	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
 	
 	def __str__(self):

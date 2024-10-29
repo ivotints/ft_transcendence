@@ -56,3 +56,19 @@
   overflow-wrap: break-word; /* Ensure long error messages wrap */
   word-wrap: break-word;
 }
+
+.cancel-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.cancel-button:hover {
+  background-color: #45a049;
+}

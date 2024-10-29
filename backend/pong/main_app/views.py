@@ -314,7 +314,7 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Tournament.objects.filter(participants=user)
+		return Tournament.objects.filter(owner=user)
 	
 	# def list(self, request, *args, **kwargs):
 	# 	queryset = self.get_queryset()
@@ -583,6 +583,11 @@ def oauth_callback(request):
 	# Authenticate or create the user
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+
+	if not created:
+		if user.email != email:
+			user.email = email
+			user.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)
