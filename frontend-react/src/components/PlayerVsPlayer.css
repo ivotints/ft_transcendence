@@ -4,10 +4,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Center vertically */
+  min-height: 100vh;
   text-align: center;
   color: #fff;
-  background-color: #282c34; /* Optional: background color for better visibility */
+  background-color: #282c34;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .menu, .pong-game {
@@ -15,23 +17,28 @@
   margin-bottom: 20px;
 }
 
-.start-button, .reset-button {
+.start-button, .reset-button, .confirm-button {
   padding: 10px 20px;
   font-size: 1rem;
-  background-color: #28a745;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   margin-top: 15px;
+  transition: background-color 0.3s ease;
 }
 
-.start-button:hover {
+.start-button, .confirm-button {
+  background-color: #28a745;
+}
+
+.start-button:hover, .confirm-button:hover {
   background-color: #218838;
 }
 
 .reset-button {
   background-color: #dc3545;
+  margin-top: 10px;
 }
 
 .reset-button:hover {
@@ -39,6 +46,66 @@
 }
 
 .name-input {
+  padding: 10px;
+  font-size: 1rem;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+}
+
+/* Table for aligning player inputs */
+.player-table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 600px;
+}
+
+.player-table td {
+  padding: 15px;
+  text-align: left;
+}
+
+.player-table label {
+  font-size: 1rem;
+  color: #ccc;
+}
+
+.read-only {
+  background-color: #f0f0f0;
+  color: #888;
+  pointer-events: none;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .player-table {
+    width: 100%;
+  }
+
+  .name-input {
+    width: 90%;
+  }
+
+  .start-button, .reset-button, .confirm-button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
+
+.input-container {
+  display: flex;
+  flex-direction: column; /* Stack inputs vertically */
+  align-items: center;
+  margin: 20px 0;
+}
+
+.name-input {
+  width: 80%; /* Set width for consistency */
   padding: 10px;
   font-size: 1rem;
   margin-top: 15px;
@@ -54,10 +121,23 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
-  margin-top: 15px;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
 }
 
 .confirm-button:hover {
   background-color: #218838;
+}
+
+.instructions {
+  background-color: rgba(255, 255, 255, 0.1); /* Light background for contrast */
+  border: 1px solid #fff; /* White border for visibility */
+  padding: 20px; /* Padding for aesthetics */
+  border-radius: 10px; /* Rounded corners */
+  margin-top: 20px; /* Space between elements */
+  width: 80%; /* Consistent width */
+}
+
+.instructions p {
+  margin: 5px 0; /* Spacing between instructions */
 }

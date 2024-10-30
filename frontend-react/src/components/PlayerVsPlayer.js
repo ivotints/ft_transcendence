@@ -6,11 +6,11 @@ import { useTranslate } from './Translate/useTranslate';
 
 function PlayerVsPlayer() {
   const [gameStarted, setGameStarted] = useState(false);
+  const [player1Name, setPlayer1Name] = useState('');
   const [player2Name, setPlayer2Name] = useState('');
   const [isNameConfirmed, setIsNameConfirmed] = useState(false);
   const [player1, setPlayer1] = useState(null);
   const { translate } = useTranslate();
-
 
   const fetchUserProfile = async () => {
     try {
@@ -66,6 +66,7 @@ function PlayerVsPlayer() {
                 onChange={handleNameChange}
                 className="name-input"
               />
+              <br></br>
               <button onClick={confirmName} className="confirm-button">{translate('Confirm')}</button>
             </div>
           ) : (

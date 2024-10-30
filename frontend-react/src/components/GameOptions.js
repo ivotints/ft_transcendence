@@ -16,6 +16,9 @@ function GameOptions() {
       <button onClick={() => navigate('/game/player-vs-ai')} className="game-option-button">
       {translate('Player vs AI')}
       </button>
+      <button onClick={() => navigate('/game/2-vs-2')} className="game-option-button">
+      {translate('2 Players vs 2 Players')}
+      </button>
       <button onClick={() => navigate('/tournament')} className="game-option-button">
       {translate('Tournament')}
       </button>

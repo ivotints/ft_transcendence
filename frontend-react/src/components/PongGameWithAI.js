@@ -10,13 +10,13 @@ const DIRECTION = {
 };
 
 const WINNING_SCORE = 5;
-//const BACKGROUND_COLOR = '#8c52ff';
 const BACKGROUND_COLOR = '#00cc00';
 
 function PongGameWithAI() {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
   const { translate } = useTranslate();
+  
   useEffect(() => {
     const Ball = {
       new: function (incrementedSpeed) {
