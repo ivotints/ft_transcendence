@@ -85,13 +85,14 @@ function PlayerVsPlayer() {
 
           {!isNameConfirmed ? (
             <div>
-              <p>{translate('Provide player names for all players and press Start to play!')}</p>
+              <p>{translate('Provide player names for all players.')}</p>
               <table className="player-table">
                 <tbody>
                   <tr>
                     <td>
                       <label>{translate('Team 1 Player 1')}</label>
                       <input
+                        maxLength={16}
                         type="text"
                         value={player1Name}
                         readOnly
@@ -102,7 +103,7 @@ function PlayerVsPlayer() {
                       <label>{translate('Team 2 Player 1')}</label>
                       <input
                         type="text"
-                        maxLength="100"
+                        maxLength={16}
                         placeholder={translate("Enter Player 3 Name")}
                         value={player3Name}
                         onChange={handleNameChange3}
@@ -115,7 +116,8 @@ function PlayerVsPlayer() {
                       <label>{translate('Team 1 Player 2')}</label>
                       <input
                         type="text"
-                        maxLength="100"
+                        maxLength={16}
+
                         placeholder={translate("Enter Player 2 Name")}
                         value={player2Name}
                         onChange={handleNameChange2}
@@ -126,7 +128,7 @@ function PlayerVsPlayer() {
                       <label>{translate('Team 2 Player 2')}</label>
                       <input
                         type="text"
-                        maxLength="100"
+                        maxLength={16}
                         placeholder={translate("Enter Player 4 Name")}
                         value={player4Name}
                         onChange={handleNameChange4}
@@ -141,13 +143,32 @@ function PlayerVsPlayer() {
             </div>
           ) : (
             <div className="instructions">
-              <p>{translate('Player 1: W and S')}</p>
-              <p>{translate('Player 2: \' and /')}</p>
-              <p>{translate('Player 3: Up and Down')}</p>
-              <p>{translate('Player 4: 8 and 2')}</p>
-              <p>{translate('Click Start when you are ready!')}</p>
-              <button onClick={startGame} className="start-button">{translate('Start Game')}</button>
-            </div>
+  <p className="start-text">{translate('Click Start when you are ready!')}</p>
+  
+  <div className="table">
+    <div className="table-row">
+      <p>{player1Name}</p>
+      <p>{translate('Player 1: W and S')}</p>
+    </div>
+    <div className="table-row">
+      <p>{player2Name}</p>
+      <p>{translate('Player 2: \' and /')}</p>
+    </div>
+    <div className="table-row">
+      <p>{player3Name}</p>
+      <p>{translate('Player 3: Up and Down')}</p>
+    </div>
+    <div className="table-row">
+      <p>{player4Name}</p>
+      <p>{translate('Player 4: 8 and 2')}</p>
+    </div>
+  </div>
+  
+  <button onClick={startGame} className="start-button">{translate('Start Game')}</button>
+</div>
+
+
+
           )}
         </div>
       ) : (
