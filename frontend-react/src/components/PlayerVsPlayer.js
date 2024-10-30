@@ -61,7 +61,7 @@ function PlayerVsPlayer() {
               <input
                 type="text"
                 placeholder={translate("Player 2 Name")}
-
+                maxLength={16}
                 value={player2Name}
                 onChange={handleNameChange}
                 className="name-input"

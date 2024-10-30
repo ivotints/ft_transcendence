@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './WinTable.css';
+import { useTranslate } from './Translate/useTranslate';
 
 function WinTable() {
   const navigate = useNavigate();
   const location = useLocation();
   const { players = [], scores = {} } = location.state || {};
   const [user, setUser] = useState(null);
+  const { translate } = useTranslate();
 
   // Sort players by score (descending), handling ties randomly
   const sortedPlayers = [...players].sort((a, b) => {
@@ -75,16 +77,16 @@ function WinTable() {
 
   return (
     <div>
-      <h1 className="profileH2">Final standings were determined by your score and performance!</h1>
+      <h1 className="profileH2">{translate("Final standings were determined by your score and performance!")}</h1>
       <div className="win-table-wrapper">
-        <h1 className="win-table-title">Final Standings</h1>
+        <h1 className="win-table-title">{translate("Final Standings")}</h1>
         <div className="win-table-content">
           <table className="win-table">
             <thead>
               <tr>
-                <th>Position</th>
-                <th>Player</th>
-                <th>Score</th>
+                <th>{translate("Position")}</th>
+                <th>{translate("Player")}</th>
+                <th>{translate("Score")}</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +99,7 @@ function WinTable() {
               ))}
             </tbody>
           </table>
-          <button className="win-table-restart-button" onClick={handleRestart}>Start New Tournament</button>
+          <button className="win-table-restart-button" onClick={handleRestart}>{translate("Start New Tournament")}</button>
         </div>
       </div>
     </div>

@@ -10,8 +10,8 @@ function PlayerRegistration({ addPlayer, players }) {
   const { language } = useLanguage();
 
   const handleAddPlayer = () => {
-    if (alias && !players.includes(alias)) {
-      addPlayer(alias);
+    if (alias.trim() && !players.includes(alias.trim())) {
+      addPlayer(alias.trim());
       setAlias('');
       setErrorKey('');
     } else {
@@ -25,7 +25,7 @@ function PlayerRegistration({ addPlayer, players }) {
     <div className="player-registration">
       <h2>{translate('Player Registration')}</h2>
       <div className="input-group">
-        <input  
+        <input
           maxLength={16}
           type="text"
           value={alias}

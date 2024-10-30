@@ -130,14 +130,45 @@
 }
 
 .instructions {
-  background-color: rgba(255, 255, 255, 0.1); /* Light background for contrast */
-  border: 1px solid #fff; /* White border for visibility */
-  padding: 20px; /* Padding for aesthetics */
-  border-radius: 10px; /* Rounded corners */
-  margin-top: 20px; /* Space between elements */
-  width: 80%; /* Consistent width */
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #fff;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  width: 90%;
 }
 
-.instructions p {
-  margin: 5px 0; /* Spacing between instructions */
+.start-text {
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  text-align: left;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-row p {
+  display: table-cell;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.start-button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  margin-top: 15px;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
 }
