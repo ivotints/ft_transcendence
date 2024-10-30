@@ -174,8 +174,8 @@ METAMASK_PRIVATE_KEY = os.environ.get('METAMASK_PRIVATE_KEY')
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=3),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
 	"AUTH_COOKIE": "access_token",  # Cookie name. Enables cookies if value is set.
     "AUTH_COOKIE_DOMAIN": None,     # A string like "example.com", or None for standard domain cookie.
     "AUTH_COOKIE_SECURE": True,    # Whether the auth cookies should be secure (https:// only).

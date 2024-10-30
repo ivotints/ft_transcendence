@@ -6,6 +6,8 @@ import Profile from './components/Profile';
 import Game from './components/Game';
 import PlayerVsPlayer from './components/PlayerVsPlayer';
 import PlayerVsAI from './components/PlayerVsAI';
+import TwoVsTwoGame from './components/TwoVsTwoGame';  // New component for 2-vs-2 mode
+
 import Tournament from './components/Tournament';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
@@ -101,6 +103,7 @@ function App() {
             <Route path="/game/player-vs-player" element={<PlayerVsPlayer />} />
             <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
             <Route path="/tournament" element={<Tournament />} />
+            <Route path="/game/2-vs-2" element={<TwoVsTwoGame />} />
           </Route>
         </Routes>
       </div>
