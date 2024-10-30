@@ -27,6 +27,8 @@ services:
       POSTGRES_DB: db
       ALCHEMY_API_KEY: ${ALCHEMY_API_KEY}
       METAMASK_PRIVATE_KEY: ${METAMASK_PRIVATE_KEY}
+      CLIENT_ID_42: ${CLIENT_ID_42}
+      CLIENT_SECRET_42: ${CLIENT_SECRET_42}
 
   frontend:
     build: ../frontend-react/

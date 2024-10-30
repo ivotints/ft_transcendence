@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = [
+			'id',
 			'username',
 			'email',
 			'password',
@@ -254,48 +255,45 @@ class FriendSerializer(serializers.ModelSerializer):
 
 
 class TournamentSerializer(serializers.ModelSerializer):
-	winners_order = serializers.SerializerMethodField()
+    winners_order = serializers.ListField(child=serializers.CharField(), write_only=True)
+    winners_order_display = serializers.SerializerMethodField()
 
-	class Meta:
-		model = Tournament
-		fields = [
-			'name',
-			'tournament_id',
-			'match_date',
-			'winners_order',
-			'participants',
-			'blockchain_tx_hash',
-		]
-		read_only_fields = ['blockchain_tx_hash']
+    class Meta:
+        model = Tournament
+        fields = [
+            'owner',
+            'tournament_id',
+            'match_date',
+            'winners_order',
+            'winners_order_display',
+            'blockchain_tx_hash',
+        ]
+        read_only_fields = ['blockchain_tx_hash', 'winners_order_display']
 
-	def get_winners_order(self, obj):
-		try:
-			blockchain_data = get_tournament_data(obj.tournament_id)
-			print("Blockchain data:", blockchain_data)
-			return blockchain_data
-		except Exception as e:
-			return {'error': str(e)}
-		
-	def create(self, validated_data):
-		# winners_order = validated_data.pop('winners_order', None)
-		winners_order = ["player1", "player2", "player3", "player4"]
-		participants = validated_data.pop('participants', None)
-		tournament = Tournament.objects.create(**validated_data)
+    def get_winners_order_display(self, obj):
+        try:
+            blockchain_data = get_tournament_data(obj.tournament_id)
+            print("Blockchain data:", blockchain_data)
+            return blockchain_data
+        except Exception as e:
+            return {'error': str(e)}
 
-		if participants:
-			tournament.participants.set(participants)
+    def create(self, validated_data):
+        winners_order = validated_data.pop('winners_order', None)
+        try:
+            tournament = Tournament.objects.create(**validated_data)
 
-		if winners_order:
-			tournament_id = tournament.id + 60035
+            if winners_order:
+                tournament_id = tournament.id + 60045
+                tournament.tournament_id = tournament_id
+                tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
+                tournament.blockchain_tx_hash = tx_hash
+                tournament.save()
 
-			tournament.tournament_id = tournament_id
-
-			tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
-
-			tournament.blockchain_tx_hash = tx_hash
-			tournament.save()
-
-		return tournament
+            return tournament
+        except Exception as e:
+            logger.error(f"Error creating tournament: {e}")
+            raise serializers.ValidationError(f"Error creating tournament: {e}")
 	
 
 class CustomTokenRefreshSerializer(TokenRefreshSerializer):

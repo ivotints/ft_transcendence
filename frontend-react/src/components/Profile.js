@@ -100,7 +100,7 @@ function Profile() {
           if (matchType === '1v1') {
             response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
           }  else if (matchType === '2v2') {
-            response = await axios.get('https://localhost:8000/matches/2v2', {withCredentials: true});
+            response = await axios.get('https://localhost:8000/matches/2v2/', {withCredentials: true});
           } else if (matchType === 'tournament') {
             response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
           }
@@ -368,9 +368,20 @@ function Profile() {
                     <ul>
                       {matchHistory.map((tournament) => (
                         <li key={tournament.tournament_id} className="tournament">
-                          <p><strong>{translate('Name')}:</strong> {tournament.name}</p>
+                          <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
                           <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
-                          <p><strong>{translate('Winners Order')}:</strong> {Array.isArray(tournament.winners_order) ? tournament.winners_order.join(', ') : (tournament.winners_order && tournament.winners_order.error ? tournament.winners_order.error : 'N/A')}</p>
+                          <p><strong>{translate('Winners Order')}:</strong></p>
+                          <ul>
+                            {Array.isArray(tournament.winners_order_display) ? (
+                              tournament.winners_order_display.map((username, index) => (
+                                <li key={index}>
+                                  <strong>{`${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place:`}</strong> {username}
+                                </li>
+                              ))
+                            ) : (
+                              <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
+                            )}
+                          </ul>
                         </li>
                       ))}
                     </ul>

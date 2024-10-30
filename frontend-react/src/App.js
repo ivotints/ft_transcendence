@@ -9,13 +9,15 @@ import PlayerVsAI from './components/PlayerVsAI';
 import TwoVsTwoGame from './components/TwoVsTwoGame';  // New component for 2-vs-2 mode
 
 import Tournament from './components/Tournament';
+import TournamentGame from './components/TournamentGame';
+import WinTable from './components/WinTable';
+import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { LanguageProvider } from './components/Translate/LanguageContext';  // Import LanguageProvider
 import { useTranslate } from './components/Translate/useTranslate';
-import { refreshToken } from './utils/auth';
-import ProtectedRoute from './components/ProtectedRoute';
+// import { refreshToken } from './utils/auth';
 
 
 function App() {
@@ -26,13 +28,32 @@ function App() {
   const checkLoginIntervalRef = useRef(null);
   const refreshTokenIntervalRef = useRef(null);
 
-  const checkLoginStatus = async () => {
+  // const checkLoginStatus = async () => {
+  //   try {
+  //     const response = await axios.get('https://localhost:8000/check-login/', {
+  //       withCredentials: true,
+  //     });
+  
+  //     if (response.status === 200) {
+  //       setIsLoggedIn(true);
+  //     } else {
+  //       setIsLoggedIn(false);
+  //     }
+  //   } catch (error) {
+  //     setIsLoggedIn(false);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const refreshToken = async () => {
     try {
-      const response = await axios.get('https://localhost:8000/check-login/', {
+      const response = await axios.post('https://localhost:8000/token/refresh/', {}, {
         withCredentials: true,
       });
-  
+
       if (response.status === 200) {
+        console.log('Token refreshed successfully');
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
@@ -48,20 +69,20 @@ function App() {
   
   useEffect(() => {
     const initializeIntervals = async () => {
-      refreshToken();
-      await sleep(1000);
-      checkLoginStatus();
+      await refreshToken();
+      // await sleep(1000);
+      // await checkLoginStatus();
 
       refreshTokenIntervalRef.current = setInterval(refreshToken, 60 * 1000);
-      await sleep(1000);
-      checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
+      // await sleep(1000);
+      // checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
     };
 
     initializeIntervals();
 
     return () => {
       clearInterval(refreshTokenIntervalRef.current);
-      clearInterval(checkLoginIntervalRef.current);
+      // clearInterval(checkLoginIntervalRef.current);
     };
   }, []);
 
@@ -104,6 +125,8 @@ function App() {
             <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
             <Route path="/tournament" element={<Tournament />} />
             <Route path="/game/2-vs-2" element={<TwoVsTwoGame />} />
+            <Route path="/tournament-game" element={<TournamentGame />} />
+            <Route path="/win-table" element={<WinTable />} />
           </Route>
         </Routes>
       </div>

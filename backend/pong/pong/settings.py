@@ -172,6 +172,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ALCHEMY_API_KEY = os.environ.get('ALCHEMY_API_KEY')
 METAMASK_PRIVATE_KEY = os.environ.get('METAMASK_PRIVATE_KEY')
 
+FT_CLIENT_ID = os.environ.get('CLIENT_ID_42')
+FT_CLIENT_SECRET = os.environ.get('CLIENT_SECRET_42')
+FT_REDIRECT_URI = 'https://localhost:8000/oauth/callback/'
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
@@ -183,8 +187,6 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_PATH": "/",        # The path of the auth cookie.
 	'USER_ID_CLAIM': 'user_id',
     'USER_ID_FIELD': 'id',
-    # "AUTH_COOKIE_SAMESITE": "Lax",  # Whether to set the flag restricting cookie leaks on cross-site requests.
-                                    # This can be 'Lax', 'Strict', or None to disable the flag.
 }
 
 REST_FRAMEWORK = {

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslate } from './Translate/useTranslate';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import './TournamentGame.css';
 
 const DIRECTION = {
   IDLE: 0,
@@ -13,10 +15,19 @@ const DIRECTION = {
 const WINNING_SCORE = 5;
 const BACKGROUND_COLOR = '#00cc00';
 
-function PongGame({ player1, player2Name }) {
+function TournamentGame() {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
   const { translate } = useTranslate();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { player1, player2 } = location.state;
+
+  const handleGameEnd = (winnerName) => {
+    setTimeout(() => {
+      navigate('/tournament', { state: { winner: winnerName } });
+    }, 2000);
+  };
 
   useEffect(() => {
     const Ball = {
@@ -28,7 +39,7 @@ function PongGame({ player1, player2Name }) {
           y: (this.canvas.height / 2) - 9,
           moveX: DIRECTION.IDLE,
           moveY: DIRECTION.IDLE,
-          speed: incrementedSpeed || 7
+          speed: incrementedSpeed || 50
         };
       }
     };
@@ -192,22 +203,15 @@ this.ball.y + this.ball.height >= this.player2.y) {
           this.over = true;
         
           const matchData = {
-            player1: player1.id,
-            player2: player2Name,
+            player1: player1,
+            player2: player2,
             match_score: `${this.player1.score}-${this.player2.score}`,
           };
-        
-          axios.post('https://localhost:8000/matches/', matchData, { withCredentials: true })
-            .then(response => {
-              console.log('Match data sent successfully:', response.data);
-            })
-            .catch(error => {
-              console.error('Error sending match data:', error);
-            });
 
-          const winner = this.player1.score === WINNING_SCORE ? player1.username : player2Name;
+          const winner = this.player1.score === WINNING_SCORE ? player1 : player2;
 
           setTimeout(() => { this.endGameMenu(`${winner} ` + translate('Wins!')); }, 1000);
+          handleGameEnd(winner);
         }
       },
 
@@ -349,13 +353,14 @@ Pong.player2.move = DIRECTION.IDLE;
         gameRef.current.over = true;
       }
     };
-  }, [player1, player2Name]);
+  }, [player1, player2]);
 
   return (
     <div className="pong-game">
+      <h1 className="profileH2">{player1} VS {player2}</h1>
       <canvas ref={canvasRef} style={{ background: BACKGROUND_COLOR }} />
     </div>
   );
 }
 
-export default PongGame;
+export default TournamentGame;

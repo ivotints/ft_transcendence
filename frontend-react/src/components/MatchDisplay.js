@@ -18,4 +18,3 @@ function MatchDisplay({ match }) {
 }
 
 export default MatchDisplay;
-
