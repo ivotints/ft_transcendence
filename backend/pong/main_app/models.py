@@ -52,6 +52,10 @@ class UserTwoFactorAuthData(models.Model):
 	)
 
 	otp_secret = models.CharField(max_length=255)
+	sms_enabled = models.BooleanField(default=False)
+	email_enabled = models.BooleanField(default=False)
+	app_enabled = models.BooleanField(default=False)
+	mobile_number = models.CharField(max_length=15, blank=True, null=True)
 
 	def generate_qr_code(self, name: Optional[str] = None) -> str:
 		totp = pyotp.TOTP(self.otp_secret)
@@ -66,12 +70,11 @@ class UserTwoFactorAuthData(models.Model):
 			image_factory=image_factory
 		)
 		
-		#The result is going to be an HTML <svg> tag
 		return qr_code_image.to_string().decode('utf_8')
 	
 	def validate_otp(self, otp: str) -> bool:
 		totp = pyotp.TOTP(self.otp_secret)
-
+		print('verif:', totp.verify(otp))
 		return totp.verify(otp)
 
 
@@ -147,4 +150,4 @@ class Tournament(models.Model):
 	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
 	
 	def __str__(self):
-		return self.name
+		return f"Tournament {self.tournament_id}"
