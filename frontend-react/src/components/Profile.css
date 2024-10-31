@@ -293,3 +293,91 @@
   .status-circle.offline {
     background-color: red;
   }
+
+.two-factor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: #f4f4f9;
+}
+
+.profileH2 {
+    color: #28a745;
+    margin-bottom: 15px;
+}
+
+.two-factor-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.two-factor-authenticator,
+.two-factor-sms,
+.two-factor-email {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.qr-code-section,
+.otp-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.qr-code-display {
+    padding: 10px;
+    border: 1px solid #28a745;
+    border-radius: 5px;
+    background-color: #fff;
+    margin: 10px 0;
+}
+
+.phone-input,
+.otp-input {
+    padding: 8px;
+    border: 1px solid #28a745;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    background-color: #333;
+    color: #f4f4f9;
+}
+
+.otp-form label {
+    color: #28a745;
+    font-weight: bold;
+}
+
+
+
+.confirm-btn:hover {
+    background-color: #218838;
+}
+
+.back-button {
+    background-color: #6c757d;
+    color: white;
+    border: 2px solid #6c757d;
+    padding: 8px 16px;
+    margin-top: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+

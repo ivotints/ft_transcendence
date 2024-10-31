@@ -21,7 +21,7 @@ function Profile() {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
-  
+
   const [message, setMessage] = useState(''); // State to store error key
   const translatedMessageMail = message ? translate(message) : ''; // Derived variable for translation
   const [messageType, setMessageType] = useState('');
@@ -30,10 +30,18 @@ function Profile() {
   const translatedMessagePass = messagePass ? translate(messagePass) : ''; // Derived variable for translation
   const [messagePassType, setMessagePassType] = useState('');
 
-
   const [errorKeyFriend, setErrorKeyFriend] = useState(''); // State to store error key
   const translatedErrorMessageFriend = errorKeyFriend ? translate(errorKeyFriend) : ''; // Derived variable for translation
   const [messageFriendType, setMessageFriendType] = useState('');
+
+  const [selected2FAMethod, setSelected2FAMethod] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [otpSecret, setOtpSecret] = useState('');
+  const [qrCode, setQrCode] = useState('');
+  const [twoFactorMessage, setTwoFactorMessage] = useState('');
+  const [confirmationOtp, setConfirmationOtp] = useState('');
+  const [twoFactorSuccess, setTwoFactorSuccess] = useState('');
+  const [twoFactorError, setTwoFactorError] = useState('');
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -99,8 +107,8 @@ function Profile() {
           let response;
           if (matchType === '1v1') {
             response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
-          }  else if (matchType === '2v2') {
-            response = await axios.get('https://localhost:8000/matches/2v2/', {withCredentials: true});
+          } else if (matchType === '2v2') {
+            response = await axios.get('https://localhost:8000/matches/2v2/', { withCredentials: true });
           } else if (matchType === 'tournament') {
             response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
           }
@@ -199,8 +207,8 @@ function Profile() {
       //setErrorKeyFriend(error.response.data);
       setMessageFriendType("error")
       setErrorKeyFriend(
-        error.response.data.friend_username?.[0] ?? 
-        error.response.data.non_field_errors?.[0] ?? 
+        error.response.data.friend_username?.[0] ??
+        error.response.data.non_field_errors?.[0] ??
         'Error sending friend request'
       );
       //console.error('Error sending friend request:', error.response.data);
@@ -228,7 +236,114 @@ function Profile() {
     }
   };
 
+  const setupTwoFactor = async (method) => {
+    const data = { method: method };
 
+    try {
+      if (method === 'sms') {
+        // const params = new URLSearchParams();
+        // params.append('To', userPhone);
+        // params.append('Channel', method);
+
+        // const response = await axios.post(
+        //   `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_VERIFY_SERVICE_SID}/Verifications`,
+        //   params.toString(),
+        //   {
+        //     auth: {
+        //       username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
+        //       password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
+        //     },
+        //     headers: {
+        //       'Content-Type': 'application/x-www-form-urlencoded',
+        //     },
+        //   }
+        // );
+        // setTwoFactorMessage('OTP sent successfully.');
+
+        data.user_phone = userPhone;
+        const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+        const responseData = response.data;
+        setOtpSecret(responseData.otp_secret);
+        setTwoFactorMessage(translate('OTP has been sent by sms'));
+      } else {
+        const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+        const responseData = response.data;
+        setOtpSecret(responseData.otp_secret);
+        setTwoFactorMessage('');
+        if (method === 'authenticator') {
+          setQrCode(responseData.qr_code);
+        } else {
+          setQrCode('');
+          setTwoFactorMessage(translate('OTP has been sent to your ') + method);
+        }
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.errors) {
+        setTwoFactorError(error.response.data.errors.join(', '));
+      } else {
+        setTwoFactorError('An error occurred while setting up 2FA.');
+      }
+    }
+  };
+  
+  const confirmTwoFactor = async (event) => {
+    event.preventDefault();
+    setTwoFactorError('');
+    setTwoFactorSuccess('');
+    try {
+      let response;
+      if (selected2FAMethod === 'sms') {
+        response = await axios.post('https://localhost:8000/setup-2fa/', {
+          method: 'sms',
+          user_phone: userPhone,
+          code: confirmationOtp,
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+
+        if (response.data.success) {
+          setTwoFactorSuccess('2FA setup successfully.');
+        } else {
+          setTwoFactorError(response.data.errors.join(', '));
+        }
+      } else {
+        const response = await axios.post('https://localhost:8000/setup-2fa/', {
+          method: selected2FAMethod === 'authenticator' ? 'authenticator' : "email",
+          code: confirmationOtp,
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+        if (response.data.success) {
+          setTwoFactorSuccess('2FA setup successfully.');
+        } else {
+          setTwoFactorError(response.data.errors.join(', '));
+        }
+      }
+      
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.errors) {
+        setTwoFactorError(error.response.data.errors.join(', '));
+      } else {
+        setTwoFactorError('An error occurred.');
+      }
+    }
+  };
 
   const handleMatchTypeChange = (e) => {
     setMatchType(e.target.value);
@@ -243,7 +358,8 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
               <label>{translate('New Email')}: </label>
-              <input  maxLength={16}
+
+              <input  maxLength={32}
                 type="email"
                 name="newEmail"
                 autoComplete="email"
@@ -256,8 +372,8 @@ function Profile() {
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
             {translatedMessageMail && (
-  <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
-    {translatedMessageMail}
+              <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
+                {translatedMessageMail}
               </p>
             )}
           </div>
@@ -268,7 +384,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
               <label>{translate('New Password')}: </label>
-              <input  maxLength={16}
+              <input  maxLength={32}
                 type="password"
                 name="newPassword"
                 id="newPassword"
@@ -280,9 +396,9 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
-          {translatedMessagePass && (
-  <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
-    {translatedMessagePass}
+            {translatedMessagePass && (
+              <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+                {translatedMessagePass}
               </p>
             )}
           </div>
@@ -293,7 +409,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Add Friend')}</h2>
             <form onSubmit={handleAddFriend}>
               <label>{translate("Friend's Name")}: </label>
-              <input  maxLength={16}
+              <input  maxLength={32}
                 type="text"
                 value={friendUsername}
                 onChange={(e) => setFriendUsername(e.target.value)}
@@ -303,132 +419,236 @@ function Profile() {
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
             {translatedErrorMessageFriend && (
-  <p className={messageFriendType === 'success' ? 'success-message' : 'error-message'}>
-    {translatedErrorMessageFriend}
-    </p>
-)}
+              <p className={messageFriendType === 'success' ? 'success-message' : 'error-message'}>
+                {translatedErrorMessageFriend}
+              </p>
+            )}
           </div>
         );
-        case 'friendList':
-          console.log('Accepted friends state:', acceptedFriends);
-          return (
-            <div>
-              <h2 className="profileH2">{translate('Friend List')}</h2>
-              <ul className="friend-list">
-                {acceptedFriends.map((friend) => {
-                  const username = friend.user_detail?.username === userInfo.username
-                    ? friend.friend_detail?.username
-                    : friend.user_detail?.username;
+      case 'friendList':
+        console.log('Accepted friends state:', acceptedFriends);
+        return (
+          <div>
+            <h2 className="profileH2">{translate('Friend List')}</h2>
+            <ul className="friend-list">
+              {acceptedFriends.map((friend) => {
+                const username = friend.user_detail?.username === userInfo.username
+                  ? friend.friend_detail?.username
+                  : friend.user_detail?.username;
 
-                    const isOnline = friend.user_detail?.username === userInfo.username
-                      ? friend.is_friend_online
-                      : friend.is_user_online;
+                const isOnline = friend.user_detail?.username === userInfo.username
+                  ? friend.is_friend_online
+                  : friend.is_user_online;
 
-                  return (
-                    <li key={friend.id} className="friend-list-item">
-                      <span className={`status-circle ${isOnline ? 'online' : 'offline'}`}></span>
-                      <span className="friend-username">{username || 'Unknown User'}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        case 'pendingRequests':
-          return (
-            <div>
-              <h2 className="profileH2">{translate('Pending Friend Requests')}</h2>
-              <ul className="pending-requests-list">
-                {pendingRequests.map((request) => (
-                  <li key={request.id} className="pending-request-item">
-                    <span className="pending-request-username">{request.user_detail.username}</span>
-                    <div className="pending-request-buttons">
-                      <button className="accept-btn" onClick={() => handleAcceptRequest(request.id)}>{translate('Accept')}</button>
-                      <button className="reject-btn" onClick={() => handleRejectRequest(request.id)}>{translate('Reject')}</button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-          case 'matchHistory':
-            return (
-              <div className="match-history">
-                <h2 className="profileH2">{translate('Match History')}</h2>
-                <label htmlFor="match-type">{translate('Select Match Type')}: </label>
-                <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
-                  <option value="1v1">{translate('1 vs 1')}</option>
-                  <option value="2v2">{translate('2 vs 2')}</option>
-                  <option value="tournament">{translate('Tournament')}</option>
-                </select>
-                {loading ? (
-                  <p>{translate('Loading')}...</p>
-                ) : (
-                  matchType === 'tournament' ? (
-                    <ul>
-                      {matchHistory.map((tournament) => (
-                        <li key={tournament.tournament_id} className="tournament">
-                          <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
-                          <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
-                          <p><strong>{translate('Winners Order')}:</strong></p>
-                          <ul>
-                            {Array.isArray(tournament.winners_order_display) ? (
-                              tournament.winners_order_display.map((username, index) => (
-                                <li key={index}>
-                                  <strong>{`${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place:`}</strong> {username}
-                                </li>
-                              ))
-                            ) : (
-                              <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
-                            )}
-                          </ul>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : matchType === '1v1' ? (
-                    <ul>
-                      {matchHistory.map((match) => (
-                        <li key={match.id}>
-                          <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
-                          <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
-                          <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
-                          <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                          <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <ul>
-                      {matchHistory.map((match) => (
-                        <li key={match.id}>
-                          <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
-                          <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
-                          <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
-                          <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
-                          <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
-                          <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
-                          <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                          <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  )
-                )}
-              </div>
-            );
-            case 'info':
-              default:
                 return (
-                  <div className="user-info">
-                    <h2 className="profileH2">{translate('User Info')}</h2>
-                    <p>{translate('Username')}: {userInfo.username}</p>
-                    <p>{translate('Email')}: {userInfo.email}</p>
-        
-                    <h3 className="profileH2">{translate('Player Statistics')}</h3>
-                    <p>{translate('Wins')}: {winCount}</p>
-                    <p>{translate('Losses')}: {lossCount}</p>
-                  </div>
+                  <li key={friend.id} className="friend-list-item">
+                    <span className={`status-circle ${isOnline ? 'online' : 'offline'}`}></span>
+                    <span className="friend-username">{username || 'Unknown User'}</span>
+                  </li>
                 );
+              })}
+            </ul>
+          </div>
+        );
+      case 'pendingRequests':
+        return (
+          <div>
+            <h2 className="profileH2">{translate('Pending Friend Requests')}</h2>
+            <ul className="pending-requests-list">
+              {pendingRequests.map((request) => (
+                <li key={request.id} className="pending-request-item">
+                  <span className="pending-request-username">{request.user_detail.username}</span>
+                  <div className="pending-request-buttons">
+                    <button className="accept-btn" onClick={() => handleAcceptRequest(request.id)}>{translate('Accept')}</button>
+                    <button className="reject-btn" onClick={() => handleRejectRequest(request.id)}>{translate('Reject')}</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+        case 'twoFactorAuth':
+          return (
+            <div className="two-factor-container">
+              <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
+              {!selected2FAMethod && (
+                <div className="two-factor-options">
+                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('authenticator')}>
+                    {translate('Setup with Authenticator App')}
+                  </button>
+                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('sms')}>
+                    {translate('Setup with SMS')}
+                  </button>
+                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('email')}>
+                    {translate('Setup with Email')}
+                  </button>
+                </div>
+              )}
+        
+              {selected2FAMethod === 'authenticator' && (
+                <div className="two-factor-authenticator">
+                  <button className="confirm-btn" onClick={() => setupTwoFactor('authenticator')}>
+                    {translate('Generate QR Code')}
+                  </button>
+                  {qrCode && (
+                    <div className="qr-code-section">
+                      <p>{translate('Scan the QR code with your authenticator app')}:</p>
+                      <div dangerouslySetInnerHTML={{ __html: qrCode }} className="qr-code-display" />
+                      <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
+                        <label htmlFor="otp">{translate('Enter OTP Code')}:</label> 
+                        <input
+                          type="text"
+                          id="otp"
+                          name="otp"
+                          value={confirmationOtp}
+                          onChange={(e) => setConfirmationOtp(e.target.value)}
+                          required
+                          className="otp-input"
+                        />
+                        <div className="submit-row">
+                          <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                </div>
+              )}
+        
+              {selected2FAMethod === 'sms' && (
+                <div className="two-factor-sms">
+                  <label>{translate('Enter Mobile Number')}:</label>
+                  <input
+                    maxLength={32}
+                    type="text"
+                    value={userPhone}
+                    onChange={(e) => setUserPhone(e.target.value)}
+                    placeholder={translate('Mobile Number')}
+                    className="phone-input"
+                  />
+                  <button className="confirm-btn" onClick={() => setupTwoFactor('sms')}>
+                    {translate('Send OTP via SMS')}
+                  </button>
+
+                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                </div>
+              )}
+        
+              {selected2FAMethod === 'email' && (
+                <div className="two-factor-email">
+                  <button className="confirm-btn" onClick={() => setupTwoFactor('email')}>
+                    {translate('Send OTP via Email')}
+                  </button>
+                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                </div>
+              )}
+        
+              {(selected2FAMethod === 'sms' || selected2FAMethod === 'email') && (
+                <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
+                  <br></br>
+                  <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
+                  <input
+                    maxLength={32}
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    value={confirmationOtp}
+                    onChange={(e) => setConfirmationOtp(e.target.value)}
+                    required
+                    className="otp-input"
+                  />
+                  <div className="submit-row">
+                    <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                  </div>
+                </form>
+              )}
+        
+              {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
+              {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
+        
+              <button className="back-button" onClick={() => setSelected2FAMethod('')}>
+                {translate('Back')}
+              </button>
+            </div>
+        );        
+      case 'matchHistory':
+        return (
+          <div className="match-history">
+            <h2 className="profileH2">{translate('Match History')}</h2>
+            <label htmlFor="match-type">{translate('Select Match Type')}: </label>
+            <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
+              <option value="1v1">{translate('1 vs 1')}</option>
+              <option value="2v2">{translate('2 vs 2')}</option>
+              <option value="tournament">{translate('Tournament')}</option>
+            </select>
+            {loading ? (
+              <p>{translate('Loading')}...</p>
+            ) : (
+              matchType === 'tournament' ? (
+                <ul>
+                  {matchHistory.map((tournament) => (
+                    <li key={tournament.tournament_id} className="tournament">
+                      <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Winners Order')}:</strong></p>
+                      <ul>
+                        {Array.isArray(tournament.winners_order_display) ? (
+                          tournament.winners_order_display.map((username, index) => (
+                            <li key={index}>
+                              <strong>{`${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place:`}</strong> {username}
+                            </li>
+                          ))
+                        ) : (
+                          <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
+                        )}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              ) : matchType === '1v1' ? (
+                <ul>
+                  {matchHistory.map((match) => (
+                    <li key={match.id}>
+                      <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                      <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                      <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ul>
+                  {matchHistory.map((match) => (
+                    <li key={match.id}>
+                      <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                      <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                      <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
+                      <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
+                      <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
+                      <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                    </li>
+                  ))}
+                </ul>
+              )
+            )}
+          </div>
+        );
+      case 'info':
+      default:
+        return (
+          <div className="user-info">
+            <h2 className="profileH2">{translate('User Info')}</h2>
+            <p>{translate('Username')}: {userInfo.username}</p>
+            <p>{translate('Email')}: {userInfo.email}</p>
+
+            <h3 className="profileH2">{translate('Player Statistics')}</h3>
+            <p>{translate('Wins')}: {winCount}</p>
+            <p>{translate('Losses')}: {lossCount}</p>
+          </div>
+        );
     }
   };
 
@@ -439,6 +659,7 @@ function Profile() {
           <li onClick={() => setActiveSection('info')}>{translate('User Info')}</li>
           <li onClick={() => setActiveSection('changeEmail')}>{translate('Change Email')}</li>
           <li onClick={() => setActiveSection('changePassword')}>{translate('Change Password')}</li>
+          <li onClick={() => setActiveSection('twoFactorAuth')}>{translate('2-Factor Authentication')}</li>
           <li onClick={() => setActiveSection('addFriend')}>{translate('Add Friend')}</li>
           <li onClick={() => setActiveSection('friendList')}>{translate('Friend List')}</li>
           <li onClick={() => setActiveSection('pendingRequests')}>{translate('Pending Friend Requests')}</li>
@@ -453,7 +674,7 @@ function Profile() {
           className="avatar"
         />
         <label className="change-avatar-label">
-          <input  maxLength={16}
+          <input  maxLength={32}
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}
