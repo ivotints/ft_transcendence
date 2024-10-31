@@ -358,9 +358,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
               <label>{translate('New Email')}: </label>
-
               <input  maxLength={32}
-                type="email"
                 name="newEmail"
                 autoComplete="email"
                 id="newEmail"
