@@ -97,10 +97,10 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
         <table className="auth-table">
           <tbody>
             <tr>
-              <td><input id="username" name="username" maxLength={100} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></td>
+              <td><input id="username" name="username" maxLength={16} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></td>
             </tr>
             <tr>
-              <td><input  maxLength={100} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
+              <td><input  maxLength={16} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
             </tr>
             <tr>
               <td><button className="submit-button" onClick={handleLoginSubmit}>{translate('Log In')}</button></td>
@@ -113,13 +113,13 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
         <table className="auth-table">
           <tbody>
             <tr>
-              <td><input  maxLength={100} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} /></td>
+              <td><input  maxLength={16} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} /></td>
             </tr>
             <tr>
-              <td><input  maxLength={100} type="email" placeholder={translate("Email")} value={email} onChange={(e) => setEmail(e.target.value)} /></td>
+              <td><input  maxLength={16} type="email" placeholder={translate("Email")} value={email} onChange={(e) => setEmail(e.target.value)} /></td>
             </tr>
             <tr>
-              <td><input  maxLength={100} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
+              <td><input  maxLength={16} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
             </tr>
             <tr>
               <td><button className="submit-button" onClick={handleCreateUserSubmit}>{translate('Create User')}</button></td>

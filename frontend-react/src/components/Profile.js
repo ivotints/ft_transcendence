@@ -358,7 +358,8 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
               <label>{translate('New Email')}: </label>
-              <input maxLength={100}
+
+              <input  maxLength={16}
                 type="email"
                 name="newEmail"
                 autoComplete="email"
@@ -383,7 +384,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
               <label>{translate('New Password')}: </label>
-              <input maxLength={100}
+              <input  maxLength={16}
                 type="password"
                 name="newPassword"
                 id="newPassword"
@@ -408,7 +409,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Add Friend')}</h2>
             <form onSubmit={handleAddFriend}>
               <label>{translate("Friend's Name")}: </label>
-              <input maxLength={100}
+              <input  maxLength={16}
                 type="text"
                 value={friendUsername}
                 onChange={(e) => setFriendUsername(e.target.value)}
@@ -667,7 +668,7 @@ function Profile() {
           className="avatar"
         />
         <label className="change-avatar-label">
-          <input maxLength={100}
+          <input  maxLength={16}
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}

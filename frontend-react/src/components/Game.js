@@ -16,12 +16,17 @@ function Game() {
     navigate('/game/player-vs-ai');
   };
 
+  const handle2vs2Click = () => {
+    navigate('/game/2-vs-2');
+  };
+
   return (
     <div className="game-container">
       <h1 className="profileH2">{translate('Select Match Type')}</h1>
       <div className="button-group">
         <button className="submit-button" onClick={handlePvPClick}>{translate('Player vs Player')}</button>
         <button className="submit-button" onClick={handlePvAIClick}>{translate('Player vs AI')}</button>
+        <button className="submit-button" onClick={handle2vs2Click}>{translate('2 Players vs 2 Players')}</button>
       </div>
     </div>
   );

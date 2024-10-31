@@ -357,7 +357,7 @@ Pong.player2.move = DIRECTION.IDLE;
 
   return (
     <div className="pong-game">
-      <h1 className="profileH2">{player1} VS {player2}</h1>
+      <h1 className="profileH2">{player1} {translate("vs")} {player2}</h1>
       <canvas ref={canvasRef} style={{ background: BACKGROUND_COLOR }} />
     </div>
   );
