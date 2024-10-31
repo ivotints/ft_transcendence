@@ -291,7 +291,7 @@ function Profile() {
       if (error.response && error.response.data && error.response.data.errors) {
         setTwoFactorError(error.response.data.errors.join(', '));
       } else {
-        setTwoFactorError(translate('An error occurred while setting up 2FA.'));
+        setTwoFactorError('An error occurred while setting up 2FA.');
       }
     }
   };
@@ -358,9 +358,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
               <label>{translate('New Email')}: </label>
-
-              <input  maxLength={16}
-                type="email"
+              <input  maxLength={32}
                 name="newEmail"
                 autoComplete="email"
                 id="newEmail"
@@ -384,7 +382,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
               <label>{translate('New Password')}: </label>
-              <input  maxLength={16}
+              <input  maxLength={32}
                 type="password"
                 name="newPassword"
                 id="newPassword"
@@ -409,7 +407,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Add Friend')}</h2>
             <form onSubmit={handleAddFriend}>
               <label>{translate("Friend's Name")}: </label>
-              <input  maxLength={16}
+              <input  maxLength={32}
                 type="text"
                 value={friendUsername}
                 onChange={(e) => setFriendUsername(e.target.value)}
@@ -467,104 +465,110 @@ function Profile() {
             </ul>
           </div>
         );
-      case 'twoFactorAuth':
-        return (
-          <div>
-            <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
-            {!selected2FAMethod && (
-              <div className="two-factor-options">
-                <button className="confirm-button" onClick={() => setSelected2FAMethod('authenticator')}>
-                  {translate('Setup with Authenticator App')}
-                </button>
-                <button className="confirm-button" onClick={() => setSelected2FAMethod('sms')}>
-                  {translate('Setup with SMS')}
-                </button>
-                <button className="confirm-button" onClick={() => setSelected2FAMethod('email')}>
-                  {translate('Setup with Email')}
-                </button>
-              </div>
-            )}
-
-            {selected2FAMethod === 'authenticator' && (
-              <div>
-                <button className="confirm-button" onClick={() => setupTwoFactor('authenticator')}>
-                  Generate QR Code
-                </button>
-                {qrCode && (
-                  <div>
-                    <p>Scan the QR code with your authenticator app:</p>
-                    <div dangerouslySetInnerHTML={{ __html: qrCode }} />
-                    <p>Enter the OTP code:</p>
-                    <form id="confirm-2fa-form" onSubmit={confirmTwoFactor}>
-                      <label htmlFor="otp">Enter OTP Code:</label>
-                      <input
-                        type="text"
-                        id="otp"
-                        name="otp"
-                        value={confirmationOtp}
-                        onChange={(e) => setConfirmationOtp(e.target.value)}
-                        required
-                      />
-                      <div className="submit-row">
-                        <input type="submit" value="Submit" />
-                      </div>
-                    </form>
-                  </div>
-                )}
-                {twoFactorMessage && <p>{twoFactorMessage}</p>}
-              </div>
-            )}
-
-            {selected2FAMethod === 'sms' && (
-              <div>
-                <label>{translate('Enter Mobile Number')}:</label>
-                <input
-                  type="text"
-                  value={userPhone}
-                  onChange={(e) => setUserPhone(e.target.value)}
-                  placeholder={translate('Mobile Number')}
-                />
-                <button className="confirm-button" onClick={() => setupTwoFactor('sms')}>
-                  {translate('Send OTP via SMS')}
-                </button>
-                {twoFactorMessage && <p>{twoFactorMessage}</p>}
-              </div>
-            )}
-
-            {selected2FAMethod === 'email' && (
-              <div>
-                <button className="confirm-button" onClick={() => setupTwoFactor('email')}>
-                  {translate('Send OTP via Email')}
-                </button>
-                {twoFactorMessage && <p>{twoFactorMessage}</p>}
-              </div>
-            )}
-
-            {(selected2FAMethod === 'sms' || selected2FAMethod === 'email') && (
-              <form id="confirm-2fa-form" onSubmit={confirmTwoFactor}>
-                <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
-                <input
-                  type="text"
-                  id="otp"
-                  name="otp"
-                  value={confirmationOtp}
-                  onChange={(e) => setConfirmationOtp(e.target.value)}
-                  required
-                />
-                <div className="submit-row">
-                  <input type="submit" value={translate('Submit')} />
+        case 'twoFactorAuth':
+          return (
+            <div className="two-factor-container">
+              <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
+              {!selected2FAMethod && (
+                <div className="two-factor-options">
+                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('authenticator')}>
+                    {translate('Setup with Authenticator App')}
+                  </button>
+                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('sms')}>
+                    {translate('Setup with SMS')}
+                  </button>
+                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('email')}>
+                    {translate('Setup with Email')}
+                  </button>
                 </div>
-              </form>
-            )}
+              )}
+        
+              {selected2FAMethod === 'authenticator' && (
+                <div className="two-factor-authenticator">
+                  <button className="confirm-btn" onClick={() => setupTwoFactor('authenticator')}>
+                    {translate('Generate QR Code')}
+                  </button>
+                  {qrCode && (
+                    <div className="qr-code-section">
+                      <p>{translate('Scan the QR code with your authenticator app')}:</p>
+                      <div dangerouslySetInnerHTML={{ __html: qrCode }} className="qr-code-display" />
+                      <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
+                        <label htmlFor="otp">{translate('Enter OTP Code')}:</label> 
+                        <input
+                          type="text"
+                          id="otp"
+                          name="otp"
+                          value={confirmationOtp}
+                          onChange={(e) => setConfirmationOtp(e.target.value)}
+                          required
+                          className="otp-input"
+                        />
+                        <div className="submit-row">
+                          <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                </div>
+              )}
+        
+              {selected2FAMethod === 'sms' && (
+                <div className="two-factor-sms">
+                  <label>{translate('Enter Mobile Number')}:</label>
+                  <input
+                    maxLength={32}
+                    type="text"
+                    value={userPhone}
+                    onChange={(e) => setUserPhone(e.target.value)}
+                    placeholder={translate('Mobile Number')}
+                    className="phone-input"
+                  />
+                  <button className="confirm-btn" onClick={() => setupTwoFactor('sms')}>
+                    {translate('Send OTP via SMS')}
+                  </button>
 
-            {twoFactorSuccess && <div style={{ color: 'green' }}>{twoFactorSuccess}</div>}
-            {twoFactorError && <div style={{ color: 'red' }}>{twoFactorError}</div>}
-
-            <button className="back-button" onClick={() => setSelected2FAMethod('')}>
-              {translate('Back')}
-            </button>
-          </div>
-        );
+                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                </div>
+              )}
+        
+              {selected2FAMethod === 'email' && (
+                <div className="two-factor-email">
+                  <button className="confirm-btn" onClick={() => setupTwoFactor('email')}>
+                    {translate('Send OTP via Email')}
+                  </button>
+                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                </div>
+              )}
+        
+              {(selected2FAMethod === 'sms' || selected2FAMethod === 'email') && (
+                <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
+                  <br></br>
+                  <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
+                  <input
+                    maxLength={32}
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    value={confirmationOtp}
+                    onChange={(e) => setConfirmationOtp(e.target.value)}
+                    required
+                    className="otp-input"
+                  />
+                  <div className="submit-row">
+                    <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                  </div>
+                </form>
+              )}
+        
+              {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
+              {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
+        
+              <button className="back-button" onClick={() => setSelected2FAMethod('')}>
+                {translate('Back')}
+              </button>
+            </div>
+        );        
       case 'matchHistory':
         return (
           <div className="match-history">
@@ -668,7 +672,7 @@ function Profile() {
           className="avatar"
         />
         <label className="change-avatar-label">
-          <input  maxLength={16}
+          <input  maxLength={32}
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}
