@@ -21,6 +21,8 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 
 from datetime import datetime
 
+from twilio.rest import Client
+
 import logging
 import os
 import random
@@ -28,7 +30,7 @@ import string
 import requests
 
 from .web3 import get_tournament_data, add_tournament_data
-from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create
+from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create, send_email_code, send_sms_code
 
 from django.contrib.auth.models import User
 from .models import UserProfile
@@ -66,21 +68,94 @@ class SetupTwoFactorView(APIView):
 
 	def post(self, request):
 		user = request.user
+		method = request.data.get('method')
+		user_phone = request.data.get('user_phone')
+		code = request.data.get('code')
+
+		account_sid = settings.TWILIO_ACCOUNT_SID
+		auth_token = settings.TWILIO_AUTH_TOKEN
+		verify_service_sid = settings.TWILIO_VERIFY_SERVICE_SID
 
 		try:
 			# Generate 2FA data
-			two_factor_auth_data = user_two_factor_auth_data_create(user=user)
-			otp_secret = two_factor_auth_data.otp_secret
-			qr_code = two_factor_auth_data.generate_qr_code(name=user.email)
+			# two_factor_auth_data = user_two_factor_auth_data_create(user=user)
 
-			return JsonResponse({
-				"otp_secret": otp_secret,
-				"qr_code": qr_code
-			})
+			two_factor_auth_data = user_two_factor_auth_data_create(user=user)
+
+			if method == 'authenticator':
+				if two_factor_auth_data.sms_enabled or two_factor_auth_data.email_enabled:
+					return JsonResponse({"errors": ["Another 2FA method is already enabled"]}, status=400)
+				elif two_factor_auth_data.app_enabled:
+						return JsonResponse({"errors": ["This 2FA method is already enabled"]}, status=400)
+				
+				if not code:
+					# Creates qr_code on first call
+
+					qr_code = two_factor_auth_data.generate_qr_code(name=user.email)
+					return JsonResponse({"otp_secret": two_factor_auth_data.otp_secret, "qr_code": qr_code})
+				else:
+					# Checks if code is correct so it can be written to DB
+
+					otp = request.data.get('code')
+					if not two_factor_auth_data.validate_otp(otp):
+						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+
+					two_factor_auth_data.app_enabled = True
+					two_factor_auth_data.save()
+					return JsonResponse({"success": "2FA setup successfully."})
+				# return JsonResponse({"otp_secret": two_factor_auth_data.otp_secret, "qr_code": qr_code})
+			elif method == 'sms':
+				client = Client(account_sid, auth_token)
+
+				if two_factor_auth_data.app_enabled or two_factor_auth_data.email_enabled:
+					return JsonResponse({"errors": ["Another 2FA method is already enabled"]}, status=400)
+				elif two_factor_auth_data.sms_enabled:
+					return JsonResponse({"errors": ["This 2FA method is already enabled"]}, status=400)
+				if not user_phone:
+					return JsonResponse({"errors": ["Mobile number is required for SMS 2FA"]}, status=400)
+				
+				if not code :
+					verification = client.verify.services(verify_service_sid).verifications.create(
+						to=user_phone,
+						channel='sms'
+					)
+					return JsonResponse({"success": "OTP sent successfully."})
+				else:
+					verification_check = client.verify.services(verify_service_sid).verification_checks.create(
+						to=user_phone,
+						code=code
+					)
+
+					if verification_check.status == 'approved':
+						two_factor_auth_data.sms_enabled = True
+						two_factor_auth_data.mobile_number = user_phone
+						two_factor_auth_data.save()
+						return JsonResponse({"success": "2FA setup successfully."})
+					else:
+						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+
+			elif method == 'email':
+				if two_factor_auth_data.app_enabled or two_factor_auth_data.sms_enabled:
+					return JsonResponse({"errors": ["Another 2FA method is already enabled"]}, status=400)
+				elif two_factor_auth_data.email_enabled:
+					return JsonResponse({"errors": ["This 2FA method is already enabled"]}, status=400)
+
+				if not code:
+					send_email_code(user.email, two_factor_auth_data.otp_secret)
+					return JsonResponse({"success": "Verification code has been sent to your device."})
+				else:
+
+					if not two_factor_auth_data.validate_otp(code):
+						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+
+					two_factor_auth_data.email_enabled = True
+					two_factor_auth_data.save()
+					return Response({"success": "2FA setup successfully."}, status=status.HTTP_200_OK)
+
+			else:
+				return JsonResponse({"errors": ["Invalid method"]}, status=400)
 		except ValidationError as exc:
-			return JsonResponse({
-				"errors": exc.messages
-			}, status=400)
+			return JsonResponse({"errors": exc.messages}, status=400)
 	
 
 class ConfirmTwoFactorAuthView(APIView):
@@ -583,11 +658,6 @@ def oauth_callback(request):
 	# Authenticate or create the user
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
-
-	if not created:
-		if user.email != email:
-			user.email = email
-			user.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)

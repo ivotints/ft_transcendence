@@ -29,6 +29,11 @@ services:
       METAMASK_PRIVATE_KEY: ${METAMASK_PRIVATE_KEY}
       CLIENT_ID_42: ${CLIENT_ID_42}
       CLIENT_SECRET_42: ${CLIENT_SECRET_42}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
 
   frontend:
     build: ../frontend-react/
@@ -38,7 +43,10 @@ services:
     depends_on:
     - db
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      REACT_APP_TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      REACT_APP_TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      REACT_APP_TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
 
   nginx:
     build: "../nginx/"
