@@ -74,8 +74,13 @@ class UserTwoFactorAuthData(models.Model):
 	
 	def validate_otp(self, otp: str) -> bool:
 		totp = pyotp.TOTP(self.otp_secret)
+		print('secret:', self.otp_secret)
+		print('otp:', otp)
 		print('verif:', totp.verify(otp))
 		return totp.verify(otp)
+	
+	def __str__(self):
+		return f"{self.user.username}'s 2fa data"
 
 
 class Friend(models.Model):
