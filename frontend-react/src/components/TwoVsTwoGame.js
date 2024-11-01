@@ -6,6 +6,7 @@ import { useTranslate } from './Translate/useTranslate';
 
 function PlayerVsPlayer() {
   const [gameStarted, setGameStarted] = useState(false);
+  const [profile, setProfile] = useState('');
   const [player1Name, setPlayer1Name] = useState('');
   const [player2Name, setPlayer2Name] = useState('');
   const [player3Name, setPlayer3Name] = useState('');
@@ -18,6 +19,7 @@ function PlayerVsPlayer() {
     try {
       const response = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
       const profile = response.data;
+      setProfile(profile);
       setPlayer1Name(profile.user.username);
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -174,7 +176,7 @@ function PlayerVsPlayer() {
       ) : (
         <div>
           <TwoVsTwoGame
-            player1Name={player1Name}
+            player1={profile.user}
             player2Name={player2Name}
             player3Name={player3Name}
             player4Name={player4Name}
