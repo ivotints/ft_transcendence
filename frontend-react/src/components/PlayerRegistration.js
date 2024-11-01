@@ -10,14 +10,18 @@ function PlayerRegistration({ addPlayer, players }) {
   const { language } = useLanguage();
 
   const handleAddPlayer = () => {
-    if (alias.trim() && !players.includes(alias.trim())) {
-      addPlayer(alias.trim());
+    const trimmedAlias = alias.trim();
+    
+    // Check if the alias has spaces or is empty, or if it already exists
+    if (!trimmedAlias || players.includes(trimmedAlias) || trimmedAlias.includes(' ')) {
+      setErrorKey('Alias cannot be empty, contain spaces, or already be registered.');
+    } else {
+      addPlayer(trimmedAlias);
       setAlias('');
       setErrorKey('');
-    } else {
-      setErrorKey('Alias cannot be empty or already registered.');
     }
   };
+  
 
   const translatedErrorMessage = errorKey ? translate(errorKey) : '';
 

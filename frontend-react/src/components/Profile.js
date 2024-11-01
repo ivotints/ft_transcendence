@@ -66,6 +66,12 @@ function Profile() {
   }, []);
 
   useEffect(() => {
+    if (activeSection === "twoFactorAuth") {
+      setSelected2FAMethod(''); // Reset to default view with 3 buttons
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
     if (activeSection === 'pendingRequests') {
       console.log('Fetching pending requests for pendingRequests section...');
       const fetchPendingRequests = async () => {
@@ -269,7 +275,7 @@ function Profile() {
         });
         const responseData = response.data;
         setOtpSecret(responseData.otp_secret);
-        setTwoFactorMessage(translate('OTP has been sent by sms'));
+        setTwoFactorMessage('OTP has been sent by sms');
       } else {
         const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
           headers: {
@@ -284,7 +290,7 @@ function Profile() {
           setQrCode(responseData.qr_code);
         } else {
           setQrCode('');
-          setTwoFactorMessage(translate('OTP has been sent to your ') + method);
+          setTwoFactorMessage('OTP has been sent to your ' + method);
         }
       }
     } catch (error) {
@@ -295,7 +301,7 @@ function Profile() {
       }
     }
   };
-  
+
   const confirmTwoFactor = async (event) => {
     event.preventDefault();
     setTwoFactorError('');
@@ -335,7 +341,7 @@ function Profile() {
           setTwoFactorError(response.data.errors.join(', '));
         }
       }
-      
+
     } catch (error) {
       if (error.response && error.response.data && error.response.data.errors) {
         setTwoFactorError(error.response.data.errors.join(', '));
@@ -358,7 +364,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Email')}</h2>
             <form onSubmit={handleEmailChange}>
               <label>{translate('New Email')}: </label>
-              <input  maxLength={32}
+              <input maxLength={32}
                 name="newEmail"
                 autoComplete="email"
                 id="newEmail"
@@ -382,7 +388,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
               <label>{translate('New Password')}: </label>
-              <input  maxLength={32}
+              <input maxLength={32}
                 type="password"
                 name="newPassword"
                 id="newPassword"
@@ -407,7 +413,7 @@ function Profile() {
             <h2 className="profileH2">{translate('Add Friend')}</h2>
             <form onSubmit={handleAddFriend}>
               <label>{translate("Friend's Name")}: </label>
-              <input  maxLength={32}
+              <input maxLength={32}
                 type="text"
                 value={friendUsername}
                 onChange={(e) => setFriendUsername(e.target.value)}
@@ -465,110 +471,130 @@ function Profile() {
             </ul>
           </div>
         );
-        case 'twoFactorAuth':
-          return (
-            <div className="two-factor-container">
-              <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
-              {!selected2FAMethod && (
-                <div className="two-factor-options">
-                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('authenticator')}>
-                    {translate('Setup with Authenticator App')}
-                  </button>
-                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('sms')}>
-                    {translate('Setup with SMS')}
-                  </button>
-                  <button className="confirm-btn" onClick={() => setSelected2FAMethod('email')}>
-                    {translate('Setup with Email')}
-                  </button>
-                </div>
-              )}
-        
-              {selected2FAMethod === 'authenticator' && (
-                <div className="two-factor-authenticator">
-                  <button className="confirm-btn" onClick={() => setupTwoFactor('authenticator')}>
-                    {translate('Generate QR Code')}
-                  </button>
-                  {qrCode && (
-                    <div className="qr-code-section">
-                      <p>{translate('Scan the QR code with your authenticator app')}:</p>
-                      <div dangerouslySetInnerHTML={{ __html: qrCode }} className="qr-code-display" />
-                      <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
-                        <label htmlFor="otp">{translate('Enter OTP Code')}:</label> 
-                        <input
-                          type="text"
-                          id="otp"
-                          name="otp"
-                          value={confirmationOtp}
-                          onChange={(e) => setConfirmationOtp(e.target.value)}
-                          required
-                          className="otp-input"
-                        />
-                        <div className="submit-row">
-                          <input type="submit" className="confirm-btn" value={translate('Submit')} />
-                        </div>
-                      </form>
-                    </div>
-                  )}
-                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
-                </div>
-              )}
-        
-              {selected2FAMethod === 'sms' && (
-                <div className="two-factor-sms">
-                  <label>{translate('Enter Mobile Number')}:</label>
-                  <input
-                    maxLength={32}
-                    type="text"
-                    value={userPhone}
-                    onChange={(e) => setUserPhone(e.target.value)}
-                    placeholder={translate('Mobile Number')}
-                    className="phone-input"
-                  />
-                  <button className="confirm-btn" onClick={() => setupTwoFactor('sms')}>
-                    {translate('Send OTP via SMS')}
-                  </button>
 
-                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
-                </div>
-              )}
-        
-              {selected2FAMethod === 'email' && (
-                <div className="two-factor-email">
-                  <button className="confirm-btn" onClick={() => setupTwoFactor('email')}>
-                    {translate('Send OTP via Email')}
-                  </button>
-                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
-                </div>
-              )}
-        
-              {(selected2FAMethod === 'sms' || selected2FAMethod === 'email') && (
-                <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
-                  <br></br>
-                  <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
-                  <input
-                    maxLength={32}
-                    type="text"
-                    id="otp"
-                    name="otp"
-                    value={confirmationOtp}
-                    onChange={(e) => setConfirmationOtp(e.target.value)}
-                    required
-                    className="otp-input"
-                  />
-                  <div className="submit-row">
-                    <input type="submit" className="confirm-btn" value={translate('Submit')} />
+
+
+
+
+
+
+
+      case 'twoFactorAuth':
+        return (
+          <div className="two-factor-container">
+            <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
+            {!selected2FAMethod && (
+              <div className="two-factor-options">
+                <button className="confirm-btn" onClick={() => setSelected2FAMethod('authenticator')}>
+                  {translate('Setup with Authenticator App')}
+                </button>
+                <button className="confirm-btn" onClick={() => setSelected2FAMethod('sms')}>
+                  {translate('Setup with SMS')}
+                </button>
+                <button className="confirm-btn" onClick={() => setSelected2FAMethod('email')}>
+                  {translate('Setup with Email')}
+                </button>
+              </div>
+            )}
+
+            {selected2FAMethod === 'authenticator' && (
+              <div className="two-factor-authenticator">
+                <button className="confirm-btn" onClick={() => setupTwoFactor('authenticator')}>
+                  {translate('Generate QR Code')}
+                </button>
+                {qrCode && (
+                  <div className="qr-code-section">
+                    <p>{translate('Scan the QR code with your authenticator app')}:</p>
+                    <div dangerouslySetInnerHTML={{ __html: qrCode }} className="qr-code-display" />
+                    <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
+                      <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
+                      <input
+                        type="text"
+                        id="otp"
+                        name="otp"
+                        value={confirmationOtp}
+                        onChange={(e) => setConfirmationOtp(e.target.value)}
+                        required
+                        className="otp-input"
+                      />
+                      <div className="submit-row">
+                        <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                      </div>
+                    </form>
                   </div>
-                </form>
-              )}
-        
-              {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
-              {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
-        
+                )}
+                {twoFactorMessage && <p className="two-factor-message">{translate(twoFactorMessage)}</p>}
+              </div>
+            )}
+
+            {selected2FAMethod === 'sms' && (
+              <div className="two-factor-sms">
+                <label>{translate('Enter Mobile Number')}:</label>
+                <input
+                  maxLength={32}
+                  type="text"
+                  value={userPhone}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                  placeholder={translate('Mobile Number')}
+                  className="phone-input"
+                />
+                <button className="confirm-btn" onClick={() => setupTwoFactor('sms')}>
+                  {translate('Send OTP via SMS')}
+                </button>
+
+                {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+              </div>
+            )}
+
+            {selected2FAMethod === 'email' && (
+              <div className="two-factor-email">
+                <button className="confirm-btn" onClick={() => setupTwoFactor('email')}>
+                  {translate('Send OTP via Email')}
+                </button>
+                {twoFactorMessage && <p className="two-factor-message">{translate(twoFactorMessage)}</p>}
+              </div>
+            )}
+
+            {(selected2FAMethod === 'sms' || selected2FAMethod === 'email') && (
+              <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
+                <br></br>
+                <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
+                <input
+                  maxLength={32}
+                  type="text"
+                  id="otp"
+                  name="otp"
+                  value={confirmationOtp}
+                  onChange={(e) => setConfirmationOtp(e.target.value)}
+                  required
+                  className="otp-input"
+                />
+                <div className="submit-row">
+                  <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                </div>
+              </form>
+            )}
+
+            {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
+            {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
+
+            {selected2FAMethod && (
               <button className="back-button" onClick={() => setSelected2FAMethod('')}>
                 {translate('Back')}
               </button>
-            </div>
-        );        
+            )}
+          </div>
+        );
+
+
+
+
+
+
+
+
+
+
       case 'matchHistory':
         return (
           <div className="match-history">
@@ -637,14 +663,34 @@ function Profile() {
       case 'info':
       default:
         return (
-          <div className="user-info">
-            <h2 className="profileH2">{translate('User Info')}</h2>
-            <p>{translate('Username')}: {userInfo.username}</p>
-            <p>{translate('Email')}: {userInfo.email}</p>
+          <div>
+            <div className="user-info">
+              <h2 className="profileH2">{translate('User Info')}</h2>
+              <p>{translate('Username')}: {userInfo.username}</p>
+              <p>{translate('Email')}: {userInfo.email}</p>
 
-            <h3 className="profileH2">{translate('Player Statistics')}</h3>
-            <p>{translate('Wins')}: {winCount}</p>
-            <p>{translate('Losses')}: {lossCount}</p>
+              <h3 className="profileH2">{translate('Player Statistics')}</h3>
+              <p>{translate('Wins')}: {winCount}</p>
+              <p>{translate('Losses')}: {lossCount}</p>
+            </div>
+
+
+            <div className="avatar-container">
+              <img
+                src={avatar || 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg?t=st=1728555835~exp=1728559435~hmac=d755d92883b6e90517bb85a9f4873282fbf000290f17eeddd79afdcddaee9ac7&w=826'}
+                alt="Avatar"
+                className="avatar"
+              />
+              <label className="change-avatar-label">
+                <input maxLength={320}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="avatar-upload"
+                />
+                <p className="change-avatar-text">{translate('Change Avatar')}</p>
+              </label>
+            </div>
           </div>
         );
     }
@@ -665,22 +711,7 @@ function Profile() {
         </ul>
       </div>
 
-      <div className="avatar-container">
-        <img
-          src={avatar || 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg?t=st=1728555835~exp=1728559435~hmac=d755d92883b6e90517bb85a9f4873282fbf000290f17eeddd79afdcddaee9ac7&w=826'}
-          alt="Avatar"
-          className="avatar"
-        />
-        <label className="change-avatar-label">
-          <input  maxLength={32}
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            className="avatar-upload"
-          />
-          <p className="change-avatar-text">{translate('Change Avatar')}</p>
-        </label>
-      </div>
+
 
       <div className="user-info">
         {renderContent()}
