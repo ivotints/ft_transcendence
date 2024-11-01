@@ -546,33 +546,32 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		# Check if the user has two-factor authentication enabled
 		try:
 			two_factor_auth_data = UserTwoFactorAuthData.objects.get(user=user)
-			method = request.data.get('method')
 		except UserTwoFactorAuthData.DoesNotExist:
 			# If the user does not have two-factor authentication data,
 			# they have not enabled two-factor authentication
 			pass
 		else:
-			if not otp:
-				return Response({'detail': 'OTP required'}, status=401)
-			if method == 'sms':
-				client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-				verification_check = client.verify.services(settings.TWILIO_VERIFY_SERVICE_SID).verification_checks.create(
-					to=two_factor_auth_data.mobile_number,
-					code=otp
-				)
-				if verification_check.status != 'approved':
-					return Response({"detail": "Invalid OTP code."}, status=401)
-			elif method == 'email' or method == 'app':
-				if not two_factor_auth_data.validate_otp(otp):
-					return Response({"detail": "Invalid OTP code."}, status=401)
+			if two_factor_auth_data.app_enabled or two_factor_auth_data.email_enabled or two_factor_auth_data.sms_enabled:
+				method = request.data.get('method')
+				if not otp:
+					return Response({'detail': 'OTP required'}, status=401)
+				
+				if method == 'sms':
+					client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+					verification_check = client.verify.services(settings.TWILIO_VERIFY_SERVICE_SID).verification_checks.create(
+						to=two_factor_auth_data.mobile_number,
+						code=otp
+					)
+					if verification_check.status != 'approved':
+						return Response({"detail": "Invalid OTP code."}, status=401)
+				elif method == 'email' or method == 'app':
+					if not two_factor_auth_data.validate_otp(otp):
+						return Response({"detail": "Invalid OTP code."}, status=401)
 
 
 		response = super().post(request, *args, **kwargs)
 		access_token = response.data.get('access')
 		refresh_token = response.data.get('refresh')
-
-		# logger.debug(f"Generated Access Token: {access_token}")
-		# logger.debug(f"Generated Refresh Token: {refresh_token}")
 
 		if access_token:
 			response.set_cookie(
