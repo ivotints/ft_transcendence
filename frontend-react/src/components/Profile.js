@@ -269,7 +269,7 @@ function Profile() {
         });
         const responseData = response.data;
         setOtpSecret(responseData.otp_secret);
-        setTwoFactorMessage(translate('OTP has been sent by sms'));
+        setTwoFactorMessage('OTP has been sent by sms');
       } else {
         const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
           headers: {
@@ -284,7 +284,7 @@ function Profile() {
           setQrCode(responseData.qr_code);
         } else {
           setQrCode('');
-          setTwoFactorMessage(translate('OTP has been sent to your ') + method);
+          setTwoFactorMessage('OTP has been sent to your ' + method);
         }
       }
     } catch (error) {
@@ -509,7 +509,7 @@ function Profile() {
                       </form>
                     </div>
                   )}
-                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                  {twoFactorMessage && <p className="two-factor-message">{translate(twoFactorMessage)}</p>}
                 </div>
               )}
         
@@ -537,7 +537,7 @@ function Profile() {
                   <button className="confirm-btn" onClick={() => setupTwoFactor('email')}>
                     {translate('Send OTP via Email')}
                   </button>
-                  {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
+                  {twoFactorMessage && <p className="two-factor-message">{translate(twoFactorMessage)}</p>}
                 </div>
               )}
         
