@@ -138,7 +138,7 @@
       "Password error: Password must contain at least one digit": "Ошибка пароля: Пароль должен содержать хотя бы одну цифру",
       "Password error: Password must contain at least one letter": "Ошибка пароля: Пароль должен содержать хотя бы одну букву",
       "Username error: Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.": "Ошибка имени пользователя: Введите допустимое имя пользователя. Это значение может содержать только буквы, цифры и символы @/./+/-/_.",
-      "Back": "Назад",
+      "You won!": "Вы победили!",
       "Back": "Назад",
       "Back": "Назад",
       "Back": "Назад",
@@ -156,7 +156,7 @@
 
 
 
-
+      "You won!": "Vyhráli jste!",
       "Username error: Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.": "Chyba uživatelského jména: Zadejte platné uživatelské jméno. Tato hodnota může obsahovat pouze písmena, čísla a znaky @/./+/-/_.",
       "Password error: Password must contain at least one letter": "Chyba hesla: Heslo musí obsahovat alespoň jedno písmeno",
       "Password error: Password must contain at least one digit": "Chyba hesla: Heslo musí obsahovat alespoň jednu číslici",

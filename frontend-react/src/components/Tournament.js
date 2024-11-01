@@ -123,16 +123,16 @@ function Tournament() {
       return nextQueue;
     });
   };
-  
+
   useEffect(() => {
     if (isTournamentStarted && matchQueue.length === 0 && players.length > 0 && Object.keys(scores).length > 0) {
       // Navigate to WinTable with the latest players and scores
       navigate('/win-table', { state: { players, scores } });
     }
   }, [isTournamentStarted, matchQueue, players, scores, navigate]);
-  
-  
-  
+
+
+
   const updateScore = (winner) => {
     setScores(prevScores => ({
       ...prevScores,
@@ -167,9 +167,9 @@ function Tournament() {
         <div className="tournament-content">
           <div className="left-column">
             <MatchDisplay match={currentMatchMessage} />
-            <NextMatch 
-              onPlayGame={handlePlayGame} 
-              onNextMatch={handleNextMatch} 
+            <NextMatch
+              onPlayGame={handlePlayGame}
+              onNextMatch={handleNextMatch}
               currentMatch={currentMatchMessage}
             />
             <button className="cancel-button" onClick={handleCancelTournament}>
