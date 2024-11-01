@@ -704,7 +704,6 @@ def oauth_callback(request):
 	token_data = response.json()
 	access_token = token_data.get('access_token')
 
-	# Fetch user info from 42 API
 	headers = {
 		'Authorization': f'Bearer {access_token}',
 	}
@@ -716,9 +715,12 @@ def oauth_callback(request):
 	username = user_info['login']
 	email = user_info['email']
 
-	# Authenticate or create the user
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+
+	profile = UserProfile.objects.get(user=user)
+	profile.oauth = True
+	profile.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)
