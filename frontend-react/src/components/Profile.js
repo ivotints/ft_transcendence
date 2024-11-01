@@ -9,6 +9,7 @@ function Profile() {
   const [userInfo, setUserInfo] = useState({
     username: '',
     email: '',
+    oauth: ''
   });
   const [winCount, setWinCount] = useState(0);
   const [lossCount, setLossCount] = useState(0);
@@ -53,7 +54,9 @@ function Profile() {
         setUserInfo({
           username: profile.user.username,
           email: profile.user.email,
+          oauth: profile.oauth
         });
+        console.log("OAUTH", profile);
         setAvatar(profile.avatar);
         setWinCount(profile.wins);
         setLossCount(profile.losses);
@@ -471,15 +474,16 @@ function Profile() {
             </ul>
           </div>
         );
-
-
-
-
-
-
-
-
       case 'twoFactorAuth':
+        if (userInfo.oauth) {
+          return (
+            <div className="two-factor-container">
+              <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
+              <p>{translate('Two-factor authentication is not enabled for your type of authentication.')}</p>
+            </div>
+          );
+        }
+
         return (
           <div className="two-factor-container">
             <h2 className="profileH2">{translate('2-Factor Authentication')}</h2>
