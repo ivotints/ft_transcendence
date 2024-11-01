@@ -110,11 +110,63 @@
       "Position": "Позиция",
       "Score": "Счет",
       "Start New Tournament": "Начать новый турнир",
+      "2-Factor Authentication": "Двухфакторная аутентификация",
+      "Enter Mobile Number": "Введите номер мобильного телефона",
+      "Setup with Authenticator App": "Настройка с помощью приложения Authenticator",
+      "Setup with SMS": "Настройка с помощью СМС",
+      "Setup with Email": "Настройка с помощью электронной почты",
+      "Generate QR Code": "Сгенерировать QR-код",
+      "Back": "Назад",
+      "Send OTP via Email": "Отправить одноразовый пароль по электронной почте",
+      "Scan the QR code with your authenticator app": "Отсканируйте QR-код с помощью приложения-аутентификатора",
+      "Enter OTP Code": "Введите одноразовый пароль",
+      "Submit": "Отправить",
+      "An error occurred.": "Произошла ошибка.",
+      "An error occurred while setting up 2FA.": "Произошла ошибка при настройке 2FA.",
+      "2FA setup successfully.": "Двухфакторная аутентификация успешно настроена.",
+      "Enter Mobile Number": "Введите номер мобильного телефона",
+      "Mobile Number": "Номер мобильного телефона",
+      "Send OTP via SMS": "Отправить одноразовый пароль по SMS",
+      "Mobile number is required for SMS 2FA": "Для SMS 2FA требуется номер мобильного телефона",
+      "OTP has been sent to your email": "OTP был отправлен на ваш адрес электронной почты",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
       
+      
+      
+
+
 
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
 	},
 	"cz": {
+
+
+      "Mobile number is required for SMS 2FA": "Pro SMS 2FA je vyžadováno mobilní číslo",
+      "Send OTP via SMS": "Odeslat OTP prostřednictvím SMS",
+      "Mobile Number": "Mobilní číslo",
+      "Enter Mobile Number": "Zadejte číslo mobilního telefonu",
+      "2FA setup successfully.": "Nastavení 2FA bylo úspěšné.",
+      "An error occurred while setting up 2FA.": "Při nastavování 2FA došlo k chybě.",
+      "Scan the QR code with your authenticator app": "Naskenujte QR kód pomocí aplikace pro ověřování",
+      "Enter OTP Code": "Zadejte OTP kód",
+      "Submit": "Odeslat",
+      "An error occurred.": "Došlo k chybě.",
+      
+
+
+
       "Home": "Domů",
       "Profile": "Profil",
       "Game": "Hra",
@@ -225,7 +277,17 @@
       "Position": "Pozice",
       "Score": "Skóre",
       "Start New Tournament": "Zahájit nový turnaj",
+      "2-Factor Authentication": "2-faktorové ověřování",
+      "Enter Mobile Number": "Zadejte číslo mobilního telefonu",
+      "Setup with Authenticator App": "Nastavení pomocí aplikace Authenticator",
+      "Setup with SMS": "Nastavení pomocí SMS",
+      "Setup with Email": "Nastavení pomocí e-mailu",
+      "Generate QR Code": "Vygenerujte QR kód",
+      "Back": "Zpět",
       
+
+      
+
 
       
       "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence"

@@ -92,7 +92,7 @@ function PlayerVsPlayer() {
                     <td>
                       <label>{translate('Team 1 Player 1')}</label>
                       <input
-                        maxLength={16}
+                        maxLength={32}
                         type="text"
                         value={player1Name}
                         readOnly
@@ -103,7 +103,7 @@ function PlayerVsPlayer() {
                       <label>{translate('Team 2 Player 1')}</label>
                       <input
                         type="text"
-                        maxLength={16}
+                        maxLength={32}
                         placeholder={translate("Enter Player 3 Name")}
                         value={player3Name}
                         onChange={handleNameChange3}
@@ -116,7 +116,7 @@ function PlayerVsPlayer() {
                       <label>{translate('Team 1 Player 2')}</label>
                       <input
                         type="text"
-                        maxLength={16}
+                        maxLength={32}
 
                         placeholder={translate("Enter Player 2 Name")}
                         value={player2Name}
@@ -128,7 +128,7 @@ function PlayerVsPlayer() {
                       <label>{translate('Team 2 Player 2')}</label>
                       <input
                         type="text"
-                        maxLength={16}
+                        maxLength={32}
                         placeholder={translate("Enter Player 4 Name")}
                         value={player4Name}
                         onChange={handleNameChange4}
