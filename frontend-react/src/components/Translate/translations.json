@@ -139,7 +139,7 @@
       "Password error: Password must contain at least one letter": "Ошибка пароля: Пароль должен содержать хотя бы одну букву",
       "Username error: Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.": "Ошибка имени пользователя: Введите допустимое имя пользователя. Это значение может содержать только буквы, цифры и символы @/./+/-/_.",
       "You won!": "Вы победили!",
-      "Back": "Назад",
+      "Another 2FA method is already enabled": "Другой метод 2FA уже включен",
       "Back": "Назад",
       "Back": "Назад",
       "Back": "Назад",
@@ -155,7 +155,7 @@
 {
 
 
-
+      "Another 2FA method is already enabled": "Jiná metoda 2FA je již povolena",
       "You won!": "Vyhráli jste!",
       "Username error: Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.": "Chyba uživatelského jména: Zadejte platné uživatelské jméno. Tato hodnota může obsahovat pouze písmena, čísla a znaky @/./+/-/_.",
       "Password error: Password must contain at least one letter": "Chyba hesla: Heslo musí obsahovat alespoň jedno písmeno",

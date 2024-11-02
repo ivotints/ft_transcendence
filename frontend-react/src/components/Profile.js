@@ -68,6 +68,8 @@ function Profile() {
   useEffect(() => {
     if (activeSection === "twoFactorAuth") {
       setSelected2FAMethod(''); // Reset to default view with 3 buttons
+      setTwoFactorError('');
+      setTwoFactorSuccess('');
     }
   }, [activeSection]);
 
@@ -567,14 +569,22 @@ function Profile() {
               </form>
             )}
 
-            {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
-            {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
+{twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
+{twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
 
-            {selected2FAMethod && (
-              <button className="back-button" onClick={() => setSelected2FAMethod('')}>
-                {translate('Back')}
-              </button>
-            )}
+{selected2FAMethod && (
+  <button
+    className="back-button"
+    onClick={() => {
+      setSelected2FAMethod('');
+      setTwoFactorError('');
+      setTwoFactorSuccess('');
+    }}
+  >
+    {translate('Back')}
+  </button>
+)}
+
           </div>
         );
 

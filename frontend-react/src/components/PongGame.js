@@ -28,7 +28,7 @@ function PongGame({ player1, player2Name }) {
           y: (this.canvas.height / 2) - 9,
           moveX: DIRECTION.IDLE,
           moveY: DIRECTION.IDLE,
-          speed: incrementedSpeed || 7
+          speed: incrementedSpeed || 10
         };
       }
     };
