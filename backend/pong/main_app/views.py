@@ -51,13 +51,6 @@ from .serializers import MatchHistory2v2Serializer
 logger = logging.getLogger(__name__)
 
 
-class TwoFactorSetupTemplateView(TemplateView):
-	template_name = "setup_2fa.html"
-
-class TwoFactorConfirmTemplateView(TemplateView):
-	template_name = "confirm_2fa.html"
-
-
 class SetupTwoFactorView(APIView):
 	authentication_classes = [
 		authentication.SessionAuthentication,
@@ -142,7 +135,7 @@ class SetupTwoFactorView(APIView):
 
 				if not code:
 					send_email_code(user.email, two_factor_auth_data.otp_secret)
-					return JsonResponse({"success": "Verification code has been sent to your device."})
+					return JsonResponse({"success": "OTP sent successfully."})
 				else:
 
 					if not two_factor_auth_data.validate_otp(code):
@@ -228,6 +221,63 @@ class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
 	def get_object(self):
 		return UserProfile.objects.get(user=self.request.user)
 	
+
+class UserTwoFactorAuthDataView(APIView):
+	def post(self, request):
+		username = request.data.get('username')
+		User = get_user_model()
+
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			return JsonResponse({"detail": "User not found"}, status=404)
+
+		try:
+			two_factor_auth_data = UserTwoFactorAuthData.objects.get(user=user)
+			return JsonResponse({
+				'app_enabled': two_factor_auth_data.app_enabled,
+                'sms_enabled': two_factor_auth_data.sms_enabled,
+                'email_enabled': two_factor_auth_data.email_enabled,
+			})
+		except UserTwoFactorAuthData.DoesNotExist:
+			return JsonResponse({
+				'app_enabled': False,
+                'sms_enabled': False,
+                'email_enabled': False,
+			})
+		
+
+class SendVerificationCode(APIView):
+	def post(self, request):
+		username = request.data.get('username')
+		method = request.data.get('method')
+		User = get_user_model()
+		account_sid = settings.TWILIO_ACCOUNT_SID
+		auth_token = settings.TWILIO_AUTH_TOKEN
+		verify_service_sid = settings.TWILIO_VERIFY_SERVICE_SID
+
+		try:
+			user = User.objects.get(username=username)
+			two_factor_auth_data = user_two_factor_auth_data_create(user=user)
+		except User.DoesNotExist:
+			return JsonResponse({"detail": "User not found"}, status=404)
+
+		try:
+			if method == 'sms':
+				client = Client(account_sid, auth_token)
+				user_phone = two_factor_auth_data.mobile_number
+				verification = client.verify.services(verify_service_sid).verifications.create(
+					to=user_phone,
+					channel='sms'
+				)
+				return JsonResponse({"success": "OTP sent successfully."})
+			elif method == 'email':
+				send_email_code(user.email, two_factor_auth_data.otp_secret)
+				return JsonResponse({"success": "OTP sent successfully."})
+		except Exception as e:
+			return JsonResponse({"detail": str(e)}, status=500)
+
+
 
 class FriendListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = FriendSerializer
@@ -483,7 +533,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 		# user = serializer.validated_data['user']
 		username = request.data.get('username')
+		otp = request.data.get('otp')
 		User = get_user_model()
+		account_sid = settings.TWILIO_ACCOUNT_SID
+		auth_token = settings.TWILIO_AUTH_TOKEN
+		verify_service_sid = settings.TWILIO_VERIFY_SERVICE_SID
 		try:
 			user = User.objects.get(username=username)
 		except User.DoesNotExist:
@@ -497,19 +551,27 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			# they have not enabled two-factor authentication
 			pass
 		else:
-			# If the user has two-factor authentication data, they need to provide an OTP
-			otp_provided = request.data.get('otp')
-
-			if not two_factor_auth_data.validate_otp(otp_provided):
-				return Response({'detail': 'Invalid OTP'}, status=401)
+			if two_factor_auth_data.app_enabled or two_factor_auth_data.email_enabled or two_factor_auth_data.sms_enabled:
+				method = request.data.get('method')
+				if not otp:
+					return Response({'detail': 'OTP required'}, status=401)
+				
+				if method == 'sms':
+					client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+					verification_check = client.verify.services(settings.TWILIO_VERIFY_SERVICE_SID).verification_checks.create(
+						to=two_factor_auth_data.mobile_number,
+						code=otp
+					)
+					if verification_check.status != 'approved':
+						return Response({"detail": "Invalid OTP code."}, status=401)
+				elif method == 'email' or method == 'app':
+					if not two_factor_auth_data.validate_otp(otp):
+						return Response({"detail": "Invalid OTP code."}, status=401)
 
 
 		response = super().post(request, *args, **kwargs)
 		access_token = response.data.get('access')
 		refresh_token = response.data.get('refresh')
-
-		# logger.debug(f"Generated Access Token: {access_token}")
-		# logger.debug(f"Generated Refresh Token: {refresh_token}")
 
 		if access_token:
 			response.set_cookie(
@@ -536,7 +598,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 		response.data = {'detail': 'Success'}
 		return response
-
 
 
 class CustomTokenRefreshView(TokenRefreshView):
@@ -643,7 +704,6 @@ def oauth_callback(request):
 	token_data = response.json()
 	access_token = token_data.get('access_token')
 
-	# Fetch user info from 42 API
 	headers = {
 		'Authorization': f'Bearer {access_token}',
 	}
@@ -655,9 +715,12 @@ def oauth_callback(request):
 	username = user_info['login']
 	email = user_info['email']
 
-	# Authenticate or create the user
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+
+	# profile = UserProfile.objects.get(user=user)
+	# profile.oauth = True
+	# profile.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)

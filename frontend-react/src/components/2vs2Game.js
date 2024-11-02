@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslate } from './Translate/useTranslate';
+import axios from 'axios';
 
 const DIRECTION = {
   IDLE: 0,
@@ -12,7 +13,7 @@ const DIRECTION = {
 const WINNING_SCORE = 5;
 const BACKGROUND_COLOR = '#00cc00';
 
-function TwoVsTwoGame({ player1Name, player2Name, player3Name, player4Name }) {
+function TwoVsTwoGame({ player1, player2Name, player3Name, player4Name }) {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
   const { translate } = useTranslate();
@@ -27,7 +28,7 @@ function TwoVsTwoGame({ player1Name, player2Name, player3Name, player4Name }) {
           y: (this.canvas.height / 2) - 9,
           moveX: DIRECTION.IDLE,
           moveY: DIRECTION.IDLE,
-          speed: incrementedSpeed || 7
+          speed: incrementedSpeed || 10
         };
       }
     };
@@ -199,16 +200,30 @@ this.player4 = { x: this.canvas.width - 60, y: this.canvas.height - 150, width: 
         }
     
         // Check for game end (score of 5 for team-based win)
-        if (this.player1.score + this.player3.score === WINNING_SCORE) {
-            this.over = true;
-            setTimeout(() => { this.endGameMenu(`${player1Name} and ${player2Name} ` + translate('Win!')); }, 1000);
-        } else if (this.player2.score + this.player4.score === WINNING_SCORE) {
-            this.over = true;
-            setTimeout(() => { this.endGameMenu(`${player3Name} and ${player4Name} ` + translate('Win!')); }, 1000);
-        }
+        if (this.player1.score + this.player3.score === WINNING_SCORE || this.player2.score + this.player4.score === WINNING_SCORE) {
+          this.over = true;
+      
+          const matchData = {
+                player1: player1.id,
+                player2: player2Name,
+                player3: player3Name,
+                player4: player4Name,
+                match_score: `${this.player1.score + this.player3.score}-${this.player2.score + this.player4.score}`
+          };
+      
+          axios.post('https://localhost:8000/matches/2v2/', matchData, { withCredentials: true })
+              .then(response => {
+                  console.log('Match data sent successfully:', response.data);
+              })
+              .catch(error => {
+                  console.error('Error sending match data:', error);
+              });
+      
+          const winningTeam = this.player1.score + this.player3.score === WINNING_SCORE ? `${player1.username} and ${player2Name}` : `${player3Name} and ${player4Name}`;
+      
+          setTimeout(() => { this.endGameMenu(`${winningTeam} ` + translate('Win!')); }, 1000);
+      }
     },
-    
-    
 
     draw: function () {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -333,7 +348,7 @@ this.player4 = { x: this.canvas.width - 60, y: this.canvas.height - 150, width: 
         gameRef.current.over = true;
       }
     };
-  }, [player1Name, player2Name]);
+  }, [player1.username, player2Name, player3Name, player4Name]);
 
   return (
     <div className="pong-game">

@@ -8,7 +8,10 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [twoFactorMethods, setTwoFactorMethods] = useState(null);
+  const [otpRequired, setOtpRequired] = useState(false); // Added state to track OTP requirement
   const { translate } = useTranslate();
 
   const handleLoginClick = () => {
@@ -19,16 +22,62 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
     setFormType('createUser');
   };
 
-  const handleLoginSubmit = async () => {
+  const handleLoginSubmitBefore2fa = async () => {
     try {
+      const twoFactorResponse = await axios.post('https://localhost:8000/users-2fa/', { username });
+      const methods = twoFactorResponse.data;
+      if (methods.app_enabled || methods.sms_enabled || methods.email_enabled) {
+        setTwoFactorMethods(methods);
+        setOtpRequired(true); // Set OTP requirement to true
+      } else {
+        const response = await axios.post('https://localhost:8000/token/', {
+          username,
+          password,
+        }, {
+          withCredentials: true,
+        });
+        console.log('Login successful:', response.data);
+        onLoginSuccess();
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        setErrorMessage('Error: No response received from server');
+      } else {
+        console.error('Error message:', error.message);
+        setErrorMessage(`Error: ${error.message}`);
+      }
+    }
+  };
+
+  const handleLoginSubmitAfter2fa = async () => {
+    try {
+      let method;
+      if (twoFactorMethods.email_enabled) {
+        method = 'email';
+      }
+      else if (twoFactorMethods.sms_enabled) {
+        method = 'sms';
+      }
+      else if (twoFactorMethods.app_enabled) {
+        method = 'app';
+      }
       const response = await axios.post('https://localhost:8000/token/', {
         username,
         password,
+        otp,
+        method
       }, {
-        withCredentials: true, // Include cookies in the request
+        withCredentials: true,
       });
       console.log('Login successful:', response.data);
-      onLoginSuccess(); // Notify parent that login was successful
+      onLoginSuccess();
     } catch (error) {
       console.error('Error logging in:', error);
       if (error.response) {
@@ -57,7 +106,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
       });
       console.log('User created successfully:', response.data);
       // Automatically log in the user after successful registration
-      await handleLoginSubmit();
+      await handleLoginSubmitBefore2fa();
     } catch (error) {
       console.error('Error creating user:', error);
       if (error.response) {
@@ -85,6 +134,33 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
     window.location.href = 'https://localhost:8000/oauth/redirect/';
   };
 
+  const handleSendCodeButtonClick = async () => {
+    try {
+      const method = twoFactorMethods.email_enabled ? 'email' : 'sms';
+      const response = await axios.post('https://localhost:8000/send-2fa/', {
+        username,
+        method
+      }, {
+        withCredentials: true,
+      });
+      console.log('Special endpoint response:', response.data);
+    } catch (error) {
+      console.error('Error calling special endpoint:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        setErrorMessage('Error: No response received from server');
+      } else {
+        console.error('Error message:', error.message);
+        setErrorMessage(`Error: ${error.message}`);
+      }
+    }
+  };
+
   return (
     <div className="auth-options">
       <div className="auth-buttons">
@@ -96,15 +172,50 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
       {formType === 'login' && (
         <table className="auth-table">
           <tbody>
-            <tr>
-              <td><input id="username" name="username" maxLength={32} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></td>
-            </tr>
-            <tr>
-              <td><input  maxLength={32} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
-            </tr>
-            <tr>
-              <td><button className="submit-button" onClick={handleLoginSubmit}>{translate('Log In')}</button></td>
-            </tr>
+            {!otpRequired && (
+              <>
+                <tr>
+                  <td><input id="username" name="username" maxLength={32} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></td>
+                </tr>
+                <tr>
+                  <td><input  maxLength={32} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
+                </tr>
+                <tr>
+                  <td><button className="submit-button" onClick={handleLoginSubmitBefore2fa}>{translate('Log In')}</button></td>
+                </tr>
+              </>
+            )}
+            {otpRequired && (
+              <>
+                <tr>
+                  <td>
+                    <input
+                      maxLength={6}
+                      type="text"
+                      placeholder={translate('Enter OTP')}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                    />
+                  </td>
+                </tr>
+                {(twoFactorMethods?.sms_enabled || twoFactorMethods?.email_enabled) && (
+                  <tr>
+                    <td>
+                      <button className="send-code" onClick={handleSendCodeButtonClick}>
+                        {translate('Send verification code')}
+                      </button>
+                    </td>
+                  </tr>
+                )}
+                <tr>
+                  <td>
+                    <button className="submit-button" onClick={handleLoginSubmitAfter2fa}>
+                      {translate('Log In')}
+                    </button>
+                  </td>
+                </tr>
+              </>
+            )}
           </tbody>
         </table>
       )}
