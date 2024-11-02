@@ -15,7 +15,7 @@ import qrcode.image.svg
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE) # , related_name="profile")
 	avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-	oauth = models.BooleanField(default=False)
+	# oauth = models.BooleanField(default=False)
 	is_online = models.BooleanField(default=False)
 	match_history = models.ManyToManyField("MatchHistory", blank=True)
 

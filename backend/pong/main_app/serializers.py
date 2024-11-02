@@ -81,7 +81,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 		model = UserProfile
 		fields = [
 			'user',
-			'oauth',
+			# 'oauth',
 			'wins',
 			'losses',
 			'match_history',
