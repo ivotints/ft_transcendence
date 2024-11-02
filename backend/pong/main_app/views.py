@@ -718,9 +718,9 @@ def oauth_callback(request):
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
 
-	profile = UserProfile.objects.get(user=user)
-	profile.oauth = True
-	profile.save()
+	# profile = UserProfile.objects.get(user=user)
+	# profile.oauth = True
+	# profile.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)
