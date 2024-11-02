@@ -473,13 +473,6 @@ function Profile() {
             </ul>
           </div>
         );
-
-
-
-
-
-
-
       case 'twoFactorAuth':
         return (
           <div className="two-factor-container">
