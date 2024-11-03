@@ -99,3 +99,9 @@
     background-color: #f4f4f9;
     color: #1f1f1f;
 }
+
+.logout {
+    margin-left: 20px;
+    position: relative;
+    display: inline-block;
+}
