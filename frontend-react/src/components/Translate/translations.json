@@ -140,6 +140,19 @@
       "Username error: Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.": "Ошибка имени пользователя: Введите допустимое имя пользователя. Это значение может содержать только буквы, цифры и символы @/./+/-/_.",
       "You won!": "Вы победили!",
       "Another 2FA method is already enabled": "Другой метод 2FA уже включен",
+      "Log out": "Выйти",
+      "This 2FA method is already enabled": "Этот метод 2FA уже включен",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
+      "Back": "Назад",
       "Back": "Назад",
       "Back": "Назад",
       "Back": "Назад",
@@ -153,8 +166,8 @@
 	},
 	"cz": 
 {
-
-
+      "This 2FA method is already enabled": "Tato metoda 2FA je již povolena",
+      "Log out": "Odhlaste se",
       "Another 2FA method is already enabled": "Jiná metoda 2FA je již povolena",
       "You won!": "Vyhráli jste!",
       "Username error: Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.": "Chyba uživatelského jména: Zadejte platné uživatelské jméno. Tato hodnota může obsahovat pouze písmena, čísla a znaky @/./+/-/_.",

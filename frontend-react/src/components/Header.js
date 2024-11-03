@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
+import axios from 'axios';
 import { useTranslate } from './Translate/useTranslate';
 import { useLanguage } from './Translate/LanguageContext';  // Import useLanguage
 
@@ -16,6 +17,15 @@ function Header() {
   const handleLanguageChange = (lang) => {
     changeLanguage(lang);  // Change the language
     setDropdownOpen(false);  // Close the dropdown
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('https://localhost:8000/logout/', {}, { withCredentials: true });
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   return (
@@ -38,6 +48,12 @@ function Header() {
               <li><button onClick={() => handleLanguageChange('cz')}>CZ</button></li>
             </ul>
           )}
+        </div>
+
+        <div className="logout">
+          <button className="dropdown-button" onClick={handleLogout}>
+            <b>{translate('Log out')}</b>
+          </button>
         </div>
       </nav>
     </header>

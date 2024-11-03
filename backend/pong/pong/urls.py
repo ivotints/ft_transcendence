@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
-from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView, check_login_status, oauth_redirect, oauth_callback
+from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView, check_login_status, oauth_redirect, oauth_callback, LogoutView
 
 # def home(request):
 # 	return HttpResponse("Home Page")
@@ -25,6 +25,7 @@ from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, Cu
 urlpatterns = [
     path("admin/", admin.site.urls),
 	path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path('logout/', LogoutView.as_view(), name='logout'),
 	path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
 	path("token/verify/", CustomTokenVerifyView.as_view(), name="token_verify"),
 	path('oauth/redirect/', oauth_redirect, name='oauth_redirect'),

@@ -640,6 +640,21 @@ class CustomTokenVerifyView(TokenVerifyView):
 		request_data = request.data.copy()
 		request_data['token'] = access_token
 		return super().post(request, data=request_data ,*args, **kwargs)
+
+
+class LogoutView(APIView):
+	authentication_classes = [
+		authentication.SessionAuthentication,
+		CustomJWTAuthentication,
+		authentication.TokenAuthentication,
+	]
+	permission_classes = [permissions.IsAuthenticated]
+	
+	def post(self, request):
+		response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+		response.delete_cookie('access_token')
+		response.delete_cookie('refresh_token')
+		return response
 	
 
 class ProtectedMediaView(APIView):
