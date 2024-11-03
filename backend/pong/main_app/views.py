@@ -53,9 +53,7 @@ logger = logging.getLogger(__name__)
 
 class SetupTwoFactorView(APIView):
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -153,9 +151,7 @@ class SetupTwoFactorView(APIView):
 
 class ConfirmTwoFactorAuthView(APIView):
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAuthenticated]
 
@@ -191,9 +187,7 @@ class UserListAPIView(generics.ListAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
 
@@ -202,9 +196,7 @@ class UserProfileListAPIView(generics.ListAPIView):
 	serializer_class = UserProfileSerializer
 	queryset = UserProfile.objects.all()
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAdminUser]
 	
@@ -212,9 +204,7 @@ class UserProfileListAPIView(generics.ListAPIView):
 class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = UserProfileSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -282,9 +272,7 @@ class SendVerificationCode(APIView):
 class FriendListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -299,9 +287,7 @@ class FriendListCreateAPIView(generics.ListCreateAPIView):
 class AcceptedFriendsAPIView(generics.ListAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -315,9 +301,7 @@ class AcceptedFriendsAPIView(generics.ListAPIView):
 class PendingFriendRequestsAPIView(generics.ListAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -329,9 +313,7 @@ class PendingFriendRequestsAPIView(generics.ListAPIView):
 class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -350,12 +332,9 @@ class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 	def update(self, request, *args, **kwargs):
 		instance = self.get_object()
 		
-		# Only the recipient can accept or reject the friend request
 		if instance.friend != request.user:
 			return Response({'detail': 'You do not have permission to update this friend request.'},
 							status=status.HTTP_403_FORBIDDEN)
-		
-		print("Request data: ", request.data)
 		
 		serializer = self.get_serializer(instance, data=request.data, partial=True)
 		try:
@@ -370,16 +349,13 @@ class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 			serializer.instance.delete()
 			return Response({'detail': 'Friend request rejected and deleted.'}, status=status.HTTP_200_OK)
 
-		print("Updated instance data: ", serializer.data)  # Log the updated instance data
 		return Response(serializer.data)
 
 
 class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = MatchHistorySerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -397,9 +373,7 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 	serializer_class = MatchHistory2v2Serializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
@@ -413,113 +387,18 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 			raise PermissionDenied("You can only create matches for yourself.")
 		serializer.save()
 
-	
-class MatchHistoryDetailAPIView(generics.RetrieveUpdateAPIView):
-	serializer_class = MatchHistorySerializer
-	authentication_classes = [
-		authentication.SessionAuthentication,
-		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
-	]
-	permission_classes = [IsAuthenticated]
-
-	def get_object(self):
-		return MatchHistory.objects.get(user=self.request.user, id=self.kwargs['pk'])
-
 
 class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	queryset = Tournament.objects.all()
 	serializer_class = TournamentSerializer
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
 		user = self.request.user
 		return Tournament.objects.filter(owner=user)
-	
-	# def list(self, request, *args, **kwargs):
-	# 	queryset = self.get_queryset()
-	# 	serializer = self.get_serializer(queryset, many=True)
-	# 	tournaments = serializer.data
-
-	# 	for tournament in tournaments:
-	# 		tournament_id = tournament['id']
-	# 		try:
-	# 			blockchain_data = get_tournament_data(1000)
-	# 			tournament['blockchain_data'] = blockchain_data
-	# 		except Exception as e:
-	# 			tournament['blockchain_data'] = {'error': str(e)}
-
-	# 	return Response(tournaments)
-
-	# def create(self, request, *args, **kwargs): # TODO: change it for a frontend
-	# 	# winners_order = request.data.get('winners_order')
-	# 	winners_order = ["player1", "player2", "player3", "player4"]
-
-	# 	if winners_order is not None:
-	# 		# user_ids = [int(id) for id in user_ids.split(',')]
-	# 		# print(user_ids)
-	# 		if len(winners_order) != 4:
-	# 			return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
-
-	# 		try:
-	# 			serializer = self.get_serializer(data=request.data)
-	# 			serializer.is_valid(raise_exception=True)
-	# 			self.perform_create(serializer)
-
-	# 			tournament = serializer.instance
-
-	# 			tournament_id = tournament.id + 60000 # TODO
-				
-	# 			tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
-
-	# 			tournament.blockchain_tx_hash = tx_hash
-	# 			tournament.save()
-
-	# 			headers = self.get_success_headers(serializer.data)
-	# 			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-	# 		except Exception as e:
-	# 			return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-	# 	return super().create(request, *args, **kwargs)
-
-
-class TournamentDetailAPIView(generics.RetrieveUpdateAPIView):
-	queryset = Tournament.objects.all()
-	serializer_class = TournamentSerializer
-	authentication_classes = [
-		authentication.SessionAuthentication,
-		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
-	]
-	permission_classes = [IsAuthenticated]
-
-	def update(self, request, *args, **kwargs): # TODO: validation of unique players
-		winners_order = request.data.get('winners_order')
-		if winners_order is not None:
-			if len(winners_order) != 4:
-				return Response({"error": "Must provide exactly 4 user nicknames"}, status=400)
-
-			tournament = self.get_object()
-			tournament_id = tournament.id
-
-			if tournament.blockchain_tx_hash is not None: # simple prevention of overriding, adding admin of tournament is a solution as well
-				return Response({"error": "Tournament results have already been posted"}, status=400)
-			
-			try:
-				tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
-
-				# Update tournament to the database with the transaction hash
-				serializer = self.get_serializer(tournament, data=request.data, partial=True)
-				serializer.is_valid(raise_exception=True)
-				serializer.save(blockchain_tx_hash=tx_hash)
-			except Exception as e:
-				return Response({"error": str(e)}, status=400)
-		return super().update(request, *args, **kwargs)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -531,7 +410,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		except TokenError as e:
 			raise InvalidToken(e.args[0])
 
-		# user = serializer.validated_data['user']
 		username = request.data.get('username')
 		otp = request.data.get('otp')
 		User = get_user_model()
@@ -543,12 +421,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		except User.DoesNotExist:
 			return Response({"error": "User not found"}, status=400)
 
-		# Check if the user has two-factor authentication enabled
 		try:
 			two_factor_auth_data = UserTwoFactorAuthData.objects.get(user=user)
 		except UserTwoFactorAuthData.DoesNotExist:
 			# If the user does not have two-factor authentication data,
-			# they have not enabled two-factor authentication
 			pass
 		else:
 			if two_factor_auth_data.app_enabled or two_factor_auth_data.email_enabled or two_factor_auth_data.sms_enabled:
@@ -567,7 +443,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				elif method == 'email' or method == 'app':
 					if not two_factor_auth_data.validate_otp(otp):
 						return Response({"detail": "Invalid OTP code."}, status=401)
-
 
 		response = super().post(request, *args, **kwargs)
 		access_token = response.data.get('access')
@@ -634,7 +509,6 @@ class CustomTokenRefreshView(TokenRefreshView):
 class CustomTokenVerifyView(TokenVerifyView):
 	def post(self, request, *args, **kwargs):
 		access_token = request.COOKIES.get('access_token')
-		# logger.debug(f"Access Token from Cookie: {access_token}")
 		if not access_token:
 			return JsonResponse({'detail': 'Access token not found'}, status=400)
 		request_data = request.data.copy()
@@ -644,9 +518,7 @@ class CustomTokenVerifyView(TokenVerifyView):
 
 class LogoutView(APIView):
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAuthenticated]
 	
@@ -659,9 +531,7 @@ class LogoutView(APIView):
 
 class ProtectedMediaView(APIView):
 	authentication_classes = [
-		authentication.SessionAuthentication,
 		CustomJWTAuthentication,
-		authentication.TokenAuthentication,
 	]
 	permission_classes = [permissions.IsAuthenticated]
 
@@ -733,10 +603,6 @@ def oauth_callback(request):
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
 
-	# profile = UserProfile.objects.get(user=user)
-	# profile.oauth = True
-	# profile.save()
-
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)
 	refresh_token = str(refresh)
@@ -763,11 +629,7 @@ def oauth_callback(request):
 
 
 @api_view(['GET'])
-@authentication_classes([
-	authentication.SessionAuthentication,
-	CustomJWTAuthentication,
-	authentication.TokenAuthentication,
-])
+@authentication_classes([CustomJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def check_login_status(request):
 	return JsonResponse({'detail': 'User is authenticated'}, status=200)
