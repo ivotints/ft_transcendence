@@ -70,6 +70,8 @@ function Profile() {
       setSelected2FAMethod(''); // Reset to default view with 3 buttons
       setTwoFactorError('');
       setTwoFactorSuccess('');
+      setUserPhone('');
+      setTwoFactorMessage('');
     }
   }, [activeSection]);
 
@@ -532,7 +534,18 @@ function Profile() {
                   placeholder={translate('Mobile Number')}
                   className="phone-input"
                 />
-                <button className="confirm-btn" onClick={() => setupTwoFactor('sms')}>
+                <button
+                  className={`confirm-btn ${!userPhone ? 'disabled' : ''}`}
+                  onClick={() => {
+                    setUserPhone(userPhone.startsWith('+') ? userPhone : `+${userPhone}`);
+                    if (!/^\+?[1-9]\d{1,14}$/.test(userPhone)) {
+                      setTwoFactorError(translate('Invalid phone number format.'));
+                      return;
+                    }
+                    setupTwoFactor('sms');
+                  }}
+                  disabled={!userPhone}
+                >
                   {translate('Send OTP via SMS')}
                 </button>
 
@@ -569,21 +582,23 @@ function Profile() {
               </form>
             )}
 
-{twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
-{twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
+            {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
+            {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
 
-{selected2FAMethod && (
-  <button
-    className="back-button"
-    onClick={() => {
-      setSelected2FAMethod('');
-      setTwoFactorError('');
-      setTwoFactorSuccess('');
-    }}
-  >
-    {translate('Back')}
-  </button>
-)}
+            {selected2FAMethod && (
+              <button
+                className="back-button"
+                onClick={() => {
+                  setSelected2FAMethod('');
+                  setTwoFactorError('');
+                  setTwoFactorSuccess('');
+                  setUserPhone('');
+                  setTwoFactorMessage('');
+                }}
+              >
+                {translate('Back')}
+              </button>
+            )}
 
           </div>
         );
