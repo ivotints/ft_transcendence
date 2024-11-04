@@ -53,7 +53,6 @@ function Header() {
         <div className="logout">
           <button className="dropdown-button" onClick={handleLogout}>
             <b>{translate('Log out')}</b>
-
           </button>
         </div>
       </nav>

@@ -142,7 +142,7 @@
       "Another 2FA method is already enabled": "Другой метод 2FA уже включен",
       "Log out": "Выйти",
       "This 2FA method is already enabled": "Этот метод 2FA уже включен",
-      "Back": "Назад",
+      "Invalid phone number format.": "Неверный формат номера телефона.",
       "Back": "Назад",
       "Back": "Назад",
       "Back": "Назад",
@@ -164,8 +164,11 @@
 
       "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence"
 	},
-	"cz": 
-{
+	"cz": {
+
+
+
+      "Invalid phone number format.": "Neplatný formát telefonního čísla.",
       "This 2FA method is already enabled": "Tato metoda 2FA je již povolena",
       "Log out": "Odhlaste se",
       "Another 2FA method is already enabled": "Jiná metoda 2FA je již povolena",
