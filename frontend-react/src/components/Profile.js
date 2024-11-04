@@ -70,6 +70,8 @@ function Profile() {
       setSelected2FAMethod(''); // Reset to default view with 3 buttons
       setTwoFactorError('');
       setTwoFactorSuccess('');
+      setUserPhone('');
+      setTwoFactorMessage('');
     }
   }, [activeSection]);
 
@@ -267,8 +269,7 @@ function Profile() {
         //   }
         // );
         // setTwoFactorMessage('OTP sent successfully.');
-
-        data.user_phone = userPhone;
+        data.user_phone = (userPhone.startsWith('+') ? userPhone : "+" + userPhone);
         const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
           headers: {
             'Content-Type': 'application/json',
@@ -521,6 +522,10 @@ function Profile() {
               </div>
             )}
 
+
+
+
+
             {selected2FAMethod === 'sms' && (
               <div className="two-factor-sms">
                 <label>{translate('Enter Mobile Number')}:</label>
@@ -532,13 +537,30 @@ function Profile() {
                   placeholder={translate('Mobile Number')}
                   className="phone-input"
                 />
-                <button className="confirm-btn" onClick={() => setupTwoFactor('sms')}>
+                <button
+                  className={`confirm-btn ${!userPhone ? 'disabled' : ''}`}
+                  onClick={() => {
+                    setUserPhone(userPhone.startsWith('+') ? userPhone : "+" + userPhone);
+                    if (!/^\+?[1-9]\d{1,14}$/.test(userPhone)) {
+                      setTwoFactorError(translate('Invalid phone number format.'));
+                      return;
+                    }
+                    setTwoFactorError("");
+                    setTwoFactorMessage("");
+                    setupTwoFactor('sms');
+                  }}
+                  disabled={!userPhone}
+                >
                   {translate('Send OTP via SMS')}
                 </button>
 
                 {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
               </div>
             )}
+
+
+
+
 
             {selected2FAMethod === 'email' && (
               <div className="two-factor-email">
@@ -569,21 +591,23 @@ function Profile() {
               </form>
             )}
 
-{twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
-{twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
+            {twoFactorSuccess && <div className="success-message">{translate(twoFactorSuccess)}</div>}
+            {twoFactorError && <div className="error-message">{translate(twoFactorError)}</div>}
 
-{selected2FAMethod && (
-  <button
-    className="back-button"
-    onClick={() => {
-      setSelected2FAMethod('');
-      setTwoFactorError('');
-      setTwoFactorSuccess('');
-    }}
-  >
-    {translate('Back')}
-  </button>
-)}
+            {selected2FAMethod && (
+              <button
+                className="back-button"
+                onClick={() => {
+                  setSelected2FAMethod('');
+                  setTwoFactorError('');
+                  setTwoFactorSuccess('');
+                  setUserPhone('');
+                  setTwoFactorMessage('');
+                }}
+              >
+                {translate('Back')}
+              </button>
+            )}
 
           </div>
         );
