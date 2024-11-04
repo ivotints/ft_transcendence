@@ -269,8 +269,7 @@ function Profile() {
         //   }
         // );
         // setTwoFactorMessage('OTP sent successfully.');
-
-        data.user_phone = userPhone;
+        data.user_phone = (userPhone.startsWith('+') ? userPhone : "+" + userPhone);
         const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
           headers: {
             'Content-Type': 'application/json',
@@ -523,6 +522,10 @@ function Profile() {
               </div>
             )}
 
+
+
+
+
             {selected2FAMethod === 'sms' && (
               <div className="two-factor-sms">
                 <label>{translate('Enter Mobile Number')}:</label>
@@ -537,11 +540,13 @@ function Profile() {
                 <button
                   className={`confirm-btn ${!userPhone ? 'disabled' : ''}`}
                   onClick={() => {
-                    setUserPhone(userPhone.startsWith('+') ? userPhone : `+${userPhone}`);
+                    setUserPhone(userPhone.startsWith('+') ? userPhone : "+" + userPhone);
                     if (!/^\+?[1-9]\d{1,14}$/.test(userPhone)) {
                       setTwoFactorError(translate('Invalid phone number format.'));
                       return;
                     }
+                    setTwoFactorError("");
+                    setTwoFactorMessage("");
                     setupTwoFactor('sms');
                   }}
                   disabled={!userPhone}
@@ -552,6 +557,10 @@ function Profile() {
                 {twoFactorMessage && <p className="two-factor-message">{twoFactorMessage}</p>}
               </div>
             )}
+
+
+
+
 
             {selected2FAMethod === 'email' && (
               <div className="two-factor-email">
