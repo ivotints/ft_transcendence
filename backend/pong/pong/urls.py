@@ -19,8 +19,6 @@ from django.urls import include, path
 from django.http import HttpResponse
 from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView, check_login_status, oauth_redirect, oauth_callback, LogoutView
 
-# def home(request):
-# 	return HttpResponse("Home Page")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
