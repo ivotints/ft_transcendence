@@ -8,6 +8,7 @@ import MatchQueue from './MatchQueue';
 import { useTranslate } from './Translate/useTranslate';
 import { useLanguage } from './Translate/LanguageContext';
 import NextMatch from './NextMatch';
+import { setWinTableAccess, setTournamentGameAccess } from './ProtectedRoute';
 
 function Tournament() {
   const [players, setPlayers] = useState([]);
@@ -111,6 +112,7 @@ function Tournament() {
   const handlePlayGame = () => {
     if (currentMatchKey && currentMatchKey !== 'No more matches scheduled') {
       const [player1, player2] = currentMatchKey.split(' vs ');
+      setTournamentGameAccess(true);
       navigate('/tournament-game', { state: { player1, player2 } });
     }
   };
@@ -127,6 +129,7 @@ function Tournament() {
   useEffect(() => {
     if (isTournamentStarted && matchQueue.length === 0 && players.length > 0 && Object.keys(scores).length > 0) {
       // Navigate to WinTable with the latest players and scores
+      setWinTableAccess(true);
       navigate('/win-table', { state: { players, scores } });
     }
   }, [isTournamentStarted, matchQueue, players, scores, navigate]);
