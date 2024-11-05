@@ -14,11 +14,10 @@
   font-size: 24px;
   color: #333;
   margin-bottom: 15px;
-  /* text-transform: uppercase; */
-  /* letter-spacing: 2px; */
-  overflow: hidden; /* Hide overflowed content */
-  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
-  white-space: nowrap; /* Prevent line wrapping */
+  /* Allow text to wrap and remove ellipsis */
+  white-space: normal; /* Allow line wrapping */
+  overflow: visible; /* Let content flow without truncating */
+  text-overflow: clip; /* Show full content without ellipsis */
 }
 
 .match-queue ul {
@@ -36,9 +35,11 @@
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  overflow: hidden; /* Hide overflowed content */
-  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
-  white-space: nowrap; /* Prevent line wrapping */
+  
+  /* Allow text to wrap and show full content */
+  white-space: normal; /* Allow line wrapping */
+  overflow: visible; /* Show full content */
+  text-overflow: clip; /* Don't show ellipsis */
 }
 
 .match-queue li:nth-child(odd) {

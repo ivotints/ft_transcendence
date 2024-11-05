@@ -19,7 +19,6 @@ import { LanguageProvider } from './components/Translate/LanguageContext';  // I
 import { useTranslate } from './components/Translate/useTranslate';
 // import { refreshToken } from './utils/auth';
 
-
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +26,7 @@ function App() {
   const { translate } = useTranslate();
   const checkLoginIntervalRef = useRef(null);
   const refreshTokenIntervalRef = useRef(null);
+  
 
   // const checkLoginStatus = async () => {
   //   try {
