@@ -28,6 +28,7 @@ import os
 import random
 import string
 import requests
+import re
 
 from .web3 import get_tournament_data, add_tournament_data
 from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create, send_email_code, send_sms_code
@@ -107,6 +108,9 @@ class SetupTwoFactorView(APIView):
 				if not user_phone:
 					return JsonResponse({"errors": ["Mobile number is required for SMS 2FA"]}, status=400)
 				
+				if not re.match(r'^\+?[1-9]\d{1,14}$', user_phone):
+					return JsonResponse({"errors": ["Invalid phone number format."]}, status=400)
+
 				if not code :
 					verification = client.verify.services(verify_service_sid).verifications.create(
 						to=user_phone,
@@ -667,7 +671,9 @@ class ProtectedMediaView(APIView):
 
 	def get(self, request, path, format=None):
 		file_path = os.path.join(settings.MEDIA_ROOT, path)
-		if os.path.exists(file_path):
+		user = request.user
+		profile = UserProfile.objects.get(user = user)
+		if os.path.exists(file_path) and profile.avatar == path:
 			return FileResponse(open(file_path, 'rb'))
 		else:
 			raise Http404
