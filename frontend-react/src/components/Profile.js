@@ -42,6 +42,7 @@ function Profile() {
   const [confirmationOtp, setConfirmationOtp] = useState('');
   const [twoFactorSuccess, setTwoFactorSuccess] = useState('');
   const [twoFactorError, setTwoFactorError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     console.log('Component mounted, fetching data...');
@@ -148,11 +149,19 @@ function Profile() {
           withCredentials: true,
         });
         setAvatar(response.data.avatar);
+        setErrorMessage(''); // Clear error message on success
       } catch (error) {
         console.error('Error updating avatar:', error);
+        if (error.response && error.response.data) {
+          const errorMsg = error.response.data.avatar ? error.response.data.avatar[0] : 'An unexpected error occurred. Please try again.';
+          setErrorMessage(errorMsg); // Set error message from backend
+        } else {
+          setErrorMessage('An unexpected error occurred. Please try again.');
+        }
       }
     }
   };
+
 
   const handleEmailChange = async (e) => {
     e.preventDefault();
@@ -504,6 +513,7 @@ function Profile() {
                     <form id="confirm-2fa-form" onSubmit={confirmTwoFactor} className="otp-form">
                       <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
                       <input
+                        maxLength={6}
                         type="text"
                         id="otp"
                         name="otp"
@@ -513,7 +523,7 @@ function Profile() {
                         className="otp-input"
                       />
                       <div className="submit-row">
-                        <input type="submit" className="confirm-btn" value={translate('Submit')} />
+                        <input type="submit" maxLength={32} className="confirm-btn" value={translate('Submit')} />
                       </div>
                     </form>
                   </div>
@@ -576,7 +586,7 @@ function Profile() {
                 <br></br>
                 <label htmlFor="otp">{translate('Enter OTP Code')}:</label>
                 <input
-                  maxLength={32}
+                  maxLength={6}
                   type="text"
                   id="otp"
                   name="otp"
@@ -645,7 +655,9 @@ function Profile() {
                         {Array.isArray(tournament.winners_order_display) ? (
                           tournament.winners_order_display.map((username, index) => (
                             <li key={index}>
-                              <strong>{`${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place:`}</strong> {username}
+                              <strong>
+                                {`${index + 1}${translate(index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th')} ${translate('Place')}:`}
+                              </strong> {username}
                             </li>
                           ))
                         ) : (
@@ -715,6 +727,9 @@ function Profile() {
                   className="avatar-upload"
                 />
                 <p className="change-avatar-text">{translate('Change Avatar')}</p>
+                <div>
+                  {errorMessage && <p className="error-message">{translate(errorMessage)}</p>}
+                </div>
               </label>
             </div>
           </div>
