@@ -7,7 +7,7 @@ import Game from './components/Game';
 import PlayerVsPlayer from './components/PlayerVsPlayer';
 import PlayerVsAI from './components/PlayerVsAI';
 import TwoVsTwoGame from './components/TwoVsTwoGame';  // New component for 2-vs-2 mode
-
+import Cowboy from './components/Cowboy';
 import Tournament from './components/Tournament';
 import TournamentGame from './components/TournamentGame';
 import WinTable from './components/WinTable';
@@ -125,6 +125,7 @@ function App() {
             <Route path="/game/player-vs-ai" element={<PlayerVsAI />} />
             <Route path="/tournament" element={<Tournament />} />
             <Route path="/game/2-vs-2" element={<TwoVsTwoGame />} />
+            <Route path="/game/cowboy" element={<Cowboy />} />
             <Route path="/tournament-game" element={<TournamentGame />} />
             <Route path="/win-table" element={<WinTable />} />
           </Route>
