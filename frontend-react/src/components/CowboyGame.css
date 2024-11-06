@@ -1,0 +1,100 @@
+/* CowboyGame.css */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .players {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 50px;
+    margin-bottom: 20px;
+  }
+  
+  .player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 200px;
+    background-color: #f4a261;
+    border: 2px solid #2a9d8f;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #264653;
+    transition: transform 0.2s ease;
+  }
+  
+  .cowboy-image {
+    width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  .player1 {
+    background-color: #e76f51;
+    margin-left: 20px;
+    text-align: left;
+  }
+  
+  .player2 {
+    background-color: #2a9d8f;
+    margin-right: 20px;
+    text-align: right;
+  }
+  
+  .message {
+    font-size: 2em;
+    color: #e9c46a;
+    margin: 20px 0;
+    transition: color 0.3s ease;
+  }
+  
+  .ready {
+    color: #e9c46a;
+  }
+  
+  .steady {
+    color: #f4a261;
+  }
+  
+  .bang {
+    color: #e76f51;
+    font-size: 2.5em;
+    animation: bang-flash 0.1s alternate infinite;
+  }
+  
+  @keyframes bang-flash {
+    from { opacity: 1; }
+    to { opacity: 0.6; }
+  }
+  
+  .shoot {
+    transform: scale(1.2) rotate(10deg);
+    transition: transform 0.1s;
+  }
+  
+  .result {
+    margin-top: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #264653;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #2a9d8f;
+  }
+  
