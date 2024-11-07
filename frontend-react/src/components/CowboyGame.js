@@ -6,17 +6,19 @@ function CowboyGame({ player1, player2Name }) {
   const [winner, setWinner] = useState(null);
   const [message, setMessage] = useState('');
   const [gameStartTime, setGameStartTime] = useState(null);
+  const [player1Score, setPlayer1Score] = useState(0); // Score for Player 1
+  const [player2Score, setPlayer2Score] = useState(0); // Score for Player 2
+  const maxScore = 5;
   const timeouts = [];
 
   useEffect(() => {
-    // Only update the message if no winner has been set
     if (gamePhase === 'ready' && !winner) {
       setMessage('Ready...');
       const timeoutId1 = setTimeout(() => setGamePhase('steady'), 1000);
       timeouts.push(timeoutId1);
     } else if (gamePhase === 'steady' && !winner) {
       setMessage('Steady...');
-      const randomTime = Math.floor(Math.random() * 3000) + 2000; // random time between 2-5 seconds
+      const randomTime = Math.floor(Math.random() * 3000) + 2000;
       const timeoutId2 = setTimeout(() => {
         if (!winner) {
           setGamePhase('bang');
@@ -30,25 +32,33 @@ function CowboyGame({ player1, player2Name }) {
       setMessage('Game Over');
     }
 
-    // Clear all timeouts when a player presses too soon
     return () => {
       timeouts.forEach(clearTimeout);
     };
   }, [gamePhase]);
 
   const handleKeyPress = (event) => {
-    // Only respond if the key pressed is 'w' or 'ArrowUp'
-    if (event.key !== 'w' && event.key !== 'ArrowUp') {
-      return; // Ignore other keys
+    if (event.key === ' ' || event.key === 'Enter') {
+      // Reset the game on Space or Enter press if the game is finished
+      if (gamePhase === 'finished') resetGame();
+      return;
     }
 
+    if (event.key !== 'w' && event.key !== 'ArrowUp') {
+      return;
+    }
+
+    // Check for misclick if the game is not in "bang" phase
     if (gamePhase === 'ready' || gamePhase === 'steady') {
-      // Penalize for pressing too early
       if (!winner) {
         if (event.key === 'w') {
-          setWinner({ name: player1.username , reason: 'pressed too soon' });
+          // Player 1 misclicks, Player 2 wins
+          setWinner({ name: player2Name, reason: 'won by opponent misclick' });
+          setPlayer2Score((prevScore) => Math.min(prevScore + 1, maxScore));
         } else if (event.key === 'ArrowUp') {
-          setWinner({ name: player2Name, reason: 'pressed too soon' });
+          // Player 2 misclicks, Player 1 wins
+          setWinner({ name: player1.username, reason: 'won by opponent misclick' });
+          setPlayer1Score((prevScore) => Math.min(prevScore + 1, maxScore));
         }
         setGamePhase('finished');
       }
@@ -57,8 +67,10 @@ function CowboyGame({ player1, player2Name }) {
       const reactionTime = Date.now() - gameStartTime;
       if (event.key === 'w') {
         setWinner({ name: player1.username, reactionTime });
+        setPlayer1Score((prevScore) => Math.min(prevScore + 1, maxScore));
       } else if (event.key === 'ArrowUp') {
         setWinner({ name: player2Name, reactionTime });
+        setPlayer2Score((prevScore) => Math.min(prevScore + 1, maxScore));
       }
       setGamePhase('finished');
     }
@@ -72,6 +84,11 @@ function CowboyGame({ player1, player2Name }) {
   }, [gamePhase, gameStartTime]);
 
   const resetGame = () => {
+    if (player1Score === maxScore || player2Score === maxScore) {
+      // Reset scores if a player reached the max score
+      setPlayer1Score(0);
+      setPlayer2Score(0);
+    }
     setGamePhase('ready');
     setWinner(null);
     setMessage('');
@@ -80,36 +97,55 @@ function CowboyGame({ player1, player2Name }) {
 
   return (
     <div className="game-container">
-      <div className="players">
-        <div className={`player player1 ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
-          <img
-            src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
-            alt="Player 1 Cowboy"
-            className="cowboy-image"
-          />
-          <h3>{player1.username}</h3>
+
+      
+      <div className="scoreboard">
+        <div className="score player1-score">
+          <span className="score-label">{player1.username}</span>
+          <span className="score-value">{player1Score}</span>
         </div>
-        <div className={`player player2 ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
-          <img
-            src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
-            alt="Player 2 Cowboy"
-            className="cowboy-image"
-          />
-          <h3>{player2Name}</h3>
+        <div className="score player2-score">
+          <span className="score-label">{player2Name}</span>
+          <span className="score-value">{player2Score}</span>
         </div>
       </div>
+
+
+      <div className="players">
+  <div className={`player player1 ${gamePhase === 'steady' ? 'steady' : ''} ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
+    <img
+      src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
+      alt="Player 1 Cowboy"
+      className="cowboy-image"
+    />
+    <h3>{player1.username}</h3>
+  </div>
+  <div className={`player player2 ${gamePhase === 'steady' ? 'steady' : ''} ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
+    <img
+      src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
+      alt="Player 2 Cowboy"
+      className="cowboy-image"
+    />
+    <h3>{player2Name}</h3>
+  </div>
+</div>
+
+
       <h2 className={`message ${gamePhase}`}>{message}</h2>
       {winner && (
         <div className="result">
-          {winner.reason ? (
-            <h3>{`${winner.name} loses for pressing too soon!`}</h3>
+          {winner.reason === 'won by opponent misclick' ? (
+            <h3>{`${winner.name} wins this round due to opponent's misclick!`}</h3>
           ) : (
             <>
-              <h3>{`${winner.name} wins!`}</h3>
+              <h3>{`${winner.name} wins this round!`}</h3>
               <p>Reaction Time: {winner.reactionTime} ms</p>
             </>
           )}
-          <button onClick={resetGame}>Play Again</button>
+          {(player1Score === maxScore || player2Score === maxScore) && (
+            <h3>{`${player1Score === maxScore ? player1.username : player2Name} wins the match!`}</h3>
+          )}
+          <p>Press "Enter" or "Space" to play again</p>
         </div>
       )}
     </div>
