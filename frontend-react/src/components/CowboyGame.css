@@ -1,18 +1,77 @@
+/* General Styles */
 .game-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 80vh; /* Limits container height to 90% of viewport */
+  height: 80vh;
   padding: 20px;
   text-align: center;
 }
 
+.message {
+  font-size: 2em;
+  color: #e9c46a;
+  margin: 20px 0;
+  transition: color 0.3s ease;
+}
+
+.shoot {
+  transform: scale(1.2) rotate(10deg);
+  transition: transform 0.1s;
+}
+
+/* Scoreboard Styling */
+.scoreboard {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 10px;
+  margin: 20px 0;
+  background-color: #264653;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.score-label {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+}
+
+.score-value {
+  font-size: 2em;
+  background-color: #f4a261;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Individual Player Score Colors */
+.player1-score .score-value {
+  background-color: #e76f51;
+}
+
+.player2-score .score-value {
+  background-color: #2a9d8f;
+}
+
+/* Player Container */
 .players {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 40px;
   width: 100%;
-  margin-top: 50px;
-  margin-bottom: 20px;
 }
 
 .player {
@@ -31,59 +90,21 @@
   transition: transform 0.2s ease;
 }
 
+.player1 {
+  background-color: #e76f51;
+}
+
+.player2 {
+  background-color: #2a9d8f;
+}
+
 .cowboy-image {
   width: 100px;
   height: auto;
   margin-bottom: 10px;
 }
 
-.player1 {
-  background-color: #e76f51;
-  margin-left: 20px;
-  text-align: left;
-}
-
-.player2 {
-  background-color: #2a9d8f;
-  margin-right: 20px;
-  text-align: right;
-}
-
-.message {
-  font-size: 2em;
-  color: #e9c46a;
-  margin: 20px 0;
-  transition: color 0.3s ease;
-}
-
-.ready {
-  color: #e9c46a;
-}
-
-.steady {
-  color: #f4a261;
-}
-
-.bang {
-  color: #e76f51;
-  font-size: 2.5em;
-  animation: bang-flash 0.1s alternate infinite;
-}
-
-@keyframes bang-flash {
-  from { opacity: 1; }
-  to { opacity: 0.6; }
-}
-
-.shoot {
-  transform: scale(1.2) rotate(10deg);
-  transition: transform 0.1s;
-}
-
-.result {
-  margin-top: 20px;
-}
-
+/* Button Styling */
 button {
   padding: 10px 20px;
   font-size: 1em;
@@ -96,4 +117,16 @@ button {
 
 button:hover {
   background-color: #2a9d8f;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* Apply shake animation in the 'steady' phase */
+.player.steady {
+  animation: shake 0.5s ease-in-out infinite;
 }

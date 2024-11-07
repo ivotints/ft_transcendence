@@ -97,6 +97,18 @@ function Cowboy() {
           ) : (
             <div className="instructions">
               <p className="start-text">{translate('Click Start when you are ready!')}</p>
+
+              <div className="table">
+                <div className="table-row">
+                  <p>{player1Name}</p>
+                  <p>{translate('Player 1: W')}</p>
+                </div>
+                <div className="table-row">
+                  <p>{player2Name}</p>
+                  <p>{translate('Player 2: Up')}</p>
+                </div>
+              </div>
+
               <button onClick={startGame} className="start-button">{translate('Start Game')}</button>
             </div>
           )}
