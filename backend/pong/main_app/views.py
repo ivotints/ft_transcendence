@@ -40,6 +40,7 @@ from .models import Friend
 from .models import MatchHistory
 from .models import MatchHistory2v2
 from .models import Tournament
+from .models import CowboyMatchHistory
 from .serializers import UserSerializer
 from .serializers import UserProfileSerializer
 from .serializers import FriendSerializer
@@ -47,6 +48,7 @@ from .serializers import MatchHistorySerializer
 from .serializers import TournamentSerializer
 from .serializers import CustomTokenRefreshSerializer
 from .serializers import MatchHistory2v2Serializer
+from .serializers import CowboyMatchHistorySerializer
 
 
 logger = logging.getLogger(__name__)
@@ -384,6 +386,24 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 	def get_queryset(self):
 		user = self.request.user
 		return MatchHistory2v2.objects.filter(player1=user) | MatchHistory2v2.objects.filter(player2=user.username) | MatchHistory2v2.objects.filter(player3=user.username) | MatchHistory2v2.objects.filter(player4=user.username)
+	
+	def perform_create(self, serializer):
+		player1 = serializer.validated_data.get('player1')
+		if player1 != self.request.user:
+			raise PermissionDenied("You can only create matches for yourself.")
+		serializer.save()
+
+
+class CowboyMatchHistoryListCreateAPIView(generics.ListCreateAPIView):
+	serializer_class = CowboyMatchHistorySerializer
+	authentication_classes = [
+		CustomJWTAuthentication,
+	]
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		user = self.request.user
+		return CowboyMatchHistory.objects.filter(player1=user) | CowboyMatchHistory.objects.filter(player2=user.username)
 	
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')

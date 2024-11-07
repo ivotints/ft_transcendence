@@ -38,6 +38,16 @@ class UserProfile(models.Model):
 		).count()
 
 		return losses_1v1 + losses_2v2
+	
+	def calculate_cowboy_wins(self):
+		wins_1v1 = CowboyMatchHistory.objects.filter(winner=self.user.get_username()).count()
+		return wins_1v1
+	
+	def calculate_cowboy_losses(self):
+		losses_1v1 = CowboyMatchHistory.objects.filter(
+			Q(player1=self.user) | Q(player2=self.user.get_username())
+		).exclude(winner=self.user.get_username()).count()
+		return losses_1v1
 
 	def __str__(self):
 		return f"{self.user.username}'s profile"
@@ -142,6 +152,30 @@ class MatchHistory2v2(models.Model):
 	def __str__(self):
 		return f"Match {self.id}: ({self.player1.username} and {self.player2}) vs ({self.player3} and {self.player4}) on {self.match_date}"
 	
+
+class CowboyMatchHistory(models.Model):
+	player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cowboy_matches_as_player1")
+	player2 = models.CharField(max_length=100)
+	winner = models.CharField(max_length=100, null=True, blank=True) 
+	match_date = models.DateTimeField(default=timezone.now)
+	match_score = models.CharField(max_length=50)
+
+	def calculate_winner(self):
+		player1_score, player2_score = map(int, self.match_score.split('-'))
+		if player1_score > player2_score:
+			self.winner = self.player1.get_username()
+		elif player2_score > player1_score:
+			self.winner = self.player2
+		else:
+			self.winner = None
+
+	def save(self, *args, **kwargs):
+		self.calculate_winner()
+		super().save(*args, **kwargs)
+
+	def __str__(self):
+		return f"Cowboy Match {self.id}: {self.player1.username} vs {self.player2} on {self.match_date}"
+
 
 class Tournament(models.Model):
 	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tournaments", default=1)

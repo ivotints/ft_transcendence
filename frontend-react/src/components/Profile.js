@@ -12,6 +12,8 @@ function Profile() {
   });
   const [winCount, setWinCount] = useState(0);
   const [lossCount, setLossCount] = useState(0);
+  const [cowboyWinCount, setCowboyWinCount] = useState(0);
+  const [cowboyLossCount, setCowboyLossCount] = useState(0);
   const [acceptedFriends, setAcceptedFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendUsername, setFriendUsername] = useState('');
@@ -58,6 +60,8 @@ function Profile() {
         setAvatar(profile.avatar);
         setWinCount(profile.wins);
         setLossCount(profile.losses);
+        setCowboyWinCount(profile.cowboy_wins);
+        setCowboyLossCount(profile.cowboy_losses);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -122,6 +126,8 @@ function Profile() {
             response = await axios.get('https://localhost:8000/matches/2v2/', { withCredentials: true });
           } else if (matchType === 'tournament') {
             response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
+          } else if (matchType === 'cowboy') {
+            response = await axios.get('https://localhost:8000/matches/cowboy', { withCredentials: true });
           }
           setMatchHistory(response.data);
         } catch (error) {
@@ -181,8 +187,11 @@ function Profile() {
       //console.log('Error response data:', error.response?.data); // Inspect data in the response
 
       setMessageType('error');
-      setMessage(error.response.data.user.email[0]);
-
+      if (error.response.data.email) {
+        setMessage(error.response.data.email[0]);
+      } else {
+        setMessage(error.response.data.user.email[0]);
+      }
       //setMessage('Failed to update email. Please try again.');
     }
   };
@@ -199,6 +208,7 @@ function Profile() {
       setNewPassword('');
       setMessagePassType('success');
       setMessagePass('Password updated successfully.');
+      setNewPassword('');
     } catch (error) {
 
       //console.error('Full password error object:', error); // Log the entire error
@@ -206,7 +216,11 @@ function Profile() {
       //console.log('Error response data:', error.response?.data); // Inspect data in the response
 
       setMessagePassType('error');
-      setMessagePass(error.response.data.user.password[0]);
+      if (error.response.data.password) {
+        setMessagePass(error.response.data.password[0]);
+      } else {
+        setMessagePass(error.response.data.user.password[0]);
+      }
     }
   };
 
@@ -621,81 +635,84 @@ function Profile() {
 
           </div>
         );
-
-
-
-
-
-
-
-
-
-
       case 'matchHistory':
         return (
           <div className="match-history">
             <h2 className="profileH2">{translate('Match History')}</h2>
             <label htmlFor="match-type">{translate('Select Match Type')}: </label>
             <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
-              <option value="1v1">{translate('1 vs 1')}</option>
-              <option value="2v2">{translate('2 vs 2')}</option>
-              <option value="tournament">{translate('Tournament')}</option>
-            </select>
-            {loading ? (
-              <p>{translate('Loading')}...</p>
-            ) : (
-              matchType === 'tournament' ? (
-                <ul>
-                  {matchHistory.map((tournament) => (
-                    <li key={tournament.tournament_id} className="tournament">
-                      <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
-                      <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
-                      <p><strong>{translate('Winners Order')}:</strong></p>
-                      <ul>
-                        {Array.isArray(tournament.winners_order_display) ? (
-                          tournament.winners_order_display.map((username, index) => (
-                            <li key={index}>
-                              <strong>
-                                {`${index + 1}${translate(index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th')} ${translate('Place')}:`}
-                              </strong> {username}
-                            </li>
-                          ))
-                        ) : (
-                          <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
-                        )}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              ) : matchType === '1v1' ? (
-                <ul>
-                  {matchHistory.map((match) => (
-                    <li key={match.id}>
-                      <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
-                      <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
-                      <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
-                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ul>
-                  {matchHistory.map((match) => (
-                    <li key={match.id}>
-                      <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
-                      <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
-                      <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
-                      <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
-                      <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
-                      <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
-                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                    </li>
-                  ))}
-                </ul>
-              )
-            )}
+            <option value="1v1">{translate('1 vs 1')}</option>
+            <option value="2v2">{translate('2 vs 2')}</option>
+            <option value="tournament">{translate('Tournament')}</option>
+            <option value="cowboy">{translate('Cowboy Game')}</option>
+          </select>
+          {loading ? (
+            <p>{translate('Loading')}...</p>
+          ) : (
+            matchType === 'tournament' ? (
+              <ul>
+                {matchHistory.map((tournament) => (
+                  <li key={tournament.tournament_id} className="tournament">
+                    <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
+                    <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
+                    <p><strong>{translate('Winners Order')}:</strong></p>
+                    <ul>
+                      {Array.isArray(tournament.winners_order_display) ? (
+                        tournament.winners_order_display.map((username, index) => (
+                          <li key={index}>
+                            <strong>
+                              {`${index + 1}${translate(index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th')} ${translate('Place')}:`}
+                            </strong> {username}
+                          </li>
+                        ))
+                      ) : (
+                        <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
+                      )}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            ) : matchType === '1v1' ? (
+              <ul>
+                {matchHistory.map((match) => (
+                  <li key={match.id}>
+                    <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                    <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                    <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                    <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                    <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : matchType === '2v2' ? (
+              <ul>
+                {matchHistory.map((match) => (
+                  <li key={match.id}>
+                    <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
+                    <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                    <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
+                    <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
+                    <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
+                    <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
+                    <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                    <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : matchType === 'cowboy' ? (
+              <ul>
+                {matchHistory.map((match) => (
+                  <li key={match.id}>
+                    <p><strong>{translate('Cowboy')}1:</strong> {match.player1_username}</p>
+                    <p><strong>{translate('Cowboy')}2:</strong> {match.player2}</p>
+                    <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                    <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                    <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : null
+          )}
           </div>
         );
       case 'info':
@@ -708,8 +725,13 @@ function Profile() {
               <p>{translate('Email')}: {userInfo.email}</p>
 
               <h3 className="profileH2">{translate('Player Statistics')}</h3>
+              <h4 className="profileH2">{translate('Pong Game')}</h4>
               <p>{translate('Wins')}: {winCount}</p>
               <p>{translate('Losses')}: {lossCount}</p>
+
+              <h4 className="profileH2">{translate('Cowboy Game')}</h4>
+              <p>{translate('Wins')}: {cowboyWinCount}</p>
+              <p>{translate('Losses')}: {cowboyLossCount}</p>
             </div>
 
 

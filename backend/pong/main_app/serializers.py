@@ -9,10 +9,9 @@ from .models import UserProfile
 from .models import Friend
 from .models import Tournament
 from .models import MatchHistory2v2
+from .models import CowboyMatchHistory
 
 from .web3 import get_tournament_data, add_tournament_data
-
-
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,6 +29,8 @@ class UserSerializer(serializers.ModelSerializer):
 		]
 
 	def validate(self, data):
+		user = self.instance
+
 		if 'email' in data:
 			email = data.get('email')
 			if email is None or email.strip() == "":
@@ -38,6 +39,8 @@ class UserSerializer(serializers.ModelSerializer):
 				validate_email(email)
 			except ValidationError:
 				raise serializers.ValidationError({"email": "Invalid email address"})
+			if user and user.email == email:
+				raise serializers.ValidationError({"email": "New email cannot be the same as the old email"})
 
 		if 'password' in data:
 			password = data.get('password')
@@ -47,6 +50,8 @@ class UserSerializer(serializers.ModelSerializer):
 				raise serializers.ValidationError({"password": "Password must contain at least one digit"})
 			if not any(char.isalpha() for char in password):
 				raise serializers.ValidationError({"password": "Password must contain at least one letter"})
+			if user and user.check_password(password):
+				raise serializers.ValidationError({"password": "New password cannot be the same as the old password"})
 
 		return data
 
@@ -75,6 +80,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	user = UserSerializer()
 	wins = serializers.SerializerMethodField()
 	losses = serializers.SerializerMethodField()
+	cowboy_wins = serializers.SerializerMethodField()
+	cowboy_losses = serializers.SerializerMethodField()
 	avatar = serializers.ImageField(required=False)
 
 	class Meta:
@@ -84,6 +91,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			# 'oauth',
 			'wins',
 			'losses',
+			'cowboy_wins',
+			'cowboy_losses',
 			'match_history',
 			'avatar',
 			'is_online',
@@ -94,6 +103,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	
 	def get_losses(self, obj):
 		return obj.calculate_losses()
+	
+	def get_cowboy_wins(self, obj):
+		return obj.calculate_cowboy_wins()
+	
+	def get_cowboy_losses(self, obj):
+		return obj.calculate_cowboy_losses()
 	
 	def update(self, instance, validated_data):
 		user_data = validated_data.pop('user', None)
@@ -179,6 +194,38 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 		players = [data.get('player1'), data.get('player2'), data.get('player3'), data.get('player4')]
 		if len(players) != len(set(players)):
 			raise serializers.ValidationError("All players must be unique.")
+		return data
+	
+
+class CowboyMatchHistorySerializer(serializers.ModelSerializer):
+	player1_username = serializers.SerializerMethodField()
+	class Meta:
+		model = CowboyMatchHistory
+		fields = [
+			'player1',
+			'player2',
+			'player1_username',
+			'winner',
+			'match_date',
+			'match_score'
+		]
+		read_only_fields = ['winner']
+
+	def get_player1_username(self, obj):
+		return obj.player1.username
+
+	def validate_match_score(self, value):
+		try:
+			player1_score, player2_score = map(int, value.strip().split('-'))
+			if player1_score < 0 or player2_score < 0:
+				raise serializers.ValidationError("Scores must be non-negative integers.")
+		except ValueError:
+			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
+		return value
+	
+	def validate(self, data):
+		if data['player1'] == data['player2']:
+			raise serializers.ValidationError("A player cannot play against themselves.")
 		return data
 
 
@@ -285,7 +332,7 @@ class TournamentSerializer(serializers.ModelSerializer):
             tournament = Tournament.objects.create(**validated_data)
 
             if winners_order:
-                tournament_id = tournament.id + 60045
+                tournament_id = tournament.id + 60055
                 tournament.tournament_id = tournament_id
                 tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
                 tournament.blockchain_tx_hash = tx_hash

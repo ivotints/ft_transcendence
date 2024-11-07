@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './CowboyGame.css';
 
 function CowboyGame({ player1, player2Name }) {
@@ -85,6 +86,20 @@ function CowboyGame({ player1, player2Name }) {
 
   const resetGame = () => {
     if (player1Score === maxScore || player2Score === maxScore) {
+      const matchData = {
+        player1: player1.id,
+        player2: player2Name,
+        match_score: `${player1Score}-${player2Score}`,
+      };
+    
+      axios.post('https://localhost:8000/matches/cowboy/', matchData, { withCredentials: true })
+        .then(response => {
+          console.log('Match data sent successfully:', response.data);
+        })
+        .catch(error => {
+          console.error('Error sending match data:', error);
+        });
+
       // Reset scores if a player reached the max score
       setPlayer1Score(0);
       setPlayer2Score(0);
@@ -144,6 +159,7 @@ function CowboyGame({ player1, player2Name }) {
           )}
           {(player1Score === maxScore || player2Score === maxScore) && (
             <h3>{`${player1Score === maxScore ? player1.username : player2Name} wins the match!`}</h3>
+
           )}
           <p>Press "Enter" or "Space" to play again</p>
         </div>
