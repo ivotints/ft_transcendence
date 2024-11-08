@@ -108,7 +108,7 @@ class SetupTwoFactorView(APIView):
 				if not user_phone:
 					return JsonResponse({"errors": ["Mobile number is required for SMS 2FA"]}, status=400)
 				
-				if not re.match(r'^\+?[1-9]\d{1,14}$', user_phone):
+				if not re.match(r'^\+[1-9]\d{1,14}$', user_phone):
 					return JsonResponse({"errors": ["Invalid phone number format."]}, status=400)
 
 				if not code :

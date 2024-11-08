@@ -110,6 +110,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
 	def get_cowboy_losses(self, obj):
 		return obj.calculate_cowboy_losses()
 	
+	def validate_avatar(self, value):
+		max_size = 2 * 1024 * 1024
+		valid_content_types = ['image/jpeg', 'image/png']
+
+		if value.size > max_size:
+			raise ValidationError("Avatar image size should not exceed 2 MB.")
+
+		if value.content_type not in valid_content_types:
+			raise ValidationError("Avatar image must be in JPEG or PNG format.")
+
+		return value
+	
 	def update(self, instance, validated_data):
 		user_data = validated_data.pop('user', None)
 		avatar = validated_data.pop('avatar', None)
@@ -340,7 +352,6 @@ class TournamentSerializer(serializers.ModelSerializer):
 
             return tournament
         except Exception as e:
-            logger.error(f"Error creating tournament: {e}")
             raise serializers.ValidationError(f"Error creating tournament: {e}")
 	
 
