@@ -18,7 +18,7 @@ from .web3 import get_tournament_data, add_tournament_data
 
 class UserSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
-	old_password = serializers.CharField(write_only=True, required=True)
+	old_password = serializers.CharField(write_only=True, required=False)
 	class Meta:
 		model = User
 		fields = [
@@ -34,6 +34,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 	def validate(self, data):
 		user = self.instance
+
+		request = self.context.get('request')
+		if request and request.method == 'PATCH':
+			if 'old_password' not in data or not data.get('old_password'):
+				raise serializers.ValidationError({"old_password": "You need to validate old password"})
 
 		if 'email' in data:
 			email = data.get('email')
