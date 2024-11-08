@@ -676,8 +676,8 @@ function Profile() {
               <ul>
                 {matchHistory.map((match) => (
                   <li key={match.id}>
-                    <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
-                    <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
+                    <p><strong>{translate('Player')} 1:</strong> {match.player1_username}</p>
+                    <p><strong>{translate('Player')} 2:</strong> {match.player2}</p>
                     <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
                     <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                     <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
@@ -688,12 +688,12 @@ function Profile() {
               <ul>
                 {matchHistory.map((match) => (
                   <li key={match.id}>
-                    <p><strong>{translate('Player')}1:</strong> {match.player1_username}</p>
-                    <p><strong>{translate('Player')}2:</strong> {match.player2}</p>
-                    <p><strong>{translate('Player')}3:</strong> {match.player3}</p>
-                    <p><strong>{translate('Player')}4:</strong> {match.player4}</p>
-                    <p><strong>{translate('Winner')}1:</strong> {match.winner1}</p>
-                    <p><strong>{translate('Winner')}2:</strong> {match.winner2}</p>
+                    <p><strong>{translate('Player')} 1:</strong> {match.player1_username}</p>
+                    <p><strong>{translate('Player')} 2:</strong> {match.player2}</p>
+                    <p><strong>{translate('Player')} 3:</strong> {match.player3}</p>
+                    <p><strong>{translate('Player')} 4:</strong> {match.player4}</p>
+                    <p><strong>{translate('Winner')} 1:</strong> {match.winner1}</p>
+                    <p><strong>{translate('Winner')} 2:</strong> {match.winner2}</p>
                     <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                     <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
                   </li>
@@ -703,8 +703,8 @@ function Profile() {
               <ul>
                 {matchHistory.map((match) => (
                   <li key={match.id}>
-                    <p><strong>{translate('Cowboy')}1:</strong> {match.player1_username}</p>
-                    <p><strong>{translate('Cowboy')}2:</strong> {match.player2}</p>
+                    <p><strong>{translate('Cowboy')} 1:</strong> {match.player1_username}</p>
+                    <p><strong>{translate('Cowboy')} 2:</strong> {match.player2}</p>
                     <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
                     <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
                     <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
