@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import status, permissions, authentication, generics, serializers
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
 from django import forms
 from django.http import JsonResponse, Http404, FileResponse
@@ -232,14 +233,14 @@ class UserTwoFactorAuthDataView(APIView):
 			two_factor_auth_data = UserTwoFactorAuthData.objects.get(user=user)
 			return JsonResponse({
 				'app_enabled': two_factor_auth_data.app_enabled,
-                'sms_enabled': two_factor_auth_data.sms_enabled,
-                'email_enabled': two_factor_auth_data.email_enabled,
+				'sms_enabled': two_factor_auth_data.sms_enabled,
+				'email_enabled': two_factor_auth_data.email_enabled,
 			})
 		except UserTwoFactorAuthData.DoesNotExist:
 			return JsonResponse({
 				'app_enabled': False,
-                'sms_enabled': False,
-                'email_enabled': False,
+				'sms_enabled': False,
+				'email_enabled': False,
 			})
 		
 
@@ -316,39 +317,33 @@ class PendingFriendRequestsAPIView(generics.ListAPIView):
 		return Friend.objects.filter(friend=user, status="pending")
 	
 
-class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
+class FriendDetailAPIView(RetrieveUpdateDestroyAPIView):
 	serializer_class = FriendSerializer
-	authentication_classes = [
-		CustomJWTAuthentication,
-	]
+	authentication_classes = [CustomJWTAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get_object(self):
+		"""Retrieve the friend request object with access control."""
 		friend_id = self.kwargs.get('pk')
 		try:
 			friend = Friend.objects.get(pk=friend_id)
+			# Ensure only involved users can access
 			if self.request.user == friend.user or self.request.user == friend.friend:
 				return friend
 			else:
 				raise PermissionDenied("You do not have permission to access this friend request.")
-		except:
-			raise Http404("Friend request not found.")
-		
-		
+		except Friend.DoesNotExist:
+			raise NotFound("Friend request not found.")
+
 	def update(self, request, *args, **kwargs):
+		"""Update friend request status; delete if rejected."""
 		instance = self.get_object()
-		
 		if instance.friend != request.user:
 			return Response({'detail': 'You do not have permission to update this friend request.'},
 							status=status.HTTP_403_FORBIDDEN)
-		
+
 		serializer = self.get_serializer(instance, data=request.data, partial=True)
-		try:
-			serializer.is_valid(raise_exception=True)
-		except ValidationError as e:
-			print("Serializer errors: ", serializer.errors)
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-		
+		serializer.is_valid(raise_exception=True)
 		self.perform_update(serializer)
 
 		if serializer.instance.status == 'rejected':
@@ -356,6 +351,18 @@ class FriendDetailAPIView(generics.RetrieveUpdateAPIView):
 			return Response({'detail': 'Friend request rejected and deleted.'}, status=status.HTTP_200_OK)
 
 		return Response(serializer.data)
+
+	def destroy(self, request, *args, **kwargs):
+		"""Handle DELETE to remove a friendship with permission check."""
+		instance = self.get_object()
+		# Verify the user is part of the friendship before deleting
+		if request.user != instance.user and request.user != instance.friend:
+			return Response({'detail': 'You do not have permission to delete this friend request.'},
+							status=status.HTTP_403_FORBIDDEN)
+
+		# Perform delete and return confirmation
+		self.perform_destroy(instance)
+		return Response({'detail': 'Friend request deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
 
 class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
