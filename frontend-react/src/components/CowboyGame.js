@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './CowboyGame.css';
+import { useTranslate } from './Translate/useTranslate';
 
 function CowboyGame({ player1, player2Name }) {
+  const { translate } = useTranslate();
   const [gamePhase, setGamePhase] = useState('ready'); // 'ready', 'steady', 'bang', 'finished'
   const [winner, setWinner] = useState(null);
   const [message, setMessage] = useState('');
@@ -85,6 +88,20 @@ function CowboyGame({ player1, player2Name }) {
 
   const resetGame = () => {
     if (player1Score === maxScore || player2Score === maxScore) {
+      const matchData = {
+        player1: player1.id,
+        player2: player2Name,
+        match_score: `${player1Score}-${player2Score}`,
+      };
+    
+      axios.post('https://localhost:8000/matches/cowboy/', matchData, { withCredentials: true })
+        .then(response => {
+          console.log('Match data sent successfully:', response.data);
+        })
+        .catch(error => {
+          console.error('Error sending match data:', error);
+        });
+
       // Reset scores if a player reached the max score
       setPlayer1Score(0);
       setPlayer2Score(0);
@@ -131,21 +148,22 @@ function CowboyGame({ player1, player2Name }) {
 </div>
 
 
-      <h2 className={`message ${gamePhase}`}>{message}</h2>
+      <h2 className={`message ${gamePhase}`}>{translate(message)}</h2>
       {winner && (
         <div className="result">
           {winner.reason === 'won by opponent misclick' ? (
-            <h3>{`${winner.name} wins this round due to opponent's misclick!`}</h3>
+            <h3>{`${winner.name} ${translate("wins this round due to opponent's misclick!")}`}</h3>
           ) : (
             <>
-              <h3>{`${winner.name} wins this round!`}</h3>
-              <p>Reaction Time: {winner.reactionTime} ms</p>
+              <h3>{`${winner.name} ${translate("wins this round!")}`}</h3>
+              <p>{translate("Reaction Time")}: {winner.reactionTime} {translate("ms")}</p>
             </>
           )}
           {(player1Score === maxScore || player2Score === maxScore) && (
-            <h3>{`${player1Score === maxScore ? player1.username : player2Name} wins the match!`}</h3>
+            <h3>{`${player1Score === maxScore ? player1.username : player2Name} ${translate("wins the match!")}`}</h3>
+
           )}
-          <p>Press "Enter" or "Space" to play again</p>
+          <p>{translate('Press "Enter" or "Space" to play again')}</p>
         </div>
       )}
     </div>
