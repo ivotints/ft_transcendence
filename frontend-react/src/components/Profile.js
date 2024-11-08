@@ -24,16 +24,16 @@ function Profile() {
   const [newPassword, setNewPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
 
-  const [message, setMessage] = useState(''); // State to store error key
-  const translatedMessageMail = message ? translate(message) : ''; // Derived variable for translation
+  const [message, setMessage] = useState('');
+  const translatedMessageMail = message ? translate(message) : '';
   const [messageType, setMessageType] = useState('');
 
-  const [messagePass, setMessagePass] = useState(''); // State to store error key
-  const translatedMessagePass = messagePass ? translate(messagePass) : ''; // Derived variable for translation
+  const [messagePass, setMessagePass] = useState('');
+  const translatedMessagePass = messagePass ? translate(messagePass) : '';
   const [messagePassType, setMessagePassType] = useState('');
 
-  const [errorKeyFriend, setErrorKeyFriend] = useState(''); // State to store error key
-  const translatedErrorMessageFriend = errorKeyFriend ? translate(errorKeyFriend) : ''; // Derived variable for translation
+  const [messageFriend, setMessageFriend] = useState('');
+  const translatedMessageFriend = messageFriend ? translate(messageFriend) : '';
   const [messageFriendType, setMessageFriendType] = useState('');
 
   const [selected2FAMethod, setSelected2FAMethod] = useState('');
@@ -77,6 +77,7 @@ function Profile() {
       setTwoFactorSuccess('');
       setUserPhone('');
       setTwoFactorMessage('');
+      setConfirmationOtp('')
     }
   }, [activeSection]);
 
@@ -96,6 +97,9 @@ function Profile() {
       fetchPendingRequests();
     }
   }, [activeSection]);
+
+
+  
 
   useEffect(() => {
     if (activeSection === 'friendList') {
@@ -231,7 +235,7 @@ function Profile() {
       setFriendUsername('');
       console.log('Friend request sent:', response.data);
       setMessageFriendType("success")
-      setErrorKeyFriend();
+      setMessageFriend('Friend request sent successfully.');
     } catch (error) {
 
       //console.error('Full password error object:', error); // Log the entire error
@@ -239,12 +243,24 @@ function Profile() {
       //console.log('Error response data:', error.response?.data); // Inspect data in the response
       //setErrorKeyFriend(error.response.data);
       setMessageFriendType("error")
-      setErrorKeyFriend(
+      setMessageFriend(
         error.response.data.friend_username?.[0] ??
         error.response.data.non_field_errors?.[0] ??
         'Error sending friend request'
       );
       //console.error('Error sending friend request:', error.response.data);
+    }
+  };
+
+  const handleDeleteFriend = async (friendId) => {
+    try {
+      await axios.delete(`https://localhost:8000/friends/${friendId}/`, { withCredentials: true });
+      // Update the state to remove the deleted friend
+      setAcceptedFriends((prevFriends) => prevFriends.filter(friend => friend.id !== friendId));
+      
+      console.log('Friend deleted successfully');
+    } catch (error) {
+      console.error('Error deleting friend:', error);
     }
   };
 
@@ -448,9 +464,9 @@ function Profile() {
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
-            {translatedErrorMessageFriend && (
+            {translatedMessageFriend && (
               <p className={messageFriendType === 'success' ? 'success-message' : 'error-message'}>
-                {translatedErrorMessageFriend}
+                {translatedMessageFriend}
               </p>
             )}
           </div>
@@ -474,12 +490,20 @@ function Profile() {
                   <li key={friend.id} className="friend-list-item">
                     <span className={`status-circle ${isOnline ? 'online' : 'offline'}`}></span>
                     <span className="friend-username">{username || 'Unknown User'}</span>
+                    {/* Delete button for each friend */}
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDeleteFriend(friend.id)}
+                    >
+                      {translate('Delete')}
+                    </button>
                   </li>
                 );
               })}
             </ul>
           </div>
         );
+
       case 'pendingRequests':
         return (
           <div>
@@ -627,6 +651,7 @@ function Profile() {
                   setTwoFactorSuccess('');
                   setUserPhone('');
                   setTwoFactorMessage('');
+                  setConfirmationOtp('');
                 }}
               >
                 {translate('Back')}
@@ -641,78 +666,78 @@ function Profile() {
             <h2 className="profileH2">{translate('Match History')}</h2>
             <label htmlFor="match-type">{translate('Select Match Type')}: </label>
             <select id="match-type" className="dropdown" value={matchType} onChange={handleMatchTypeChange}>
-            <option value="1v1">{translate('1 vs 1')}</option>
-            <option value="2v2">{translate('2 vs 2')}</option>
-            <option value="tournament">{translate('Tournament')}</option>
-            <option value="cowboy">{translate('Cowboy Game')}</option>
-          </select>
-          {loading ? (
-            <p>{translate('Loading')}...</p>
-          ) : (
-            matchType === 'tournament' ? (
-              <ul>
-                {matchHistory.map((tournament) => (
-                  <li key={tournament.tournament_id} className="tournament">
-                    <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
-                    <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
-                    <p><strong>{translate('Winners Order')}:</strong></p>
-                    <ul>
-                      {Array.isArray(tournament.winners_order_display) ? (
-                        tournament.winners_order_display.map((username, index) => (
-                          <li key={index}>
-                            <strong>
-                              {`${index + 1}${translate(index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th')} ${translate('Place')}:`}
-                            </strong> {username}
-                          </li>
-                        ))
-                      ) : (
-                        <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
-                      )}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            ) : matchType === '1v1' ? (
-              <ul>
-                {matchHistory.map((match) => (
-                  <li key={match.id}>
-                    <p><strong>{translate('Player')} 1:</strong> {match.player1_username}</p>
-                    <p><strong>{translate('Player')} 2:</strong> {match.player2}</p>
-                    <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
-                    <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                    <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : matchType === '2v2' ? (
-              <ul>
-                {matchHistory.map((match) => (
-                  <li key={match.id}>
-                    <p><strong>{translate('Player')} 1:</strong> {match.player1_username}</p>
-                    <p><strong>{translate('Player')} 2:</strong> {match.player2}</p>
-                    <p><strong>{translate('Player')} 3:</strong> {match.player3}</p>
-                    <p><strong>{translate('Player')} 4:</strong> {match.player4}</p>
-                    <p><strong>{translate('Winner')} 1:</strong> {match.winner1}</p>
-                    <p><strong>{translate('Winner')} 2:</strong> {match.winner2}</p>
-                    <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                    <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : matchType === 'cowboy' ? (
-              <ul>
-                {matchHistory.map((match) => (
-                  <li key={match.id}>
-                    <p><strong>{translate('Cowboy')} 1:</strong> {match.player1_username}</p>
-                    <p><strong>{translate('Cowboy')} 2:</strong> {match.player2}</p>
-                    <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
-                    <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
-                    <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : null
-          )}
+              <option value="1v1">{translate('1 vs 1')}</option>
+              <option value="2v2">{translate('2 vs 2')}</option>
+              <option value="tournament">{translate('Tournament')}</option>
+              <option value="cowboy">{translate('Cowboy Game')}</option>
+            </select>
+            {loading ? (
+              <p>{translate('Loading')}...</p>
+            ) : (
+              matchType === 'tournament' ? (
+                <ul>
+                  {matchHistory.map((tournament) => (
+                    <li key={tournament.tournament_id} className="tournament">
+                      <p><strong>{translate('Tournament Id')}:</strong> {tournament.tournament_id}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(tournament.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Winners Order')}:</strong></p>
+                      <ul>
+                        {Array.isArray(tournament.winners_order_display) ? (
+                          tournament.winners_order_display.map((username, index) => (
+                            <li key={index}>
+                              <strong>
+                                {`${index + 1}${translate(index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th')} ${translate('Place')}:`}
+                              </strong> {username}
+                            </li>
+                          ))
+                        ) : (
+                          <li>{tournament.winners_order_display && tournament.winners_order_display.error ? tournament.winners_order_display.error : 'N/A'}</li>
+                        )}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              ) : matchType === '1v1' ? (
+                <ul>
+                  {matchHistory.map((match) => (
+                    <li key={match.id}>
+                      <p><strong>{translate('Player')} 1:</strong> {match.player1_username}</p>
+                      <p><strong>{translate('Player')} 2:</strong> {match.player2}</p>
+                      <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : matchType === '2v2' ? (
+                <ul>
+                  {matchHistory.map((match) => (
+                    <li key={match.id}>
+                      <p><strong>{translate('Player')} 1:</strong> {match.player1_username}</p>
+                      <p><strong>{translate('Player')} 2:</strong> {match.player2}</p>
+                      <p><strong>{translate('Player')} 3:</strong> {match.player3}</p>
+                      <p><strong>{translate('Player')} 4:</strong> {match.player4}</p>
+                      <p><strong>{translate('Winner')} 1:</strong> {match.winner1}</p>
+                      <p><strong>{translate('Winner')} 2:</strong> {match.winner2}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : matchType === 'cowboy' ? (
+                <ul>
+                  {matchHistory.map((match) => (
+                    <li key={match.id}>
+                      <p><strong>{translate('Cowboy')} 1:</strong> {match.player1_username}</p>
+                      <p><strong>{translate('Cowboy')} 2:</strong> {match.player2}</p>
+                      <p><strong>{translate('Winner')}:</strong> {match.winner}</p>
+                      <p><strong>{translate('Match Date')}:</strong> {new Date(match.match_date).toLocaleDateString()}</p>
+                      <p><strong>{translate('Match score')}:</strong> {match.match_score}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null
+            )}
           </div>
         );
       case 'info':
