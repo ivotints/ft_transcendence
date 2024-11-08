@@ -91,6 +91,10 @@ class UserTwoFactorAuthData(models.Model):
 		totp = pyotp.TOTP(self.otp_secret)
 		return totp.verify(otp)
 	
+	def validate_email_otp(self, otp: str) -> bool:
+		totp = pyotp.TOTP(self.otp_secret, interval=120)
+		return totp.verify(otp)
+	
 	def __str__(self):
 		return f"{self.user.username}'s 2fa data"
 

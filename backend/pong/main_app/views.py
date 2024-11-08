@@ -142,7 +142,7 @@ class SetupTwoFactorView(APIView):
 					return JsonResponse({"success": "OTP sent successfully."})
 				else:
 
-					if not two_factor_auth_data.validate_otp(code):
+					if not two_factor_auth_data.validate_email_otp(code):
 						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
 
 					two_factor_auth_data.email_enabled = True
@@ -163,16 +163,14 @@ class ConfirmTwoFactorAuthView(APIView):
 
 	def post(self, request):
 		user = request.user
-		otp = request.data.get('otp')  # Get OTP from request body
+		otp = request.data.get('otp')
 
 		try:
-			# Fetch the 2FA data for the authenticated user
 			two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=user).first()
 
 			if two_factor_auth_data is None:
 				return Response({"error": "2FA is not set up for this user."}, status=status.HTTP_400_BAD_REQUEST)
 
-			# Validate the provided OTP
 			if not two_factor_auth_data.validate_otp(otp):
 				return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -464,9 +462,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 					)
 					if verification_check.status != 'approved':
 						return Response({"detail": "Invalid OTP code."}, status=401)
-				elif method == 'email' or method == 'app':
+				elif method == 'app':
 					if not two_factor_auth_data.validate_otp(otp):
 						return Response({"detail": "Invalid OTP code."}, status=401)
+				elif method == 'email':
+					if not two_factor_auth_data.validate_email_otp(otp):
+						return Response({"detail": "Invalid OTP code."}, status=401)
+					
 
 		response = super().post(request, *args, **kwargs)
 		access_token = response.data.get('access')

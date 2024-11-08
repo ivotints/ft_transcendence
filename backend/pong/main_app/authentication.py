@@ -86,7 +86,7 @@ def user_two_factor_auth_data_create(*, user) -> UserTwoFactorAuthData:
 
 
 def send_email_code(email, otp_secret):
-	totp = pyotp.TOTP(otp_secret)
+	totp = pyotp.TOTP(otp_secret, interval=120)
 	otp = totp.now()
 	subject = 'Your OTP Code'
 	message = f'Your OTP code is {otp}.'
