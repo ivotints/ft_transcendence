@@ -42,10 +42,11 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
     } catch (error) {
       console.error('Error logging in:', error);
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
-        setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+        if (error.response.data.password) {
+          setErrorMessage(`Error: ${error.response.data.password[0]}`);
+        } else {
+          setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+        }
       } else if (error.request) {
         console.error('Error request:', error.request);
         setErrorMessage('Error: No response received from server');
@@ -81,10 +82,16 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
     } catch (error) {
       console.error('Error logging in:', error);
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
-        setErrorMessage(`Error: ${error.response.data.detail || 'An error occurred'}`);
+        const errorData = error.response.data;
+        if (errorData.username) {
+          setErrorMessage(`Username error: ${errorData.username[0]}`);
+        } else if (errorData.email) {
+          setErrorMessage(`Email error: ${errorData.email[0]}`);
+        } else if (errorData.password) {
+          setErrorMessage(`Password error: ${errorData.password[0]}`);
+        } else {
+          setErrorMessage(`Error: ${errorData.detail || 'An error occurred'}`);
+        }
       } else if (error.request) {
         console.error('Error request:', error.request);
         setErrorMessage('Error: No response received from server');

@@ -162,6 +162,7 @@ function CowboyGame({ player1, player2Name }) {
           {(player1Score === maxScore || player2Score === maxScore) && (
             <h3>{`${player1Score === maxScore ? player1.username : player2Name} ${translate("wins the match!")}`}</h3>
 
+
           )}
           <p>{translate('Press "Enter" or "Space" to play again')}</p>
         </div>
