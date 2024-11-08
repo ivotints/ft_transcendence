@@ -56,7 +56,7 @@ function Cowboy() {
 
   return (
     <div className="match-container">
-      <h1 className="profileH2">{translate('Player vs Player Ping-Pong')}</h1>
+      <h1 className="profileH2">{translate('Cowboy Game')}</h1>
       {!gameStarted ? (
         <div className="menu">
 
@@ -68,7 +68,7 @@ function Cowboy() {
                 <tbody>
                   <tr>
                     <td>
-                      <label>{translate('Player 1')}</label>
+                      <label>{translate('Player')} 1</label>
                       <input
                         maxLength={32}
                         type="text"
@@ -78,7 +78,7 @@ function Cowboy() {
                       />
                     </td>
                     <td>
-                      <label>{translate('Player 2')}</label>
+                      <label>{translate('Player')} 2</label>
                       <input
                         type="text"
                         maxLength={32}
@@ -101,11 +101,11 @@ function Cowboy() {
               <div className="table">
                 <div className="table-row">
                   <p>{player1Name}</p>
-                  <p>{translate('Player 1: W')}</p>
+                  <p>{translate('Player')} 1: W</p>
                 </div>
                 <div className="table-row">
                   <p>{player2Name}</p>
-                  <p>{translate('Player 2: Up')}</p>
+                  <p>{translate('Player')} 2: {translate("Up")}</p>
                 </div>
               </div>
 

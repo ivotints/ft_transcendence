@@ -390,3 +390,17 @@
     opacity: 0.7;
   }
   
+  .delete-btn {
+    background-color: #ff4d4f; /* Red color for delete */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  
+  .delete-btn:hover {
+    background-color: #e63946; /* Darker shade for hover */
+  }
+  
