@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
+from django.core.validators import RegexValidator
 
 from typing import Optional
 
@@ -64,7 +65,12 @@ class UserTwoFactorAuthData(models.Model):
 	sms_enabled = models.BooleanField(default=False)
 	email_enabled = models.BooleanField(default=False)
 	app_enabled = models.BooleanField(default=False)
-	mobile_number = models.CharField(max_length=15, blank=True, null=True)
+	mobile_number = models.CharField(max_length=15, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=r'^\+[1-9]\d{1,14}$',
+                message="Mobile number must be entered in the format: '+999999999'. Up to 15 digits allowed."
+            )
+        ])
 
 	def generate_qr_code(self, name: Optional[str] = None) -> str:
 		totp = pyotp.TOTP(self.otp_secret)
