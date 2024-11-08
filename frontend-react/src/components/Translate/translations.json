@@ -164,7 +164,7 @@
       "Game Over": "Игра Окончена",
       "wins this round!": "выигрывает этот раунд!",
       "wins the match!": "выигрывает матч!",
-      "Back": "Назад",
+      "Delete": "Удалить",
       "Back": "Назад",
       "Back": "Назад",
       "Back": "Назад",
@@ -186,7 +186,7 @@
 	},
 	"cz": {
 
-
+      "Delete": "Odstranit",
       "wins the match!": "vyhrává zápas!",
       "wins this round!": "vyhraje toto kolo!",
       "Game Over": "Konec hry",
