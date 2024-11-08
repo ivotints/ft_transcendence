@@ -80,29 +80,34 @@ function CowboyGame({ player1, player2Name }) {
   };
 
   useEffect(() => {
+    if (player1Score === maxScore || player2Score === maxScore) {
+      sendResults();}
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [gamePhase, gameStartTime]);
 
+
+  const sendResults = () => {
+    const matchData = {
+      player1: player1.id,
+      player2: player2Name,
+      match_score: `${player1Score}-${player2Score}`,
+    };
+
+    axios.post('https://localhost:8000/matches/cowboy/', matchData, { withCredentials: true })
+      .then(response => {
+        console.log('Match data sent successfully:', response.data);
+      })
+      .catch(error => {
+        console.error('Error sending match data:', error);
+      });
+  };
+
   const resetGame = () => {
     if (player1Score === maxScore || player2Score === maxScore) {
-      const matchData = {
-        player1: player1.id,
-        player2: player2Name,
-        match_score: `${player1Score}-${player2Score}`,
-      };
-    
-      axios.post('https://localhost:8000/matches/cowboy/', matchData, { withCredentials: true })
-        .then(response => {
-          console.log('Match data sent successfully:', response.data);
-        })
-        .catch(error => {
-          console.error('Error sending match data:', error);
-        });
-
-      // Reset scores if a player reached the max score
+      sendResults();
       setPlayer1Score(0);
       setPlayer2Score(0);
     }
@@ -115,7 +120,7 @@ function CowboyGame({ player1, player2Name }) {
   return (
     <div className="game-container">
 
-      
+
       <div className="scoreboard">
         <div className="score player1-score">
           <span className="score-label">{player1.username}</span>
@@ -129,23 +134,23 @@ function CowboyGame({ player1, player2Name }) {
 
 
       <div className="players">
-  <div className={`player player1 ${gamePhase === 'steady' ? 'steady' : ''} ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
-    <img
-      src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
-      alt="Player 1 Cowboy"
-      className="cowboy-image"
-    />
-    <h3>{player1.username}</h3>
-  </div>
-  <div className={`player player2 ${gamePhase === 'steady' ? 'steady' : ''} ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
-    <img
-      src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
-      alt="Player 2 Cowboy"
-      className="cowboy-image"
-    />
-    <h3>{player2Name}</h3>
-  </div>
-</div>
+        <div className={`player player1 ${gamePhase === 'steady' ? 'steady' : ''} ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
+          <img
+            src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
+            alt="Player 1 Cowboy"
+            className="cowboy-image"
+          />
+          <h3>{player1.username}</h3>
+        </div>
+        <div className={`player player2 ${gamePhase === 'steady' ? 'steady' : ''} ${gamePhase === 'bang' && !winner ? 'shoot' : ''}`}>
+          <img
+            src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
+            alt="Player 2 Cowboy"
+            className="cowboy-image"
+          />
+          <h3>{player2Name}</h3>
+        </div>
+      </div>
 
 
       <h2 className={`message ${gamePhase}`}>{translate(message)}</h2>

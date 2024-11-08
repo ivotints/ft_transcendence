@@ -22,7 +22,9 @@ function Profile() {
   const [loading, setLoading] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
+  const [translatedMessagePass2, setTranslatedMessagePass] = useState('');
 
   const [message, setMessage] = useState('');
   const translatedMessageMail = message ? translate(message) : '';
@@ -99,7 +101,7 @@ function Profile() {
   }, [activeSection]);
 
 
-  
+
 
   useEffect(() => {
     if (activeSection === 'friendList') {
@@ -204,12 +206,20 @@ function Profile() {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
 
+    if (newPassword !== confirmPassword) {
+      // Set error message if passwords don't match
+      setMessagePassType('error');
+      setMessagePass('Passwords do not match');
+      return;
+    }
+
     try {
       await axios.patch('https://localhost:8000/profiles/me/',
         { user: { password: newPassword } },
         { withCredentials: true }
       );
       setNewPassword('');
+      setConfirmPassword('');
       setMessagePassType('success');
       setMessagePass('Password updated successfully.');
       setNewPassword('');
@@ -257,7 +267,7 @@ function Profile() {
       await axios.delete(`https://localhost:8000/friends/${friendId}/`, { withCredentials: true });
       // Update the state to remove the deleted friend
       setAcceptedFriends((prevFriends) => prevFriends.filter(friend => friend.id !== friendId));
-      
+
       console.log('Friend deleted successfully');
     } catch (error) {
       console.error('Error deleting friend:', error);
@@ -426,19 +436,34 @@ function Profile() {
         );
       case 'changePassword':
         return (
-          <div>
+          <div className="form-container">
             <h2 className="profileH2">{translate('Change Password')}</h2>
             <form onSubmit={handlePasswordChange}>
+            <div className="input-group">
               <label>{translate('New Password')}: </label>
-              <input maxLength={32}
+              <input
+                maxLength={32}
                 type="password"
                 name="newPassword"
                 id="newPassword"
                 autoComplete="new-password"
                 placeholder={translate('New Password')}
-                value={newPassword} // Controlled input
-                onChange={(e) => setNewPassword(e.target.value)} // Update state on input change
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
               />
+              <br />
+              <label>{translate('Confirm Password')}: </label>
+              <input
+                maxLength={32}
+                type="password"
+                name="confirmPassword"
+                id="confirmPassword"
+                autoComplete="new-password"
+                placeholder={translate('Confirm Password')}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              </div>
               <br />
               <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
             </form>
