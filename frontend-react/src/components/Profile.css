@@ -404,3 +404,29 @@
     background-color: #e63946; /* Darker shade for hover */
   }
   
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1em;
+    width: 100%; /* Optional: Adjust to fit the form width */
+    max-width: 300px; /* Adjust as needed for your form width */
+  }
+  
+  .input-group label {
+    margin-bottom: 0.5em;
+    font-weight: bold;
+  }
+  
+  .password-input {
+    width: 100%;
+    padding: 0.5em;
+    box-sizing: border-box;
+  }
+  
