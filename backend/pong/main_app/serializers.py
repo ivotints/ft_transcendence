@@ -352,7 +352,6 @@ class TournamentSerializer(serializers.ModelSerializer):
 
             return tournament
         except Exception as e:
-            logger.error(f"Error creating tournament: {e}")
             raise serializers.ValidationError(f"Error creating tournament: {e}")
 	
 
