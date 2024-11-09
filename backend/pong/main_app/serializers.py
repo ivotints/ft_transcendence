@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.conf import settings
@@ -11,11 +12,13 @@ from .models import Tournament
 from .models import MatchHistory2v2
 from .models import CowboyMatchHistory
 
+
 from .web3 import get_tournament_data, add_tournament_data
 
 
 class UserSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
+	old_password = serializers.CharField(write_only=True, required=False)
 	class Meta:
 		model = User
 		fields = [
@@ -23,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 			'username',
 			'email',
 			'password',
+			'old_password',
 			'first_name',
 			'last_name',
 			'is_active',
@@ -30,6 +34,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 	def validate(self, data):
 		user = self.instance
+
+		request = self.context.get('request')
+		if request and request.method == 'PATCH':
+			if 'old_password' not in data or not data.get('old_password'):
+				raise serializers.ValidationError({"old_password": "You need to validate old password"})
 
 		if 'email' in data:
 			email = data.get('email')
@@ -42,8 +51,17 @@ class UserSerializer(serializers.ModelSerializer):
 			if user and user.email == email:
 				raise serializers.ValidationError({"email": "New email cannot be the same as the old email"})
 
+		if 'old_password' in data:
+			old_password = data.get('old_password')
+			if old_password is None:
+				raise serializers.ValidationError({"old_password": "You need to validate old password"})
+			if user and not user.check_password(old_password):
+				raise serializers.ValidationError({"old_password": "Old password is incorrect"})
+
 		if 'password' in data:
 			password = data.get('password')
+			if password is None:
+				raise serializers.ValidationError({"password": "Password cannot be empty"})
 			if len(password) < 8:
 				raise serializers.ValidationError({"password": "Password must be at least 8 characters long"})
 			if not any(char.isdigit() for char in password):

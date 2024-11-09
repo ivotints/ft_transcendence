@@ -1,55 +1,29 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework import status, permissions, authentication, generics, serializers
-from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
-from django import forms
 from django.http import JsonResponse, Http404, FileResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.views.generic import TemplateView, FormView
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.views.generic import TemplateView
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
-from datetime import datetime
-
 from twilio.rest import Client
 
-import logging
-import os
-import random
-import string
-import requests
-import re
+import logging, os, random, string, requests, re
 
-from .web3 import get_tournament_data, add_tournament_data
 from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create, send_email_code, send_sms_code
-
-from django.contrib.auth.models import User
-from .models import UserProfile
-from .models import UserTwoFactorAuthData
-from .models import Friend
-from .models import MatchHistory
-from .models import MatchHistory2v2
-from .models import Tournament
-from .models import CowboyMatchHistory
-from .serializers import UserSerializer
-from .serializers import UserProfileSerializer
-from .serializers import FriendSerializer
-from .serializers import MatchHistorySerializer
-from .serializers import TournamentSerializer
-from .serializers import CustomTokenRefreshSerializer
-from .serializers import MatchHistory2v2Serializer
-from .serializers import CowboyMatchHistorySerializer
+from .models import UserProfile, UserTwoFactorAuthData, Friend, MatchHistory, MatchHistory2v2, Tournament, CowboyMatchHistory
+from .serializers import UserSerializer, UserProfileSerializer, FriendSerializer, MatchHistorySerializer, TournamentSerializer, CustomTokenRefreshSerializer, MatchHistory2v2Serializer, CowboyMatchHistorySerializer
 
 
 logger = logging.getLogger(__name__)
@@ -315,7 +289,7 @@ class PendingFriendRequestsAPIView(generics.ListAPIView):
 		return Friend.objects.filter(friend=user, status="pending")
 	
 
-class FriendDetailAPIView(RetrieveUpdateDestroyAPIView):
+class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [CustomJWTAuthentication]
 	permission_classes = [IsAuthenticated]

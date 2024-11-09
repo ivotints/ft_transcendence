@@ -21,6 +21,7 @@ function Profile() {
   const [matchHistory, setMatchHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newEmail, setNewEmail] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { translate } = useTranslate();  // Get translate function from the hook
@@ -215,25 +216,35 @@ function Profile() {
 
     try {
       await axios.patch('https://localhost:8000/profiles/me/',
-        { user: { password: newPassword } },
+        { user: { password: newPassword, old_password: oldPassword } },
         { withCredentials: true }
       );
       setNewPassword('');
+      setOldPassword('');
       setConfirmPassword('');
       setMessagePassType('success');
       setMessagePass('Password updated successfully.');
-      setNewPassword('');
     } catch (error) {
-
-      //console.error('Full password error object:', error); // Log the entire error
-      //console.log('Error response:', error.response); // Check if response exists
-      //console.log('Error response data:', error.response?.data); // Inspect data in the response
-
       setMessagePassType('error');
-      if (error.response.data.password) {
-        setMessagePass(error.response.data.password[0]);
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (errorData.password) {
+          setMessagePass(errorData.password[0]);
+        } else if (errorData.old_password) {
+          setMessagePass(errorData.old_password[0]);
+        } else if (errorData.user) {
+          if (errorData.user.password) {
+            setMessagePass(errorData.user.password[0]);
+          } else if (errorData.user.old_password) {
+            setMessagePass(errorData.user.old_password[0]);
+          } else {
+            setMessagePass('Failed to update password. Please try again.');
+          }
+        } else {
+          setMessagePass('Failed to update password. Please try again.');
+        }
       } else {
-        setMessagePass(error.response.data.user.password[0]);
+        setMessagePass('Failed to update password. Please try again.');
       }
     }
   };
@@ -434,46 +445,60 @@ function Profile() {
             )}
           </div>
         );
-      case 'changePassword':
-        return (
-          <div className="form-container">
-            <h2 className="profileH2">{translate('Change Password')}</h2>
-            <form onSubmit={handlePasswordChange}>
-            <div className="input-group">
-              <label>{translate('New Password')}: </label>
-              <input
-                maxLength={32}
-                type="password"
-                name="newPassword"
-                id="newPassword"
-                autoComplete="new-password"
-                placeholder={translate('New Password')}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <br />
-              <label>{translate('Confirm Password')}: </label>
-              <input
-                maxLength={32}
-                type="password"
-                name="confirmPassword"
-                id="confirmPassword"
-                autoComplete="new-password"
-                placeholder={translate('Confirm Password')}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              </div>
-              <br />
-              <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
-            </form>
-            {translatedMessagePass && (
-              <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
-                {translatedMessagePass}
-              </p>
-            )}
-          </div>
-        );
+        case 'changePassword':
+          return (
+            <div className="form-container">
+              <h2 className="profileH2">{translate('Change Password')}</h2>
+              <form onSubmit={handlePasswordChange}>
+                <div className="input-group">
+                  <label>{translate('Old Password')}: </label>
+                  <input
+                    maxLength={32}
+                    type="password"
+                    name="oldPassword"
+                    id="oldPassword"
+                    autoComplete="old-password"
+                    placeholder={translate('Old Password')}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                  />
+                </div>
+                <div className="input-group">
+                  <label>{translate('New Password')}: </label>
+                  <input
+                    maxLength={32}
+                    type="password"
+                    name="newPassword"
+                    id="newPassword"
+                    autoComplete="new-password"
+                    placeholder={translate('New Password')}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="input-group">
+                  <label>{translate('Confirm Password')}: </label>
+                  <input
+                    maxLength={32}
+                    type="password"
+                    name="confirmPassword"
+                    id="confirmPassword"
+                    autoComplete="new-password"
+                    placeholder={translate('Confirm Password')}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                <br />
+                <button className="confirm-btn" type="submit">{translate('Confirm')}</button>
+              </form>
+              {translatedMessagePass && (
+                <p className={messagePassType === 'success' ? 'success-message' : 'error-message'}>
+                  {translatedMessagePass}
+                </p>
+              )}
+            </div>
+          );
       case 'addFriend':
         return (
           <div>
