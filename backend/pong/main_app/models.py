@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 from typing import Optional
 
@@ -125,7 +126,12 @@ class MatchHistory(models.Model):
 		else:
 			self.winner = None
 
+	def clean(self):
+		if self.player1.username == self.player2:
+			raise ValidationError("A player cannot play against themselves.")
+
 	def save(self, *args, **kwargs):
+		self.clean()
 		self.calculate_winner()
 		super().save(*args, **kwargs)
 
@@ -155,7 +161,13 @@ class MatchHistory2v2(models.Model):
 			self.winner1 = None
 			self.winner2 = None
 
+	def clean(self):
+		players = [self.player1.username, self.player2, self.player3, self.player4]
+		if len(players) != len(set(players)):
+			raise ValidationError("All players must be unique. A player cannot play against themselves.")
+
 	def save(self, *args, **kwargs):
+		self.clean()
 		self.calculate_winners()
 		super().save(*args, **kwargs)
 
@@ -179,7 +191,12 @@ class CowboyMatchHistory(models.Model):
 		else:
 			self.winner = None
 
+	def clean(self):
+		if self.player1.username == self.player2:
+			raise ValidationError("A player cannot play against themselves.")
+
 	def save(self, *args, **kwargs):
+		self.clean()
 		self.calculate_winner()
 		super().save(*args, **kwargs)
 

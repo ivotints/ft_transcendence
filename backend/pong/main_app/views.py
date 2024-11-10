@@ -171,6 +171,17 @@ class UserListAPIView(generics.ListAPIView):
 	permission_classes = [permissions.IsAdminUser]
 
 
+class UserDetailAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    authentication_classes = [
+        CustomJWTAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
 class UserProfileListAPIView(generics.ListAPIView):
 	serializer_class = UserProfileSerializer
 	queryset = UserProfile.objects.all()
@@ -348,6 +359,16 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 		user = self.request.user
 		return MatchHistory.objects.filter(player1=user) | MatchHistory.objects.filter(player2=user.username)
 	
+	def create(self, request, *args, **kwargs):
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as e:
+			print('Caught exception in create:', str(e))
+			return Response(
+				{'detail': str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
 		if player1 != self.request.user:
@@ -366,6 +387,16 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 		user = self.request.user
 		return MatchHistory2v2.objects.filter(player1=user) | MatchHistory2v2.objects.filter(player2=user.username) | MatchHistory2v2.objects.filter(player3=user.username) | MatchHistory2v2.objects.filter(player4=user.username)
 	
+	def create(self, request, *args, **kwargs):
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as e:
+			print('Caught exception in create:', str(e))
+			return Response(
+				{'detail': str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
 		if player1 != self.request.user:
@@ -384,6 +415,16 @@ class CowboyMatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 		user = self.request.user
 		return CowboyMatchHistory.objects.filter(player1=user) | CowboyMatchHistory.objects.filter(player2=user.username)
 	
+	def create(self, request, *args, **kwargs):
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as e:
+			print('Caught exception in create:', str(e))
+			return Response(
+				{'detail': str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
 		if player1 != self.request.user:
@@ -611,6 +652,9 @@ def oauth_callback(request):
 
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+	if created:
+		user.set_unusable_password()
+		user.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)

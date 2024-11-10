@@ -162,12 +162,12 @@ function Profile() {
           withCredentials: true,
         });
         setAvatar(response.data.avatar);
-        setErrorMessage(''); // Clear error message on success
+        setErrorMessage('');
       } catch (error) {
         console.error('Error updating avatar:', error);
         if (error.response && error.response.data) {
           const errorMsg = error.response.data.avatar ? error.response.data.avatar[0] : 'An unexpected error occurred. Please try again.';
-          setErrorMessage(errorMsg); // Set error message from backend
+          setErrorMessage(errorMsg);
         } else {
           setErrorMessage('An unexpected error occurred. Please try again.');
         }
@@ -180,7 +180,7 @@ function Profile() {
     e.preventDefault();
 
     try {
-      await axios.patch('https://localhost:8000/profiles/me/', { user: { email: newEmail } }, { withCredentials: true });
+      await axios.patch('https://localhost:8000/users/me/', { email: newEmail }, { withCredentials: true });
 
       // Update userInfo state with new email and set success message
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
@@ -215,8 +215,8 @@ function Profile() {
     }
 
     try {
-      await axios.patch('https://localhost:8000/profiles/me/',
-        { user: { password: newPassword, old_password: oldPassword } },
+      await axios.patch('https://localhost:8000/users/me/',
+        { password: newPassword, old_password: oldPassword },
         { withCredentials: true }
       );
       setNewPassword('');

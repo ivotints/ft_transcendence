@@ -18,7 +18,7 @@ from .web3 import get_tournament_data, add_tournament_data
 
 class UserSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
-	old_password = serializers.CharField(write_only=True, required=False)
+	old_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
 	class Meta:
 		model = User
 		fields = [
@@ -32,13 +32,46 @@ class UserSerializer(serializers.ModelSerializer):
 			'is_active',
 		]
 
+	def validate_username(self, value):
+		if len(value) > 32:
+			raise serializers.ValidationError({'username:': 'Username must be 32 characters or fewer'})
+		return value
+	
+	def validate_email(self, value):
+		if len(value) > 32:
+			raise serializers.ValidationError({'email:': 'Email must be 32 characters or fewer'})
+		try:
+			validate_email(value)
+		except ValidationError:
+			raise serializers.ValidationError({'email:': 'Invalid email address'})
+		return value
+	
+	def validate_password(self, value):
+		if len(value) < 8 or len(value) > 32:
+			raise serializers.ValidationError({"password": "Password must be at least 8 characters long and no longer than 32"})
+		if not any(char.isdigit() for char in value):
+			raise serializers.ValidationError({"password": "Password must contain at least one digit"})
+		if not any(char.isalpha() for char in value):
+			raise serializers.ValidationError({"password": "Password must contain at least one letter"})
+		return value
+
 	def validate(self, data):
 		user = self.instance
-
 		request = self.context.get('request')
 		if request and request.method == 'PATCH':
-			if 'old_password' not in data or not data.get('old_password'):
-				raise serializers.ValidationError({"old_password": "You need to validate old password"})
+			if 'password' in data:
+				if user and user.has_usable_password():
+					if 'old_password' not in data or not data.get('old_password'):
+						raise serializers.ValidationError({"old_password": "You need to validate old password"})
+					old_password = data.get('old_password')
+					if user and not user.check_password(old_password):
+						raise serializers.ValidationError({"old_password": "Old password is incorrect"})
+				else:
+					pass
+		
+		if request and request.method == 'POST':
+			if 'email' not in data or not data.get('email'):
+				raise serializers.ValidationError({"email": "Email cannot be empty"})
 
 		if 'email' in data:
 			email = data.get('email')
@@ -51,12 +84,12 @@ class UserSerializer(serializers.ModelSerializer):
 			if user and user.email == email:
 				raise serializers.ValidationError({"email": "New email cannot be the same as the old email"})
 
-		if 'old_password' in data:
-			old_password = data.get('old_password')
-			if old_password is None:
-				raise serializers.ValidationError({"old_password": "You need to validate old password"})
-			if user and not user.check_password(old_password):
-				raise serializers.ValidationError({"old_password": "Old password is incorrect"})
+		# if 'old_password' in data:
+		# 	old_password = data.get('old_password')
+		# 	if old_password is None:
+		# 		raise serializers.ValidationError({"old_password": "You need to validate old password"})
+		# 	if user and not user.check_password(old_password):
+		# 		raise serializers.ValidationError({"old_password": "Old password is incorrect"})
 
 		if 'password' in data:
 			password = data.get('password')
@@ -74,7 +107,10 @@ class UserSerializer(serializers.ModelSerializer):
 		return data
 
 	def create(self, validate_data):
-		password = validate_data.pop('password')
+		password = validate_data.pop('password', None)
+		if not password:
+			raise serializers.ValidationError({'password': 'Password is required'})
+		
 		user = User(**validate_data)
 		user.set_password(password)
 		user.save()
@@ -180,15 +216,22 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 			player1_score, player2_score = map(int, value.strip().split('-'))
 			if player1_score < 0 or player2_score < 0:
 				raise serializers.ValidationError("Scores must be non-negative integers.")
+			elif player1_score > 5 or player2_score > 5 or (player1_score == 5 and player2_score == 5):
+				raise serializers.ValidationError("Invalid score.")
 		except ValueError:
-			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
+			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '5-4').")
 		return value
 	
-	def validate(self, data):
-		# Ensure player1 and player2 are not the same user
-		if data['player1'] == data['player2']:
-			raise serializers.ValidationError("A player cannot play against themselves.")
-		return data
+	def create(self, validated_data):
+		try:
+			return super().create(validated_data)
+		except Exception as e:
+			raise serializers.ValidationError({'detail': str(e)})
+	
+	# def validate(self, data):
+	# 	if data['player1_username'] == data['player2']:
+	# 		raise serializers.ValidationError("A player cannot play against themselves.")
+		# return data
 	
 
 class MatchHistory2v2Serializer(serializers.ModelSerializer):
@@ -217,14 +260,21 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 			if team1_score < 0 or team2_score < 0:
 				raise serializers.ValidationError("Scores must be non-negative integers.")
 		except ValueError:
-			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
+			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '5-4').")
 		return value
 	
-	def validate(self, data):
-		players = [data.get('player1'), data.get('player2'), data.get('player3'), data.get('player4')]
-		if len(players) != len(set(players)):
-			raise serializers.ValidationError("All players must be unique.")
-		return data
+	def create(self, validated_data):
+		try:
+			return super().create(validated_data)
+		except Exception as e:
+			raise serializers.ValidationError({'detail': str(e)})
+	# def validate(self, data):
+	# 	player1 = User.objects.get(user=data.get('player1'))
+	# 	player1_username = player1.username
+	# 	players = [player1_username, data.get('player2'), data.get('player3'), data.get('player4')]
+	# 	if len(players) != len(set(players)):
+	# 		raise serializers.ValidationError("All players must be unique.")
+	# 	return data
 	
 
 class CowboyMatchHistorySerializer(serializers.ModelSerializer):
@@ -253,10 +303,16 @@ class CowboyMatchHistorySerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
 		return value
 	
-	def validate(self, data):
-		if data['player1'] == data['player2']:
-			raise serializers.ValidationError("A player cannot play against themselves.")
-		return data
+	def create(self, validated_data):
+		try:
+			return super().create(validated_data)
+		except Exception as e:
+			raise serializers.ValidationError({'detail': str(e)})
+	
+	# def validate(self, data):
+	# 	if data['player1_username'] == data['player2']:
+	# 		raise serializers.ValidationError("A player cannot play against themselves.")
+		# return data
 
 
 class IsOnlineField(serializers.Field):
