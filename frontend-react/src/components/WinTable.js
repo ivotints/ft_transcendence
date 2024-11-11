@@ -32,7 +32,7 @@ function WinTable() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userResponse = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
+        const userResponse = await axios.get('/api/profiles/me/', { withCredentials: true });
         setUser(userResponse.data.user);
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -50,7 +50,7 @@ function WinTable() {
           try {
             const winners_order = rankedPlayers.map(player => player.name);
 
-            const response = await axios.post('https://localhost:8000/tournaments/', {
+            const response = await axios.post('/api/tournaments/', {
               owner: user.id,
               winners_order: winners_order
             }, {

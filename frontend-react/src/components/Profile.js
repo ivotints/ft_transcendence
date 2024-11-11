@@ -54,7 +54,7 @@ function Profile() {
     // Fetch user profile data
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
+        const response = await axios.get('/api/profiles/me/', { withCredentials: true });
         const profile = response.data;
         setUserInfo({
           username: profile.user.username,
@@ -89,7 +89,7 @@ function Profile() {
       console.log('Fetching pending requests for pendingRequests section...');
       const fetchPendingRequests = async () => {
         try {
-          const response = await axios.get('https://localhost:8000/friends/pending/', { withCredentials: true });
+          const response = await axios.get('/api/friends/pending/', { withCredentials: true });
           console.log('Pending friends response:', response.data);
           setPendingRequests(response.data);
         } catch (error) {
@@ -109,7 +109,7 @@ function Profile() {
       console.log('Fetching accepted friends for friendList section...');
       const fetchAcceptedFriends = async () => {
         try {
-          const response = await axios.get('https://localhost:8000/friends/accepted/', { withCredentials: true });
+          const response = await axios.get('/api/friends/accepted/', { withCredentials: true });
           console.log('Accepted friends response:', response.data);
           setAcceptedFriends(response.data);
         } catch (error) {
@@ -128,13 +128,13 @@ function Profile() {
         try {
           let response;
           if (matchType === '1v1') {
-            response = await axios.get('https://localhost:8000/matches/', { withCredentials: true });
+            response = await axios.get('/api/matches/', { withCredentials: true });
           } else if (matchType === '2v2') {
-            response = await axios.get('https://localhost:8000/matches/2v2/', { withCredentials: true });
+            response = await axios.get('/api/matches/2v2/', { withCredentials: true });
           } else if (matchType === 'tournament') {
-            response = await axios.get('https://localhost:8000/tournaments/', { withCredentials: true });
+            response = await axios.get('/api/tournaments/', { withCredentials: true });
           } else if (matchType === 'cowboy') {
-            response = await axios.get('https://localhost:8000/matches/cowboy', { withCredentials: true });
+            response = await axios.get('/api/matches/cowboy/', { withCredentials: true });
           }
           setMatchHistory(response.data);
         } catch (error) {
@@ -155,7 +155,7 @@ function Profile() {
       formData.append('avatar', file);
 
       try {
-        const response = await axios.patch('https://localhost:8000/profiles/me/', formData, {
+        const response = await axios.patch('/api/profiles/me/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -180,7 +180,7 @@ function Profile() {
     e.preventDefault();
 
     try {
-      await axios.patch('https://localhost:8000/users/me/', { email: newEmail }, { withCredentials: true });
+      await axios.patch('/api/users/me/', { email: newEmail }, { withCredentials: true });
 
       // Update userInfo state with new email and set success message
       setUserInfo((prev) => ({ ...prev, email: newEmail }));
@@ -215,7 +215,7 @@ function Profile() {
     }
 
     try {
-      await axios.patch('https://localhost:8000/users/me/',
+      await axios.patch('/api/users/me/',
         { password: newPassword, old_password: oldPassword },
         { withCredentials: true }
       );
@@ -252,7 +252,7 @@ function Profile() {
   const handleAddFriend = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://localhost:8000/friends/', { friend_username: friendUsername }, { withCredentials: true });
+      const response = await axios.post('/api/friends/', { friend_username: friendUsername }, { withCredentials: true });
       setFriendUsername('');
       console.log('Friend request sent:', response.data);
       setMessageFriendType("success")
@@ -275,7 +275,7 @@ function Profile() {
 
   const handleDeleteFriend = async (friendId) => {
     try {
-      await axios.delete(`https://localhost:8000/friends/${friendId}/`, { withCredentials: true });
+      await axios.delete(`/api/friends/${friendId}/`, { withCredentials: true });
       // Update the state to remove the deleted friend
       setAcceptedFriends((prevFriends) => prevFriends.filter(friend => friend.id !== friendId));
 
@@ -287,7 +287,7 @@ function Profile() {
 
   const handleAcceptRequest = async (requestId) => {
     try {
-      const response = await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
+      const response = await axios.patch(`/api/friends/${requestId}/`, { status: 'accepted' }, { withCredentials: true });
       const acceptedFriend = response.data;
 
       setPendingRequests((prev) => prev.filter((request) => request.id !== requestId));
@@ -299,7 +299,7 @@ function Profile() {
 
   const handleRejectRequest = async (requestId) => {
     try {
-      await axios.patch(`https://localhost:8000/friends/${requestId}/`, { status: 'rejected' }, { withCredentials: true });
+      await axios.patch(`/api/friends/${requestId}/`, { status: 'rejected' }, { withCredentials: true });
       setPendingRequests((prev) => prev.filter((request) => request.id !== requestId));
     } catch (error) {
       console.error('Error rejecting friend request:', error);
@@ -330,7 +330,7 @@ function Profile() {
         // );
         // setTwoFactorMessage('OTP sent successfully.');
         data.user_phone = (userPhone.startsWith('+') ? userPhone : "+" + userPhone);
-        const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
+        const response = await axios.post('/api/setup-2fa/', data, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -340,7 +340,7 @@ function Profile() {
         setOtpSecret(responseData.otp_secret);
         setTwoFactorMessage('OTP has been sent by sms');
       } else {
-        const response = await axios.post('https://localhost:8000/setup-2fa/', data, {
+        const response = await axios.post('/api/setup-2fa/', data, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -372,7 +372,7 @@ function Profile() {
     try {
       let response;
       if (selected2FAMethod === 'sms') {
-        response = await axios.post('https://localhost:8000/setup-2fa/', {
+        response = await axios.post('/api/setup-2fa/', {
           method: 'sms',
           user_phone: userPhone,
           code: confirmationOtp,
@@ -389,7 +389,7 @@ function Profile() {
           setTwoFactorError(response.data.errors.join(', '));
         }
       } else {
-        const response = await axios.post('https://localhost:8000/setup-2fa/', {
+        const response = await axios.post('/api/setup-2fa/', {
           method: selected2FAMethod === 'authenticator' ? 'authenticator' : "email",
           code: confirmationOtp,
         }, {

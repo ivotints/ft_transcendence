@@ -49,6 +49,17 @@ services:
       REACT_APP_TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       REACT_APP_TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
 
+  # frontend-js:
+  #   build: ../frontend-js/
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ../frontend-js/:/app
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     NODE_ENV: development
+
   nginx:
     build: "../nginx/"
     ports:

@@ -48,7 +48,8 @@ function App() {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.post('https://localhost:8000/token/refresh/', {}, {
+      // const response = await axios.post('https://localhost:8000/token/refresh/', {}, { https://web:8000/token/refresh/
+      const response = await axios.post('/api/token/refresh/', {}, {
         withCredentials: true,
       });
 
