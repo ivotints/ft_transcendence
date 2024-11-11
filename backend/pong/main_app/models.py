@@ -104,7 +104,12 @@ class Friend(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friendships")
 	friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friends")
 	status = models.CharField(max_length=10, choices=[("pending", "Pending"), ("accepted", "Accepted"), ("rejected", "Rejected")], default="pending")
+	is_activated = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
+
+	def set_activated(self):
+		self.is_activated = True
+		self.save()
 
 	def __str__(self):
 		return f"{self.user.username} -> {self.friend.username} ({self.status})"

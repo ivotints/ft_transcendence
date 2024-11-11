@@ -197,7 +197,7 @@ this.ball.y + this.ball.height >= this.player2.y) {
             match_score: `${this.player1.score}-${this.player2.score}`,
           };
         
-          axios.post('https://localhost:8000/matches/', matchData, { withCredentials: true })
+          axios.post('/api/matches/', matchData, { withCredentials: true })
             .then(response => {
               console.log('Match data sent successfully:', response.data);
             })

@@ -211,7 +211,7 @@ this.player4 = { x: this.canvas.width - 60, y: this.canvas.height - 150, width: 
                 match_score: `${this.player1.score + this.player3.score}-${this.player2.score + this.player4.score}`
           };
       
-          axios.post('https://localhost:8000/matches/2v2/', matchData, { withCredentials: true })
+          axios.post('/api/matches/2v2/', matchData, { withCredentials: true })
               .then(response => {
                   console.log('Match data sent successfully:', response.data);
               })

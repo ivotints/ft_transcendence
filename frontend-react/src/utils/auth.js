@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export function refreshToken() {
-    axios.post('https://localhost:8000/token/refresh/', {}, {
+    axios.post('/api/token/refresh/', {}, {
         withCredentials: true, // Include cookies in the request
         headers: {
             'Content-Type': 'application/json',

@@ -336,14 +336,12 @@ class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 		return Response(serializer.data)
 
 	def destroy(self, request, *args, **kwargs):
-		"""Handle DELETE to remove a friendship with permission check."""
 		instance = self.get_object()
 		# Verify the user is part of the friendship before deleting
 		if request.user != instance.user and request.user != instance.friend:
 			return Response({'detail': 'You do not have permission to delete this friend request.'},
 							status=status.HTTP_403_FORBIDDEN)
 
-		# Perform delete and return confirmation
 		self.perform_destroy(instance)
 		return Response({'detail': 'Friend request deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
@@ -443,6 +441,12 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	def get_queryset(self):
 		user = self.request.user
 		return Tournament.objects.filter(owner=user)
+	
+	def perform_create(self, serializer):
+		owner = serializer.validated_data.get('owner')
+		if owner != self.request.user:
+			raise PermissionDenied("You can only create tournaments for yourself.")
+		serializer.save()
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

@@ -96,7 +96,7 @@ function CowboyGame({ player1, player2Name }) {
       match_score: `${player1Score}-${player2Score}`,
     };
 
-    axios.post('https://localhost:8000/matches/cowboy/', matchData, { withCredentials: true })
+    axios.post('/api/matches/cowboy/', matchData, { withCredentials: true })
       .then(response => {
         console.log('Match data sent successfully:', response.data);
       })

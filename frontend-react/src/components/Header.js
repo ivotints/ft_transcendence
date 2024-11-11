@@ -21,7 +21,7 @@ function Header() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('https://localhost:8000/logout/', {}, { withCredentials: true });
+      await axios.post('/api/logout/', {}, { withCredentials: true });
       window.location.href = '/login';
     } catch (error) {
       console.error('Error logging out:', error);
