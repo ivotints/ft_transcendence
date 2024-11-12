@@ -20,14 +20,21 @@ server {
 
     ssl_protocols TLSv1.3;
 
+    root /var/www/html;
+    index index.html;
+
     location / {
-        proxy_pass http://frontend:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
+        try_files \$uri \$uri/ /index.html;
     }
+
+    # location / {
+    #     proxy_pass http://frontend:3000;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Upgrade \$http_upgrade;
+    #     proxy_set_header Connection 'upgrade';
+    #     proxy_set_header Host \$host;
+    #     proxy_cache_bypass \$http_upgrade;
+    # }
 
     location /api/ {
         proxy_pass https://web:8000/;
@@ -38,14 +45,14 @@ server {
         proxy_cache_bypass \$http_upgrade;
     }
 
-    location /ws {
-        proxy_pass http://frontend:3000/ws;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-    }
+    # location /ws {
+    #     proxy_pass http://frontend:3000/ws;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Upgrade \$http_upgrade;
+    #     proxy_set_header Connection 'upgrade';
+    #     proxy_set_header Host \$host;
+    #     proxy_cache_bypass \$http_upgrade;
+    # }
 }" > /etc/nginx/conf.d/default.conf
 
 nginx -g "daemon off;"
