@@ -8,6 +8,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./entrypoint.sh /entrypoint.sh
 COPY ./localhost+1.pem /etc/ssl/certs/cert.pem
 COPY ./localhost+1-key.pem /etc/ssl/private/key.pem
+COPY ./var/www/ /var/www/
 
 RUN chmod +x /entrypoint.sh
 
