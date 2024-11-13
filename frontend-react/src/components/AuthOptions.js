@@ -24,13 +24,13 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
 
   const handleLoginSubmitBefore2fa = async () => {
     try {
-      const twoFactorResponse = await axios.post('https://localhost:8000/users-2fa/', { username });
+      const twoFactorResponse = await axios.post('/api/users-2fa/', { username });
       const methods = twoFactorResponse.data;
       if (methods.app_enabled || methods.sms_enabled || methods.email_enabled) {
         setTwoFactorMethods(methods);
         setOtpRequired(true); // Set OTP requirement to true
       } else {
-        const response = await axios.post('https://localhost:8000/token/', {
+        const response = await axios.post('/api/token/', {
           username,
           password,
         }, {
@@ -69,7 +69,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
       else if (twoFactorMethods.app_enabled) {
         method = 'app';
       }
-      const response = await axios.post('https://localhost:8000/token/', {
+      const response = await axios.post('/api/token/', {
         username,
         password,
         otp,
@@ -104,7 +104,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
 
   const handleCreateUserSubmit = async () => {
     try {
-      const response = await axios.post('https://localhost:8000/users/register/', {
+      const response = await axios.post('/api/users/register/', {
         username,
         email,
         password,
@@ -138,13 +138,13 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
   };
 
   const handleOAuthClick = () => {
-    window.location.href = 'https://localhost:8000/oauth/redirect/';
+    window.location.href = '/api/oauth/redirect/';
   };
 
   const handleSendCodeButtonClick = async () => {
     try {
       const method = twoFactorMethods.email_enabled ? 'email' : 'sms';
-      const response = await axios.post('https://localhost:8000/send-2fa/', {
+      const response = await axios.post('/api/send-2fa/', {
         username,
         method
       }, {

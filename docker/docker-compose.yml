@@ -36,18 +36,18 @@ services:
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
 
-  frontend:
-    build: ../frontend-react/
-    volumes:
-      - ../frontend-react/:/app
-      - /app/node_modules
-    depends_on:
-    - db
-    environment:
-      NODE_ENV: development
-      REACT_APP_TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
-      REACT_APP_TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
-      REACT_APP_TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
+  # frontend:
+  #   build: ../frontend-react/
+  #   volumes:
+  #     - ../frontend-react/:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #   - db
+  #   environment:
+  #     NODE_ENV: development
+  #     REACT_APP_TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+  #     REACT_APP_TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+  #     REACT_APP_TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
 
   nginx:
     build: "../nginx/"
@@ -58,9 +58,10 @@ services:
       - ../nginx/entrypoint.sh:/entrypoint.sh
       - ./localhost+1.pem:/etc/ssl/certs/cert.pem
       - ./localhost+1-key.pem:/etc/ssl/private/key.pem
+      - ../nginx/var/www/:/var/www/
     depends_on:
-      - frontend
+      - web
 
 volumes:
   postgres_data:
-  
+

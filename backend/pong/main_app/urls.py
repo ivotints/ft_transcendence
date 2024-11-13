@@ -3,7 +3,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, TournamentListCreateAPIView, SetupTwoFactorView, ConfirmTwoFactorAuthView, ProtectedMediaView, AcceptedFriendsAPIView, PendingFriendRequestsAPIView, MatchHistory2v2ListCreateAPIView, UserTwoFactorAuthDataView, SendVerificationCode, CowboyMatchHistoryListCreateAPIView
+from .views import UserListAPIView, UserCreateAPIView, UserProfileListAPIView, UserProfileDetailAPIView, FriendListCreateAPIView, FriendDetailAPIView, MatchHistoryListCreateAPIView, TournamentListCreateAPIView, SetupTwoFactorView, ConfirmTwoFactorAuthView, ProtectedMediaView, AcceptedFriendsAPIView, PendingFriendRequestsAPIView, MatchHistory2v2ListCreateAPIView, UserTwoFactorAuthDataView, SendVerificationCode, CowboyMatchHistoryListCreateAPIView, UserDetailAPIView
 
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
 	path('setup-2fa/', SetupTwoFactorView.as_view(), name="setup-2fa"),
 	path('confirm-2fa/', ConfirmTwoFactorAuthView.as_view(), name="confirm-2fa"),
 	path('users/', UserListAPIView.as_view(), name='user-list'),
+	path('users/me/', UserDetailAPIView.as_view(), name='user-detail'),
 	path('users-2fa/', UserTwoFactorAuthDataView.as_view(), name='user-2fa'),
 	path('send-2fa/', SendVerificationCode.as_view(), name='send-verif'),
 	path('profiles/', UserProfileListAPIView.as_view(), name='userprofile-list-create'),

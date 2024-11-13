@@ -14,7 +14,7 @@ function PlayerVsPlayer() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get('https://localhost:8000/profiles/me/', { withCredentials: true });
+      const response = await axios.get('/api/profiles/me/', { withCredentials: true });
       const profile = response.data;
       console.log(profile);
       setPlayer1(profile.user);

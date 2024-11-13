@@ -1,55 +1,29 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework import status, permissions, authentication, generics, serializers
-from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
-from django import forms
 from django.http import JsonResponse, Http404, FileResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.views.generic import TemplateView, FormView
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.views.generic import TemplateView
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
-from datetime import datetime
-
 from twilio.rest import Client
 
-import logging
-import os
-import random
-import string
-import requests
-import re
+import logging, os, random, string, requests, re
 
-from .web3 import get_tournament_data, add_tournament_data
 from .authentication import CustomJWTAuthentication, user_two_factor_auth_data_create, send_email_code, send_sms_code
-
-from django.contrib.auth.models import User
-from .models import UserProfile
-from .models import UserTwoFactorAuthData
-from .models import Friend
-from .models import MatchHistory
-from .models import MatchHistory2v2
-from .models import Tournament
-from .models import CowboyMatchHistory
-from .serializers import UserSerializer
-from .serializers import UserProfileSerializer
-from .serializers import FriendSerializer
-from .serializers import MatchHistorySerializer
-from .serializers import TournamentSerializer
-from .serializers import CustomTokenRefreshSerializer
-from .serializers import MatchHistory2v2Serializer
-from .serializers import CowboyMatchHistorySerializer
+from .models import UserProfile, UserTwoFactorAuthData, Friend, MatchHistory, MatchHistory2v2, Tournament, CowboyMatchHistory
+from .serializers import UserSerializer, UserProfileSerializer, FriendSerializer, MatchHistorySerializer, TournamentSerializer, CustomTokenRefreshSerializer, MatchHistory2v2Serializer, CowboyMatchHistorySerializer
 
 
 logger = logging.getLogger(__name__)
@@ -197,6 +171,17 @@ class UserListAPIView(generics.ListAPIView):
 	permission_classes = [permissions.IsAdminUser]
 
 
+class UserDetailAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    authentication_classes = [
+        CustomJWTAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
 class UserProfileListAPIView(generics.ListAPIView):
 	serializer_class = UserProfileSerializer
 	queryset = UserProfile.objects.all()
@@ -315,7 +300,7 @@ class PendingFriendRequestsAPIView(generics.ListAPIView):
 		return Friend.objects.filter(friend=user, status="pending")
 	
 
-class FriendDetailAPIView(RetrieveUpdateDestroyAPIView):
+class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [CustomJWTAuthentication]
 	permission_classes = [IsAuthenticated]
@@ -351,14 +336,12 @@ class FriendDetailAPIView(RetrieveUpdateDestroyAPIView):
 		return Response(serializer.data)
 
 	def destroy(self, request, *args, **kwargs):
-		"""Handle DELETE to remove a friendship with permission check."""
 		instance = self.get_object()
 		# Verify the user is part of the friendship before deleting
 		if request.user != instance.user and request.user != instance.friend:
 			return Response({'detail': 'You do not have permission to delete this friend request.'},
 							status=status.HTTP_403_FORBIDDEN)
 
-		# Perform delete and return confirmation
 		self.perform_destroy(instance)
 		return Response({'detail': 'Friend request deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
@@ -374,6 +357,16 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 		user = self.request.user
 		return MatchHistory.objects.filter(player1=user) | MatchHistory.objects.filter(player2=user.username)
 	
+	def create(self, request, *args, **kwargs):
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as e:
+			print('Caught exception in create:', str(e))
+			return Response(
+				{'detail': str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
 		if player1 != self.request.user:
@@ -392,6 +385,16 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 		user = self.request.user
 		return MatchHistory2v2.objects.filter(player1=user) | MatchHistory2v2.objects.filter(player2=user.username) | MatchHistory2v2.objects.filter(player3=user.username) | MatchHistory2v2.objects.filter(player4=user.username)
 	
+	def create(self, request, *args, **kwargs):
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as e:
+			print('Caught exception in create:', str(e))
+			return Response(
+				{'detail': str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
 		if player1 != self.request.user:
@@ -410,6 +413,16 @@ class CowboyMatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 		user = self.request.user
 		return CowboyMatchHistory.objects.filter(player1=user) | CowboyMatchHistory.objects.filter(player2=user.username)
 	
+	def create(self, request, *args, **kwargs):
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as e:
+			print('Caught exception in create:', str(e))
+			return Response(
+				{'detail': str(e)},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
 	def perform_create(self, serializer):
 		player1 = serializer.validated_data.get('player1')
 		if player1 != self.request.user:
@@ -428,6 +441,12 @@ class TournamentListCreateAPIView(generics.ListCreateAPIView):
 	def get_queryset(self):
 		user = self.request.user
 		return Tournament.objects.filter(owner=user)
+	
+	def perform_create(self, serializer):
+		owner = serializer.validated_data.get('owner')
+		if owner != self.request.user:
+			raise PermissionDenied("You can only create tournaments for yourself.")
+		serializer.save()
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -637,6 +656,9 @@ def oauth_callback(request):
 
 	User = get_user_model()
 	user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+	if created:
+		user.set_unusable_password()
+		user.save()
 
 	refresh = RefreshToken.for_user(user)
 	access_token = str(refresh.access_token)
