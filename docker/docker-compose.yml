@@ -59,9 +59,9 @@ services:
       - ./localhost+1.pem:/etc/ssl/certs/cert.pem
       - ./localhost+1-key.pem:/etc/ssl/private/key.pem
       - ../nginx/var/www/:/var/www/
-    # depends_on:
-    #   - frontend
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
-  
+
