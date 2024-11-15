@@ -1,37 +1,49 @@
 import { homePage } from './components/homePage.js';
-import { profilePage } from './components/profilePage.js';
-import { gamePage } from './components/gamePage.js';
-import { playerVsPlayerPage } from './components/playerVsPlayerPage.js';
-import { playerVsAIPage } from './components/playerVsAIPage.js';
-import { tournamentPage } from './components/tournamentPage.js';
-import { cowboyPage } from './components/cowboyPage.js';
-import { tournamentGamePage } from './components/tournamentGamePage.js';
-import { winTablePage } from './components/winTablePage.js';
+import { notFoundPage } from './components/notFoundPage.js';
+import { pongGame } from './components/pongGame.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'loading-indicator';
+    loadingIndicator.innerText = 'Loading...';
+    document.body.appendChild(loadingIndicator);
 
     const routes = {
         '/': homePage,
-        '/profile': profilePage,
-        '/game': gamePage,
-        '/game/player-vs-player': playerVsPlayerPage,
-        '/game/player-vs-ai': playerVsAIPage,
-        '/tournament': tournamentPage,
-        '/game/cowboy': cowboyPage,
-        '/tournament-game': tournamentGamePage,
-        '/win-table': winTablePage,
+        // Add other routes here
     };
 
-    function navigateTo(path) {
-        window.history.pushState({}, path, window.location.origin + path);
-        renderPage(path);
+    const cache = {};
+
+    async function navigateTo(path) {
+        if (window.location.pathname !== path) {
+            window.history.pushState({}, path, window.location.origin + path);
+        }
+        await renderPage(path);
     }
 
-    function renderPage(path) {
-        const page = routes[path] || homePage;
+    async function renderPage(path) {
+        const page = routes[path] || notFoundPage;
         app.innerHTML = '';
-        app.appendChild(page());
+        showLoadingIndicator();
+        if (cache[path]) {
+            app.appendChild(cache[path]);
+            hideLoadingIndicator();
+        } else {
+            const pageContent = await page();
+            cache[path] = pageContent;
+            app.appendChild(pageContent);
+            hideLoadingIndicator();
+        }
+    }
+
+    function showLoadingIndicator() {
+        loadingIndicator.style.display = 'block';
+    }
+
+    function hideLoadingIndicator() {
+        loadingIndicator.style.display = 'none';
     }
 
     window.onpopstate = () => renderPage(window.location.pathname);
@@ -43,5 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    window.navigateTo = navigateTo;
     renderPage(window.location.pathname);
 });

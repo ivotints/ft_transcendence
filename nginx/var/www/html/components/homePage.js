@@ -1,131 +1,90 @@
-export function homePage() {
+// homePage.js
+import { header } from './header.js';
+import { pongGame } from './pongGame.js';
+import { loadCSS } from './utils/loadCSS.js';
+
+export async function homePage() {
+    await loadCSS('components/styles/homePage.css');
+
     const container = document.createElement('div');
-    container.className = 'App';
+    container.className = 'home-page-container';
 
-    const header = document.createElement('h1');
-    header.textContent = 'Welcome to Pong Transcendence';
-    container.appendChild(header);
+    const isLoggedIn = false;
+    const headerElement = await header(isLoggedIn);
+    container.appendChild(headerElement);
 
-    const authOptions = document.createElement('div');
-    authOptions.className = 'auth-options';
+    const mainContent = document.createElement('div');
+    mainContent.className = 'main-content';
+    mainContent.innerHTML = '<h2>Pong Game</h2>';
 
-    const loginButton = document.createElement('button');
-    loginButton.className = 'auth-button';
-    loginButton.textContent = 'Log In';
-    loginButton.onclick = () => showLoginForm();
+    // Create mode selection
+    const modeSelection = document.createElement('div');
+    modeSelection.className = 'mode-selection';
 
-    const createUserButton = document.createElement('button');
-    createUserButton.className = 'auth-button';
-    createUserButton.textContent = 'Create User';
-    createUserButton.onclick = () => showCreateUserForm();
+    const pvaiButton = document.createElement('button');
+    pvaiButton.innerText = 'Player vs AI';
+    pvaiButton.className = 'mode-button active';
 
-    const oauthButton = document.createElement('button');
-    oauthButton.className = 'auth-button';
-    oauthButton.textContent = '42';
-    oauthButton.onclick = () => alert('42 button clicked');
+    const pvpButton = document.createElement('button');
+    pvpButton.innerText = 'Player vs Player';
+    pvpButton.className = 'mode-button';
 
-    authOptions.appendChild(loginButton);
-    authOptions.appendChild(createUserButton);
-    authOptions.appendChild(oauthButton);
+    let currentGame = null;
+    let currentMode = 'AI';
 
-    container.appendChild(authOptions);
+    pvaiButton.onclick = () => {
+        pvaiButton.classList.add('active');
+        pvpButton.classList.remove('active');
+        currentMode = 'AI';
+        if (currentGame) {
+            gameContainer.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'pongCanvas';
+            gameContainer.appendChild(canvas);
+            currentGame = new pongGame(canvas, ['Player', 'AI']);
+            instructions.innerText = 'Press W or S to start';
+        }
+    };
 
-    const formContainer = document.createElement('div');
-    formContainer.className = 'form-container';
-    container.appendChild(formContainer);
+    pvpButton.onclick = () => {
+        pvpButton.classList.add('active');
+        pvaiButton.classList.remove('active');
+        currentMode = 'PVP';
+        if (currentGame) {
+            gameContainer.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'pongCanvas';
+            gameContainer.appendChild(canvas);
+            currentGame = new pongGame(canvas, ['Player 1', 'Player 2']);
+            instructions.innerText = 'Player 1: W/S, Player 2: ↑/↓';
+        }
+    };
+
+    modeSelection.appendChild(pvaiButton);
+    modeSelection.appendChild(pvpButton);
+    mainContent.appendChild(modeSelection);
+
+    // Create game container
+    const gameContainer = document.createElement('div');
+    gameContainer.id = 'game-container';
+    gameContainer.className = 'game-container';
+
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    canvas.id = 'pongCanvas';
+    gameContainer.appendChild(canvas);
+
+    // Add instructions
+    const instructions = document.createElement('p');
+    instructions.className = 'instructions';
+    instructions.innerText = 'Press W or S to start';
+    gameContainer.appendChild(instructions);
+
+    // Initialize game immediately in PvAI mode
+    currentGame = new pongGame(canvas, ['Player', 'AI']);
+
+    mainContent.appendChild(gameContainer);
+    container.appendChild(mainContent);
 
     return container;
-
-    function showLoginForm() {
-        formContainer.innerHTML = '';
-
-        const usernameInput = document.createElement('input');
-        usernameInput.type = 'text';
-        usernameInput.placeholder = 'Username';
-        usernameInput.maxLength = 32;
-
-        const passwordInput = document.createElement('input');
-        passwordInput.type = 'password';
-        passwordInput.placeholder = 'Password';
-        passwordInput.maxLength = 32;
-
-        const loginSubmitButton = document.createElement('button');
-        loginSubmitButton.className = 'submit-button';
-        loginSubmitButton.textContent = 'Log In';
-        loginSubmitButton.onclick = () => handleLoginSubmit(usernameInput.value, passwordInput.value);
-
-        formContainer.appendChild(usernameInput);
-        formContainer.appendChild(passwordInput);
-        formContainer.appendChild(loginSubmitButton);
-    }
-
-    function showCreateUserForm() {
-        formContainer.innerHTML = '';
-
-        const usernameInput = document.createElement('input');
-        usernameInput.type = 'text';
-        usernameInput.placeholder = 'Username';
-        usernameInput.maxLength = 32;
-
-        const emailInput = document.createElement('input');
-        emailInput.type = 'email';
-        emailInput.placeholder = 'Email';
-        emailInput.maxLength = 32;
-
-        const passwordInput = document.createElement('input');
-        passwordInput.type = 'password';
-        passwordInput.placeholder = 'Password';
-        passwordInput.maxLength = 32;
-
-        const createUserSubmitButton = document.createElement('button');
-        createUserSubmitButton.className = 'submit-button';
-        createUserSubmitButton.textContent = 'Create User';
-        createUserSubmitButton.onclick = () => handleCreateUserSubmit(usernameInput.value, emailInput.value, passwordInput.value);
-
-        formContainer.appendChild(usernameInput);
-        formContainer.appendChild(emailInput);
-        formContainer.appendChild(passwordInput);
-        formContainer.appendChild(createUserSubmitButton);
-    }
-
-    async function handleLoginSubmit(username, password) {
-        try {
-            const response = await fetch('/api/token/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-                credentials: 'include',
-            });
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-            const data = await response.json();
-            alert('Login successful');
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-        }
-    }
-
-    async function handleCreateUserSubmit(username, email, password) {
-        try {
-            const response = await fetch('/api/users/register/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email, password }),
-                credentials: 'include',
-            });
-            if (!response.ok) {
-                throw new Error('User creation failed');
-            }
-            const data = await response.json();
-            alert('User created successfully');
-            showLoginForm();
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-        }
-    }
 }
