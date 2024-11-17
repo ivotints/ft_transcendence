@@ -1,0 +1,41 @@
+.match-display {
+  background-color: #4CAF50;
+  border: 1px solid #28a745;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  overflow-wrap: break-word; /* Ensure long words wrap within container */
+}
+
+.match-display h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+  /* text-transform: uppercase; */
+  /* letter-spacing: 2px; */
+  overflow: hidden; /* Hide overflowed content */
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+  white-space: nowrap; /* Prevent line wrapping */
+}
+
+.match-display p {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  white-space: nowrap; /* Prevent line wrapping */
+}
+
+.match-display p.no-match {
+  font-size: 18px;
+  color: #333;
+  background-color: #ffffff;
+  overflow-wrap: break-word; /* Allow error message to wrap if necessary */
+  word-wrap: break-word;
+}
