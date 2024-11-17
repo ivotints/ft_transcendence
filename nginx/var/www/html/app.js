@@ -1,6 +1,7 @@
 import { homePage } from './components/homePage.js';
 import { notFoundPage } from './components/notFoundPage.js';
 import { pongGame } from './components/pongGame.js';
+import { tournamentPage } from './components/tournamentPage.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const routes = {
         '/': homePage,
+        '/tournament': tournamentPage,
         // Add other routes here
     };
 

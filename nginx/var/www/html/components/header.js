@@ -17,6 +17,10 @@ export async function header(isLoggedIn) {
             button.addEventListener('click', () => {
                 navigateTo('/');
             });
+        } else if (num === 'Tournament') {
+            button.addEventListener('click', () => {
+                navigateTo('/tournament');
+            });
         }
         navButtons.appendChild(button);
     });
