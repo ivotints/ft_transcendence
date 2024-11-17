@@ -164,4 +164,4 @@ export async function tournamentPage() {
   renderTournamentComponents();
 
   return tournamentContainer;
-}
+

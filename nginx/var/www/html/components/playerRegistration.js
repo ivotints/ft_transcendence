@@ -9,6 +9,7 @@ export function playerRegistration(addPlayer, players) {
     const inputGroup = document.createElement('div');
     inputGroup.className = 'input-group';
 
+
     const aliasInput = document.createElement('input');
     aliasInput.maxLength = 32;
     aliasInput.type = 'text';
@@ -17,12 +18,11 @@ export function playerRegistration(addPlayer, players) {
     aliasInput.disabled = players.length >= 4;
     inputGroup.appendChild(aliasInput);
 
-    const addButton = document.createElement('button');
+    const adhttps://github.com/0xSuitQ/ft_transcendence/pull/85/conflict?name=nginx%252Fvar%252Fwww%252Fhtml%252Fcomponents%252FtournamentPage.js&base_oid=cbc6356cc12dce105caed9b8006ffc1223284f9c&head_oid=1114bb9ee4b688515492257f28f52aa721cfbb9adButton = document.createElement('button');
     addButton.textContent = 'Add Player';
     addButton.className = `add-button ${players.length >= 4 ? 'disabled' : ''}`;
     addButton.disabled = players.length >= 4;
     inputGroup.appendChild(addButton);
-
     registrationContainer.appendChild(inputGroup);
 
     const errorMessage = document.createElement('p');
@@ -49,8 +49,8 @@ export function playerRegistration(addPlayer, players) {
         errorMessage.textContent = '';
       }
     };
-
     addButton.addEventListener('click', handleAddPlayer);
 
     return registrationContainer;
   }
+

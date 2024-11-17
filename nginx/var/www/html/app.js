@@ -1,7 +1,8 @@
 import { homePage } from './components/homePage.js';
 import { notFoundPage } from './components/notFoundPage.js';
 import { tournamentPage } from './components/tournamentPage.js';
-import { header } from './components/header.js';  // Add this import
+import { header } from './components/header.js';
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
