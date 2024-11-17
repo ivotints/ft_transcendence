@@ -185,7 +185,7 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
                   <td><input id="username" name="username" maxLength={32} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></td>
                 </tr>
                 <tr>
-                  <td><input  maxLength={32} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
+                  <td><input maxLength={32} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
                 </tr>
                 <tr>
                   <td><button className="submit-button" onClick={handleLoginSubmitBefore2fa}>{translate('Log In')}</button></td>
@@ -231,13 +231,13 @@ function AuthOptions({ onLoginSuccess }) { // Accept onLoginSuccess as a prop
         <table className="auth-table">
           <tbody>
             <tr>
-              <td><input  maxLength={32} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} /></td>
+              <td><input maxLength={32} type="text" placeholder={translate("Username")} value={username} onChange={(e) => setUsername(e.target.value)} /></td>
             </tr>
             <tr>
-              <td><input  maxLength={32} type="email" placeholder={translate("Email")} value={email} onChange={(e) => setEmail(e.target.value)} /></td>
+              <td><input maxLength={32} type="email" placeholder={translate("Email")} value={email} onChange={(e) => setEmail(e.target.value)} /></td>
             </tr>
             <tr>
-              <td><input  maxLength={32} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
+              <td><input maxLength={32} type="password" placeholder={translate("Password")} value={password} onChange={(e) => setPassword(e.target.value)} /></td>
             </tr>
             <tr>
               <td><button className="submit-button" onClick={handleCreateUserSubmit}>{translate('Create User')}</button></td>

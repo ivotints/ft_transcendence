@@ -18,7 +18,7 @@ export function playerRegistration(addPlayer, players) {
     aliasInput.disabled = players.length >= 4;
     inputGroup.appendChild(aliasInput);
 
-    const adhttps://github.com/0xSuitQ/ft_transcendence/pull/85/conflict?name=nginx%252Fvar%252Fwww%252Fhtml%252Fcomponents%252FtournamentPage.js&base_oid=cbc6356cc12dce105caed9b8006ffc1223284f9c&head_oid=1114bb9ee4b688515492257f28f52aa721cfbb9adButton = document.createElement('button');
+    const addButton = document.createElement('button');
     addButton.textContent = 'Add Player';
     addButton.className = `add-button ${players.length >= 4 ? 'disabled' : ''}`;
     addButton.disabled = players.length >= 4;

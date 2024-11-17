@@ -1,85 +1,77 @@
 // homePage.js
-import { pongGame } from './pongGame.js';
+import { checkLoginStatus, setLoggedIn } from './utils/state.js';
 
 export async function homePage() {
-
     const container = document.createElement('div');
-    container.className = 'home-page-container';
+    container.className = 'home-page';
 
-    const isLoggedIn = false;
+    if (checkLoginStatus()) {
+        // User is logged in
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'logged-in-buttons';
 
-    const mainContent = document.createElement('div');
-    mainContent.className = 'main-content';
-    mainContent.innerHTML = '<h2>Pong Game</h2>';
+        const loggedInButtons = ['1', '2', '3'];
+        loggedInButtons.forEach(text => {
+            const button = document.createElement('button');
+            button.innerText = text;
+            button.className = 'logged-in-button';
+            buttonContainer.appendChild(button);
+        });
 
-    // Create mode selection
-    const modeSelection = document.createElement('div');
-    modeSelection.className = 'mode-selection';
+        container.appendChild(buttonContainer);
+    } else {
+        // User is not logged in
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'auth-buttons';
 
-    const pvaiButton = document.createElement('button');
-    pvaiButton.innerText = 'Player vs AI';
-    pvaiButton.className = 'mode-button active';
+        const authButtons = ['Login', 'Register', '42'];
+        authButtons.forEach(text => {
+            const button = document.createElement('button');
+            button.innerText = text;
+            button.className = 'auth-button';
+            button.addEventListener('click', () => {
+                showAuthForm(text);
+            });
+            buttonContainer.appendChild(button);
+        });
 
-    const pvpButton = document.createElement('button');
-    pvpButton.innerText = 'Player vs Player';
-    pvpButton.className = 'mode-button';
+        container.appendChild(buttonContainer);
 
-    let currentGame = null;
-    let currentMode = 'AI';
+        const form = document.createElement('form');
+        form.className = 'auth-form';
+        form.style.display = 'none';
 
-    pvaiButton.onclick = () => {
-        pvaiButton.classList.add('active');
-        pvpButton.classList.remove('active');
-        currentMode = 'AI';
-        if (currentGame) {
-            gameContainer.innerHTML = '';
-            const canvas = document.createElement('canvas');
-            canvas.id = 'pongCanvas';
-            gameContainer.appendChild(canvas);
-            currentGame = new pongGame(canvas, ['Player', 'AI']);
-            instructions.innerText = 'Press W or S to start';
-        }
-    };
+        const usernameInput = document.createElement('input');
+        usernameInput.type = 'text';
+        usernameInput.placeholder = 'Username';
+        form.appendChild(usernameInput);
 
-    pvpButton.onclick = () => {
-        pvpButton.classList.add('active');
-        pvaiButton.classList.remove('active');
-        currentMode = 'PVP';
-        if (currentGame) {
-            gameContainer.innerHTML = '';
-            const canvas = document.createElement('canvas');
-            canvas.id = 'pongCanvas';
-            gameContainer.appendChild(canvas);
-            currentGame = new pongGame(canvas, ['Player 1', 'Player 2']);
-            instructions.innerText = 'Player 1: W/S, Player 2: ↑/↓';
-        }
-    };
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'password';
+        passwordInput.placeholder = 'Password';
+        form.appendChild(passwordInput);
 
-    modeSelection.appendChild(pvaiButton);
-    modeSelection.appendChild(pvpButton);
-    mainContent.appendChild(modeSelection);
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.innerText = 'Submit';
+        form.appendChild(submitButton);
 
-    // Create game container
-    const gameContainer = document.createElement('div');
-    gameContainer.id = 'game-container';
-    gameContainer.className = 'game-container';
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Simulate login
+            setLoggedIn(true);
+            document.body.innerHTML = ''; // Clear the body
+            document.body.appendChild(await homePage()); // Re-render homePage
+        });
 
-    // Create canvas
-    const canvas = document.createElement('canvas');
-    canvas.id = 'pongCanvas';
-    gameContainer.appendChild(canvas);
-
-    // Add instructions
-    const instructions = document.createElement('p');
-    instructions.className = 'instructions';
-    instructions.innerText = 'Press W or S to start';
-    gameContainer.appendChild(instructions);
-
-    // Initialize game immediately in PvAI mode
-    currentGame = new pongGame(canvas, ['Player', 'AI']);
-
-    mainContent.appendChild(gameContainer);
-    container.appendChild(mainContent);
+        container.appendChild(form);
+    }
 
     return container;
+}
+
+function showAuthForm(type) {
+    const form = document.querySelector('.auth-form');
+    form.style.display = 'block';
+    // Customize form based on type if needed
 }
