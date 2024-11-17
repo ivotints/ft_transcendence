@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const container = document.createElement('div');
             container.className = 'page-container';
 
-            // Add header to every page
+            // Always add header to every page
             const headerElement = await header();
             container.appendChild(headerElement);
 
@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    window.navigateTo = navigateTo;
+    window.navigateTo = navigateTo; // Attach navigateTo to the window object
     renderPage(window.location.pathname);
 });
+

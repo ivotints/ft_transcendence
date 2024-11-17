@@ -21,3 +21,8 @@ header {
     display: flex;
     gap: 10px;
 }
+
+/* Add to your CSS file */
+.hidden {
+    display: none;
+}

@@ -1,6 +1,7 @@
 // header.js
 import { state, setLoggedIn } from './utils/state.js';
 import { loadAllStyles } from './utils/loadCSS.js';
+import { homePage } from './homePage.js';
 
 export async function header() {
     await loadAllStyles();
@@ -34,8 +35,13 @@ export async function header() {
         logoutButton.innerText = 'Log out';
         logoutButton.className = 'auth-button';
         logoutButton.onclick = async () => {
+            navigateTo('/'); // Redirect to home page
             setLoggedIn(false);
-            document.querySelector('.header').replaceWith(await header());
+            const headerElement = document.querySelector('.header');
+            if (headerElement) {
+                headerElement.replaceWith(await header());
+                document.querySelector('.home-page').replaceWith(await homePage()); // Re-render homePage
+            }
         };
         userSection.appendChild(logoutButton);
     } else {
@@ -45,6 +51,7 @@ export async function header() {
         loginButton.onclick = async () => {
             setLoggedIn(true);
             document.querySelector('.header').replaceWith(await header());
+            document.querySelector('.home-page').replaceWith(await homePage()); // Re-render homePage
         };
 
         const registerButton = document.createElement('button');
@@ -56,6 +63,11 @@ export async function header() {
 
     headerElement.appendChild(navButtons);
     headerElement.appendChild(userSection);
+
+    // Add class to hide header if not logged in
+    if (!state.isLoggedIn) {
+        headerElement.classList.add('hidden');
+    }
 
     return headerElement;
 }

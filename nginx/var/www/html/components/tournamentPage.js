@@ -3,8 +3,15 @@ import { matchDisplay } from './matchDisplay.js';
 import { nextMatch } from './nextMatch.js';
 import { scoreTracker } from './scoreTracker.js';
 import { matchQueue } from './matchQueue.js';
+import { checkLoginStatus } from './utils/state.js';
 
 export async function tournamentPage() {
+    // Check login status and redirect if not logged in
+    if (!checkLoginStatus()) {
+        window.navigateTo('/');
+        return document.createElement('div'); // Return empty div while redirecting
+    }
+
   const tournamentContainer = document.createElement('div');
   tournamentContainer.className = 'tournament-container';
 
