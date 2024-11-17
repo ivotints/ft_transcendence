@@ -3,8 +3,7 @@ import { notFoundPage } from './components/notFoundPage.js';
 import { tournamentPage } from './components/tournamentPage.js';
 import { header } from './components/header.js';
 
-
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app');
     const loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.className = 'page-container';
 
             // Add header to every page
-            const headerElement = await header(false); // Pass isLoggedIn state
+            const headerElement = await header();
             container.appendChild(headerElement);
 
             const pageContent = await page();

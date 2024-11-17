@@ -1,11 +1,12 @@
 // header.js
+import { state, setLoggedIn } from './utils/state.js';
 import { loadAllStyles } from './utils/loadCSS.js';
 
-export async function header(isLoggedIn) {
+export async function header() {
     await loadAllStyles();
 
-    const header = document.createElement('header');
-    header.className = 'header';
+    const headerElement = document.createElement('header');
+    headerElement.className = 'header';
 
     const navButtons = document.createElement('div');
     navButtons.className = 'nav-buttons';
@@ -28,34 +29,24 @@ export async function header(isLoggedIn) {
     const userSection = document.createElement('div');
     userSection.className = 'user-section';
 
-    if (isLoggedIn) {
-        const profileButton = document.createElement('button');
-        profileButton.innerText = 'Profile';
-        profileButton.className = 'auth-button';
-        profileButton.onclick = () => {
-            const profileMenu = document.createElement('ul');
-            profileMenu.style.position = 'absolute';
-            profileMenu.style.top = '40px';
-            profileMenu.style.right = '10px';
-            profileMenu.style.backgroundColor = '#fff';
-            profileMenu.style.border = '1px solid #ccc';
-            profileMenu.style.padding = '10px';
-            profileMenu.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-
-            const functions = ['Func 1', 'Func 2', 'Func 3'];
-            functions.forEach(func => {
-                const li = document.createElement('li');
-                li.innerText = func;
-                profileMenu.appendChild(li);
-            });
-
-            userSection.appendChild(profileMenu);
+    if (state.isLoggedIn) {
+        const logoutButton = document.createElement('button');
+        logoutButton.innerText = 'Log out';
+        logoutButton.className = 'auth-button';
+        logoutButton.onclick = async () => {
+            setLoggedIn(false);
+            document.querySelector('.header').replaceWith(await header());
         };
-        userSection.appendChild(profileButton);
+        userSection.appendChild(logoutButton);
     } else {
         const loginButton = document.createElement('button');
         loginButton.innerText = 'Login';
         loginButton.className = 'auth-button';
+        loginButton.onclick = async () => {
+            setLoggedIn(true);
+            document.querySelector('.header').replaceWith(await header());
+        };
+
         const registerButton = document.createElement('button');
         registerButton.innerText = 'Register';
         registerButton.className = 'auth-button';
@@ -63,8 +54,8 @@ export async function header(isLoggedIn) {
         userSection.appendChild(registerButton);
     }
 
-    header.appendChild(navButtons);
-    header.appendChild(userSection);
+    headerElement.appendChild(navButtons);
+    headerElement.appendChild(userSection);
 
-    return header;
+    return headerElement;
 }
