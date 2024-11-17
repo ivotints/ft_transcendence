@@ -1,11 +1,10 @@
-import { loadCSS } from './utils/loadCSS.js';
 import { playerRegistration } from './playerRegistration.js';
 import { matchDisplay } from './matchDisplay.js';
 import { nextMatch } from './nextMatch.js';
 import { scoreTracker } from './scoreTracker.js';
 import { matchQueue } from './matchQueue.js';
 
-export function tournamentPage() {
+export async function tournamentPage() {
   const tournamentContainer = document.createElement('div');
   tournamentContainer.className = 'tournament-container';
 
@@ -165,4 +164,4 @@ export function tournamentPage() {
   renderTournamentComponents();
 
   return tournamentContainer;
-}
+

@@ -1,17 +1,12 @@
 // homePage.js
-import { header } from './header.js';
 import { pongGame } from './pongGame.js';
-import { loadCSS } from './utils/loadCSS.js';
 
 export async function homePage() {
-    await loadCSS('components/styles/homePage.css');
 
     const container = document.createElement('div');
     container.className = 'home-page-container';
 
     const isLoggedIn = false;
-    const headerElement = await header(isLoggedIn);
-    container.appendChild(headerElement);
 
     const mainContent = document.createElement('div');
     mainContent.className = 'main-content';

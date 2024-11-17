@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
   }
-  
+
 .player-header {
 display: flex;
 align-items: center;
@@ -20,4 +20,4 @@ margin: 0 15px;
 color: #ffffff;
 font-size: 22px;
 font-weight: normal;
-}
+

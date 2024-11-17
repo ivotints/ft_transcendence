@@ -1,7 +1,8 @@
 import { homePage } from './components/homePage.js';
 import { notFoundPage } from './components/notFoundPage.js';
-import { pongGame } from './components/pongGame.js';
 import { tournamentPage } from './components/tournamentPage.js';
+import { header } from './components/header.js';
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
@@ -29,13 +30,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const page = routes[path] || notFoundPage;
         app.innerHTML = '';
         showLoadingIndicator();
+
         if (cache[path]) {
             app.appendChild(cache[path]);
             hideLoadingIndicator();
         } else {
+            const container = document.createElement('div');
+            container.className = 'page-container';
+
+            // Add header to every page
+            const headerElement = await header(false); // Pass isLoggedIn state
+            container.appendChild(headerElement);
+
             const pageContent = await page();
-            cache[path] = pageContent;
-            app.appendChild(pageContent);
+            container.appendChild(pageContent);
+
+            cache[path] = container;
+            app.appendChild(container);
             hideLoadingIndicator();
         }
     }

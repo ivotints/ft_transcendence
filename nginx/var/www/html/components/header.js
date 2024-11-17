@@ -1,8 +1,8 @@
 // header.js
-import { loadCSS } from './utils/loadCSS.js';
+import { loadAllStyles } from './utils/loadCSS.js';
 
 export async function header(isLoggedIn) {
-    await loadCSS('components/styles/header.css');
+    await loadAllStyles();
 
     const header = document.createElement('header');
     header.className = 'header';
