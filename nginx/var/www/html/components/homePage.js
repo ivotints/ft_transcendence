@@ -17,9 +17,9 @@ export async function homePage() {
         buttonContainer.className = 'logged-in-buttons';
 
         const gameOptions = [
-            { text: 'Player vs Player', path: '/player-vs-player' },
-            { text: 'Player vs AI', path: '/player-vs-ai' },
-            { text: '2 Players vs 2 Players', path: '/2-vs-2' },
+            { text: 'Player vs Player', path: '/vs-player' },
+            { text: 'Player vs AI', path: '/vs-ai' },
+            { text: '2 Players vs 2 Players', path: '/2v2' },
             { text: 'Tournament', path: '/tournament' }
         ];
 
