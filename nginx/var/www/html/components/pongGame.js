@@ -28,7 +28,7 @@ export async function pongGamePage() {
                 width: 18,
                 height: 180,
                 x: 150,
-                y: (this.canvas.height / 2) - 35,
+                y: (this.canvas.height / 2) - 90,
                 score: 0,
                 move: DIRECTION.IDLE,
                 speed: 8
@@ -38,7 +38,7 @@ export async function pongGamePage() {
                 width: 18,
                 height: 180,
                 x: this.canvas.width - 150,
-                y: (this.canvas.height / 2) - 35,
+                y: (this.canvas.height / 2) - 90,
                 score: 0,
                 move: DIRECTION.IDLE,
                 speed: 8
@@ -94,53 +94,34 @@ export async function pongGamePage() {
                 if (!this.running) {
                     this.startGame();
                 }
-                switch (key.keyCode) {
-                    case 87:
-                        this.player1.move = DIRECTION.UP;
-                        break;
-                    case 83:
-                        this.player1.move = DIRECTION.DOWN;
-                        break;
-                    case 38:
-                        this.player2.move = DIRECTION.UP;
-                        break;
-                    case 40:
-                        this.player2.move = DIRECTION.DOWN;
-                        break;
-                }
+                const code = key.code;
+                if (code === 'KeyW') this.player1.move = DIRECTION.UP;
+                else if (code === 'KeyS') this.player1.move = DIRECTION.DOWN;
+                else if (code === 'ArrowUp') this.player2.move = DIRECTION.UP;
+                else if (code === 'ArrowDown') this.player2.move = DIRECTION.DOWN;
             });
 
             document.addEventListener('keyup', (key) => {
-                if (key.keyCode === 87 || key.keyCode === 83) {
-                    this.player1.move = DIRECTION.IDLE;
-                }
-                if (key.keyCode === 38 || key.keyCode === 40) {
-                    this.player2.move = DIRECTION.IDLE;
-                }
+                const code = key.code;
+                if (code === 'KeyW' || code === 'KeyS') this.player1.move = DIRECTION.IDLE;
+                if (code === 'ArrowUp' || code === 'ArrowDown') this.player2.move = DIRECTION.IDLE;
             });
+        }
+
+        checkWallCollision() {
+            if (this.ball.y <= 0 || this.ball.y >= this.canvas.height - this.ball.height) {
+                this.ball.speedY = -this.ball.speedY;
+            }
         }
 
         update() {
             if (this.running && !this.over) {
-                if (this.player1.move === DIRECTION.UP) this.player1.y -= this.player1.speed;
-                if (this.player1.move === DIRECTION.DOWN) this.player1.y += this.player1.speed;
-                if (this.player2.move === DIRECTION.UP) this.player2.y -= this.player2.speed;
-                if (this.player2.move === DIRECTION.DOWN) this.player2.y += this.player2.speed;
+                if (this.player1.move === DIRECTION.UP) this.player1.y = Math.max(0, this.player1.y - this.player1.speed);
+                if (this.player1.move === DIRECTION.DOWN) this.player1.y = Math.min(this.canvas.height - this.player1.height, this.player1.y + this.player1.speed);
+                if (this.player2.move === DIRECTION.UP) this.player2.y = Math.max(0, this.player2.y - this.player2.speed);
+                if (this.player2.move === DIRECTION.DOWN) this.player2.y = Math.min(this.canvas.height - this.player2.height, this.player2.y + this.player2.speed);
 
-                this.player1.y = Math.max(0, Math.min(this.canvas.height - this.player1.height, this.player1.y));
-                this.player2.y = Math.max(0, Math.min(this.canvas.height - this.player2.height, this.player2.y));
-
-                if (this.ball.y <= 0) {
-                    this.ball.y = 0;
-                    this.ball.moveY = DIRECTION.DOWN;
-                    this.ball.speedY = -this.ball.speedY;
-                }
-                if (this.ball.y >= this.canvas.height - this.ball.height) {
-                    this.ball.y = this.canvas.height - this.ball.height;
-                    this.ball.moveY = DIRECTION.UP;
-                    this.ball.speedY = -this.ball.speedY;
-                }
-
+                this.checkWallCollision();
                 this.checkPaddleCollision(this.player1);
                 this.checkPaddleCollision(this.player2);
 
@@ -172,14 +153,16 @@ export async function pongGamePage() {
             this.ball.speedY = 0;
         }
 
+        drawRect(x, y, width, height) {
+            this.context.fillRect(x, y, width, height);
+        }
+
         draw() {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
             this.context.fillStyle = '#ffffff';
 
-            const radius = 9;
-
-            const roundRect = (x, y, width, height, radius) => {
+            const roundRect = (x, y, width, height) => {
+                const radius = 9;
                 this.context.beginPath();
                 this.context.moveTo(x + radius, y);
                 this.context.arcTo(x + width, y, x + width, y + height, radius);
@@ -190,8 +173,8 @@ export async function pongGamePage() {
                 this.context.fill();
             };
 
-            roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height, radius);
-            roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height, radius);
+            roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
+            roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
 
             this.context.fillRect(this.ball.x, this.ball.y, this.ball.width, this.ball.height);
 
@@ -238,7 +221,10 @@ export async function pongGamePage() {
                         -1,
                         Math.min(1, intersectY / (player.height / 2))
                     );
-                    const bounceAngle = normalized * (Math.PI / 3);
+
+                    const randomAngle = (Math.random() - 0.5) * 2 * (Math.PI / 180);
+                    const bounceAngle = normalized * (Math.PI / 3) + randomAngle;
+
                     const speed = Math.min(
                         this.ball.speed + this.ball.speedIncrement,
                         this.ball.maxSpeed
