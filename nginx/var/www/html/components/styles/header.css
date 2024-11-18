@@ -17,12 +17,11 @@ header {
 
 .user-section {
     position: absolute; /* Position the user-section absolutely */
-    right: 20px; /* Move it away from the right border */
+    right: 50px; /* Increased from 20px to move buttons left */
     display: flex;
     gap: 10px;
 }
 
-/* Add to your CSS file */
 .hidden {
     display: none;
 }

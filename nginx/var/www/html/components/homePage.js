@@ -16,11 +16,20 @@ export async function homePage() {
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'logged-in-buttons';
 
-        const loggedInButtons = ['Player vs AI', 'Player vs Player', '2 vs 2', 'Cowboy Game'];
-        loggedInButtons.forEach(text => {
+        const gameOptions = [
+            { text: 'Player vs Player', path: '/player-vs-player' },
+            { text: 'Player vs AI', path: '/player-vs-ai' },
+            { text: '2 Players vs 2 Players', path: '/2-vs-2' },
+            { text: 'Tournament', path: '/tournament' }
+        ];
+
+        gameOptions.forEach(option => {
             const button = document.createElement('button');
-            button.innerText = text;
+            button.innerText = option.text;
             button.className = 'logged-in-button';
+            button.addEventListener('click', () => {
+                window.navigateTo(option.path);
+            });
             buttonContainer.appendChild(button);
         });
 
