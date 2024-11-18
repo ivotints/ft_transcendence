@@ -2,6 +2,8 @@ import { homePage } from './components/homePage.js';
 import { notFoundPage } from './components/notFoundPage.js';
 import { tournamentPage } from './components/tournamentPage.js';
 import { header } from './components/header.js';
+import { profilePage } from './components/profilePage.js';
+import { gamePage } from './components/gamePage.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app');
@@ -13,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const routes = {
         '/': homePage,
         '/tournament': tournamentPage,
+        '/profile': profilePage,
+        '/game': gamePage,
         // Add other routes here
     };
 

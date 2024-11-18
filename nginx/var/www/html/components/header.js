@@ -23,6 +23,14 @@ export async function header() {
             button.addEventListener('click', () => {
                 navigateTo('/tournament');
             });
+        } else if (num === 'Profile') {
+            button.addEventListener('click', () => {
+                navigateTo('/profile');
+            });
+        } else if (num === 'Games') {
+            button.addEventListener('click', () => {
+                navigateTo('/game');
+            });
         }
         navButtons.appendChild(button);
     });

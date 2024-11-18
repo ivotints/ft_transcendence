@@ -27,6 +27,8 @@ export async function loadAllStyles() {
         '/components/styles/MatchQueue.css',
         '/components/styles/MatchDisplay.css',
         '/components/styles/ScoreTracker.css',
+        '/components/styles/profilePage.css',
+        '/components/styles/gamePage.css',
     ];
 
     try {
