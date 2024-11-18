@@ -1,363 +1,276 @@
-//pongGame.js
+// pongGame.js
+import { checkLoginStatus } from './utils/state.js';
 
-export class pongGame {
-    constructor(canvas, players) {
-        this.canvas = canvas;
-        this.context = canvas.getContext('2d');
-        this.players = players;
-        this.paddleCount = players.length;
-
-        this.DIRECTION = {
-            IDLE: 0,
-            UP: 1,
-            DOWN: 2,
-            LEFT: 3,
-            RIGHT: 4
-        };
-
-        this.WINNING_SCORE = 5;
-        this.BACKGROUND_COLOR = '#00cc00';
-
-        // Add constant speeds
-        this.BALL_SPEED = 10;
-
-        // Add this line
-        this.animationFrameId = null;
-
-        this.initialize();
+export async function pongGamePage() {
+    if (!checkLoginStatus()) {
+        window.navigateTo('/');
+        return document.createElement('div');
     }
 
-    initialize() {
-        this.canvas.width = 1400;
-        this.canvas.height = 1000;
-        this.canvas.style.width = (this.canvas.width / 2) + 'px';
-        this.canvas.style.height = (this.canvas.height / 2) + 'px';
+    const DIRECTION = {
+        IDLE: 0,
+        UP: 1,
+        DOWN: 2,
+        LEFT: 3,
+        RIGHT: 4
+    };
 
-        this.paddles = this.createPaddles();
-        this.ball = this.createBall();
+    class PongGame {
+        constructor(container) {
+            this.container = container;
+            this.canvas = document.createElement('canvas');
+            this.canvas.className = 'pong-canvas';
+            this.context = this.canvas.getContext('2d');
+            this.canvas.width = 1400;
+            this.canvas.height = 1000;
 
-        this.running = false;
-        this.over = false;
-        this.turn = this.paddles[1];
-        this.timer = 0;
-
-        this.setupControls();
-        this.menu();
-        this.listen();
-    }
-
-    createBall() {
-        return {
-            width: 18,
-            height: 18,
-            x: (this.canvas.width / 2) - 9,
-            y: (this.canvas.height / 2) - 9,
-            moveX: this.DIRECTION.IDLE,
-            moveY: this.DIRECTION.IDLE,
-            speed: this.BALL_SPEED
-        };
-    }
-
-    createPaddles() {
-        const paddles = [];
-        if (this.paddleCount === 2) {
-            // PvP or PvAI mode
-            paddles.push(this.createPaddle('left'));
-            paddles.push(this.createPaddle('right'));
-        } else if (this.paddleCount === 4) {
-            // 2v2 mode
-            paddles.push(this.createPaddle('left'));
-            paddles.push(this.createPaddle('left', 250));
-            paddles.push(this.createPaddle('right'));
-            paddles.push(this.createPaddle('right', 250));
-        }
-        return paddles;
-    }
-
-    createPaddle(side, offset = 150) {
-        return {
-            width: 18,
-            height: 180,
-            x: side === 'left' ? offset : this.canvas.width - offset,
-            y: (this.canvas.height / 2) - 35,
-            score: 0,
-            move: this.DIRECTION.IDLE,
-            speed: 8
-        };
-    }
-
-    setupControls() {
-        if (this.paddleCount === 2) {
-            this.controls = {
-                0: { up: 87, down: 83 },    // Player 1: W, S
-                1: { up: 38, down: 40 }     // Player 2/AI: Arrow Up, Down
+            this.player1 = {
+                width: 18,
+                height: 180,
+                x: 150,
+                y: (this.canvas.height / 2) - 35,
+                score: 0,
+                move: DIRECTION.IDLE,
+                speed: 8
             };
-        } else if (this.paddleCount === 4) {
-            this.controls = {
-                0: { up: 87, down: 83 },    // Player 1: W, S
-                1: { up: 222, down: 191 },  // Player 2: ', /
-                2: { up: 38, down: 40 },    // Player 3: Arrow Up, Down
-                3: { up: 104, down: 98 }    // Player 4: Numpad 8, 2
+
+            this.player2 = {
+                width: 18,
+                height: 180,
+                x: this.canvas.width - 150,
+                y: (this.canvas.height / 2) - 35,
+                score: 0,
+                move: DIRECTION.IDLE,
+                speed: 8
             };
-        }
-    }
 
-    menu() {
-        this.draw();
-        this.context.font = '50px Courier New';
-        this.context.fillStyle = this.BACKGROUND_COLOR;
-        this.context.fillRect(
-            this.canvas.width / 2 - 350,
-            this.canvas.height / 2 - 48,
-            700,
-            100
-        );
+            this.ball = {
+                width: 18,
+                height: 18,
+                x: (this.canvas.width / 2) - 9,
+                y: (this.canvas.height / 2) - 9,
+                moveX: DIRECTION.IDLE,
+                moveY: DIRECTION.IDLE,
+                speed: 8,
+                speedX: 0,
+                speedY: 0
+            };
 
-        this.context.fillStyle = '#ffffff';
-        this.context.fillText(
-            'Press any key to begin',
-            this.canvas.width / 2,
-            this.canvas.height / 2 + 15
-        );
-    }
+            this.running = false;
+            this.over = false;
 
-    update() {
-        if (!this.over) {
-            // Ball movement and collision
-            this.updateBall();
-
-            // Update paddles
-            this.updatePaddles();
-
-            // Check for winner
-            this.checkWinner();
-        }
-    }
-
-    updateBall() {
-        // Update timer
-        this.timer += 16; // Roughly 60fps
-
-        // Check paddle collisions
-        this.paddles.forEach(paddle => {
-            if (this.ball.x < paddle.x + paddle.width &&
-                this.ball.x + this.ball.width > paddle.x &&
-                this.ball.y < paddle.y + paddle.height &&
-                this.ball.y + this.ball.height > paddle.y) {
-
-                // Only change direction, don't modify speed
-                this.ball.moveX = paddle.x < this.canvas.width / 2 ?
-                    this.DIRECTION.RIGHT : this.DIRECTION.LEFT;
-
-            }
-        });
-
-        // Existing boundary checks
-        if (this.ball.x <= 0) this.resetTurn(this.paddles[1], this.paddles[0]);
-        if (this.ball.x >= this.canvas.width - this.ball.width) {
-            this.resetTurn(this.paddles[0], this.paddles[1]);
+            this.container.appendChild(this.canvas);
+            this.addEventListeners();
+            this.showStartMenu();
         }
 
-        if (this.ball.y <= 0) this.ball.moveY = this.DIRECTION.DOWN;
-        if (this.ball.y >= this.canvas.height - this.ball.height) {
-            this.ball.moveY = this.DIRECTION.UP;
-        }
-
-        // Ball movement
-        if (this.ball.moveY === this.DIRECTION.UP) {
-            this.ball.y -= (this.ball.speed / 1.5);
-        } else if (this.ball.moveY === this.DIRECTION.DOWN) {
-            this.ball.y += (this.ball.speed / 1.5);
-        }
-
-        if (this.ball.moveX === this.DIRECTION.LEFT) {
-            this.ball.x -= this.ball.speed;
-        } else if (this.ball.moveX === this.DIRECTION.RIGHT) {
-            this.ball.x += this.ball.speed;
-        }
-    }
-
-    draw() {
-        // Clear canvas
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw background
-        this.context.fillStyle = this.BACKGROUND_COLOR;
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw paddles and ball
-        this.context.fillStyle = '#ffffff';
-
-        this.paddles.forEach(paddle => {
-            this.context.fillRect(
-                paddle.x,
-                paddle.y,
-                paddle.width,
-                paddle.height
-            );
-        });
-
-        this.context.fillRect(
-            this.ball.x,
-            this.ball.y,
-            this.ball.width,
-            this.ball.height
-        );
-
-        // Draw scores
-        this.drawScores();
-    }
-
-    listen() {
-        document.addEventListener('keydown', this.handleKeyDown.bind(this));
-        document.addEventListener('keyup', this.handleKeyUp.bind(this));
-    }
-
-    handleKeyDown(event) {
-        if (!this.running && !this.over) {
+        startGame() {
             this.running = true;
-
-            // Cancel any existing animation frame
-            if (this.animationFrameId) {
-                cancelAnimationFrame(this.animationFrameId);
-                this.animationFrameId = null;
-            }
-
-            // Initialize ball movement when game starts
-            this.ball.moveX = Math.random() > 0.5 ? this.DIRECTION.LEFT : this.DIRECTION.RIGHT;
-            this.ball.moveY = Math.random() > 0.5 ? this.DIRECTION.UP : this.DIRECTION.DOWN;
-            this.animationFrameId = requestAnimationFrame(this.loop.bind(this));
+            // Set initial straight direction
+            this.ball.moveX = Math.random() > 0.5 ? DIRECTION.LEFT : DIRECTION.RIGHT;
+            this.ball.moveY = DIRECTION.IDLE;
+            this.ball.speedX = this.ball.speed * (this.ball.moveX === DIRECTION.LEFT ? -1 : 1);
+            this.ball.speedY = 0; // Start with no vertical movement
+            this.gameLoop();
         }
 
-        for (let i = 0; i < this.paddleCount; i++) {
-            const controls = this.controls[i];
-            if (controls) {
-                if (event.keyCode === controls.up) {
-                    this.paddles[i].move = this.DIRECTION.UP;
-                }
-                if (event.keyCode === controls.down) {
-                    this.paddles[i].move = this.DIRECTION.DOWN;
-                }
-            }
-        }
-    }
-
-    loop() {
-        if (!this.over && this.running) {
-            this.update();
-            this.draw();
-            this.animationFrameId = requestAnimationFrame(this.loop.bind(this));
-        }
-    }
-
-    turnDelayIsOver() {
-        return this.timer >= 2000;
-    }
-
-    resetTurn(victor, loser) {
-        if (!this.over) {
-            this.running = false;
-
-            // Cancel the current animation frame
-            if (this.animationFrameId) {
-                cancelAnimationFrame(this.animationFrameId);
-                this.animationFrameId = null;
-            }
-
-            // Update score immediately
-            victor.score++;
-
-            // Check for a winner after updating the score
-            this.checkWinner();
-
-            if (!this.over) {
-                setTimeout(() => {
-                    // Create new ball with initial speed
-                    this.ball = this.createBall();
-
-                    // Randomize vertical position
-                    const offset = Math.random() * 200 - 100; // Random offset between -100 and 100
-                    this.ball.y = Math.min(Math.max(50, (this.canvas.height / 2) + offset), this.canvas.height - 50);
-
-                    // Set direction based on who scored
-                    this.ball.moveX = victor === this.paddles[0] ? this.DIRECTION.RIGHT : this.DIRECTION.LEFT;
-                    this.ball.moveY = Math.random() > 0.5 ? this.DIRECTION.UP : this.DIRECTION.DOWN;
-
-                    this.running = true;
-
-                    // Start game loop
-                    this.animationFrameId = requestAnimationFrame(this.loop.bind(this));
-                }, 1000); // 1-second delay
-            }
-        }
-    }
-
-    checkWinner() {
-        const winner = this.paddles.find(paddle => paddle.score === this.WINNING_SCORE);
-        if (winner) {
-            this.over = true;
-            this.running = false;
-
-            // Cancel the current animation frame
-            if (this.animationFrameId) {
-                cancelAnimationFrame(this.animationFrameId);
-                this.animationFrameId = null;
-            }
-
-            // Display winning message
+        showStartMenu() {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.font = '48px Arial';
+            this.context.textAlign = 'center';
             this.context.fillStyle = '#ffffff';
-            this.context.font = '50px Courier New';
             this.context.fillText(
-                `Player ${this.paddles.indexOf(winner) + 1} Wins!`,
-                this.canvas.width / 2 - 150,
+                'Press any key to begin',
+                this.canvas.width / 2,
                 this.canvas.height / 2
             );
-
-            // Reset game after a delay
-            setTimeout(() => {
-                this.paddles.forEach(paddle => paddle.score = 0);
-                this.over = false;
-                this.running = false;
-
-                // Reset the ball
-                this.ball = this.createBall();
-
-                // Display the menu
-                this.menu();
-            }, 3000); // 3-second delay
         }
-    }
 
-    updatePaddles() {
-        this.paddles.forEach(paddle => {
-            if (paddle.move === this.DIRECTION.UP) {
-                paddle.y = Math.max(0, paddle.y - paddle.speed);
-            } else if (paddle.move === this.DIRECTION.DOWN) {
-                paddle.y = Math.min(this.canvas.height - paddle.height, paddle.y + paddle.speed);
-            }
-        });
-    }
+        addEventListeners() {
+            document.addEventListener('keydown', (key) => {
+                if (!this.running) {
+                    this.startGame(); // Use new startGame method instead
+                }
 
-    handleKeyUp(event) {
-        for (let i = 0; i < this.paddleCount; i++) {
-            const controls = this.controls[i];
-            if (controls) {
-                if (event.keyCode === controls.up || event.keyCode === controls.down) {
-                    this.paddles[i].move = this.DIRECTION.IDLE;
+                if (key.keyCode === 87) this.player1.move = DIRECTION.UP;
+                if (key.keyCode === 83) this.player1.move = DIRECTION.DOWN;
+                if (key.keyCode === 38) this.player2.move = DIRECTION.UP;
+                if (key.keyCode === 40) this.player2.move = DIRECTION.DOWN;
+            });
+
+            document.addEventListener('keyup', (key) => {
+                if (key.keyCode === 87 || key.keyCode === 83) {
+                    this.player1.move = DIRECTION.IDLE;
+                }
+                if (key.keyCode === 38 || key.keyCode === 40) {
+                    this.player2.move = DIRECTION.IDLE;
+                }
+            });
+        }
+
+        update() {
+            if (this.running && !this.over) {
+                if (this.player1.move === DIRECTION.UP) this.player1.y -= this.player1.speed;
+                if (this.player1.move === DIRECTION.DOWN) this.player1.y += this.player1.speed;
+                if (this.player2.move === DIRECTION.UP) this.player2.y -= this.player2.speed;
+                if (this.player2.move === DIRECTION.DOWN) this.player2.y += this.player2.speed;
+
+                this.player1.y = Math.max(0, Math.min(this.canvas.height - this.player1.height, this.player1.y));
+                this.player2.y = Math.max(0, Math.min(this.canvas.height - this.player2.height, this.player2.y));
+
+                if (this.ball.y <= 0) {
+                    this.ball.y = 0;
+                    this.ball.moveY = DIRECTION.DOWN;
+                    this.ball.speedY = -this.ball.speedY;
+                }
+                if (this.ball.y >= this.canvas.height - this.ball.height) {
+                    this.ball.y = this.canvas.height - this.ball.height;
+                    this.ball.moveY = DIRECTION.UP;
+                    this.ball.speedY = -this.ball.speedY;
+                }
+
+                // Player 1 paddle collision
+                if (this.ball.x <= this.player1.x + this.player1.width &&
+                    this.ball.x + this.ball.width >= this.player1.x &&
+                    this.ball.y + this.ball.height >= this.player1.y &&
+                    this.ball.y <= this.player1.y + this.player1.height) {
+
+                    // Add buffer zone check
+                    const buffer = 5;
+                    if (this.ball.y + this.ball.height >= this.player1.y - buffer &&
+                        this.ball.y <= this.player1.y + this.player1.height + buffer) {
+
+                        // Calculate relative intersect point (-1 to 1)
+                        const intersectY = (this.player1.y + (this.player1.height / 2)) - (this.ball.y + (this.ball.height / 2));
+                        const normalized = Math.max(-1, Math.min(1, intersectY / (this.player1.height / 2))); // Clamp between -1 and 1
+
+                        // Calculate bounce angle (maximum 60 degrees)
+                        const bounceAngle = normalized * (Math.PI / 3); // 60 degrees max
+
+                        // Set new velocities with consistent speed
+                        const speed = this.ball.speed;
+                        this.ball.moveX = DIRECTION.RIGHT;
+                        this.ball.speedX = speed * Math.cos(bounceAngle);
+                        this.ball.speedY = speed * -Math.sin(bounceAngle);
+
+                        // Prevent sticking by moving ball outside collision zone
+                        this.ball.x = this.player1.x + this.player1.width + 1;
+                    }
+                }
+
+                // Player 2 paddle collision
+                if (this.ball.x + this.ball.width >= this.player2.x &&
+                    this.ball.x <= this.player2.x + this.player2.width &&
+                    this.ball.y + this.ball.height >= this.player2.y &&
+                    this.ball.y <= this.player2.y + this.player2.height) {
+
+                    // Add buffer zone check
+                    const buffer = 5;
+                    if (this.ball.y + this.ball.height >= this.player2.y - buffer &&
+                        this.ball.y <= this.player2.y + this.player2.height + buffer) {
+
+                        const intersectY = (this.player2.y + (this.player2.height / 2)) - (this.ball.y + (this.ball.height / 2));
+                        const normalized = Math.max(-1, Math.min(1, intersectY / (this.player2.height / 2))); // Clamp between -1 and 1
+
+                        const bounceAngle = normalized * (Math.PI / 3); // 60 degrees max
+
+                        const speed = this.ball.speed;
+                        this.ball.moveX = DIRECTION.LEFT;
+                        this.ball.speedX = -speed * Math.cos(bounceAngle);
+                        this.ball.speedY = speed * -Math.sin(bounceAngle);
+
+                        // Prevent sticking by moving ball outside collision zone
+                        this.ball.x = this.player2.x - this.ball.width - 1;
+                    }
+                }
+
+                // Update ball movement with new speeds
+                this.ball.x += this.ball.speedX;
+                this.ball.y += this.ball.speedY;
+
+                if (this.ball.x <= 0) {
+                    this.player2.score++;
+                    this.resetBall();
+                }
+                if (this.ball.x >= this.canvas.width) {
+                    this.player1.score++;
+                    this.resetBall();
+                }
+
+                if (this.player1.score >= 5 || this.player2.score >= 5) {
+                    this.over = true;
                 }
             }
         }
-    }
 
-    drawScores() {
-        this.context.font = '24px Courier New';
-        this.context.fillStyle = '#ffffff';
+        resetBall() {
+            this.ball.x = this.canvas.width / 2;
+            this.ball.y = this.canvas.height / 2;
+            this.ball.moveX = Math.random() > 0.5 ? DIRECTION.LEFT : DIRECTION.RIGHT;
+            this.ball.moveY = Math.random() > 0.5 ? DIRECTION.UP : DIRECTION.DOWN;
+            this.ball.speedX = this.ball.speed * (this.ball.moveX === DIRECTION.LEFT ? -1 : 1);
+            this.ball.speedY = this.ball.speed * (this.ball.moveY === DIRECTION.UP ? -1 : 1);
+        }
 
-        // Draw scores based on number of players
-        if (this.paddleCount === 2) {
-            this.context.fillText(this.paddles[0].score.toString(), 100, 50);
-            this.context.fillText(this.paddles[1].score.toString(), this.canvas.width - 100, 50);
+        draw() {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            this.context.fillStyle = '#ffffff';
+
+            const radius = 9;
+
+            // Helper function to draw rounded rectangle
+            const roundRect = (x, y, width, height, radius) => {
+                this.context.beginPath();
+                this.context.moveTo(x + radius, y);
+                this.context.arcTo(x + width, y, x + width, y + height, radius);
+                this.context.arcTo(x + width, y + height, x, y + height, radius);
+                this.context.arcTo(x, y + height, x, y, radius);
+                this.context.arcTo(x, y, x + width, y, radius);
+                this.context.closePath();
+                this.context.fill();
+            };
+
+            // Draw rounded paddles
+            roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height, radius);
+            roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height, radius);
+
+            // Draw ball
+            this.context.fillRect(this.ball.x, this.ball.y, this.ball.width, this.ball.height);
+
+            // Draw scores
+            this.context.font = '48px Arial';
+            this.context.textAlign = 'center';
+            this.context.fillText(this.player1.score.toString(), this.canvas.width / 4, 100);
+            this.context.fillText(this.player2.score.toString(), (this.canvas.width / 4) * 3, 100);
+
+            if (this.over) {
+                this.context.font = '64px Arial';
+                this.context.fillText(
+                    `${this.player1.score > this.player2.score ? 'Player 1' : 'Player 2'} Wins!`,
+                    this.canvas.width / 2,
+                    this.canvas.height / 2
+                );
+            }
+        }
+
+        gameLoop() {
+            if (!this.over) {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.gameLoop());
+            }
         }
     }
+
+    const container = document.createElement('div');
+    container.className = 'match-container';
+
+    const title = document.createElement('h1');
+    title.className = 'profileH2';
+    title.textContent = 'Player vs Player Pong';
+    container.appendChild(title);
+
+    const game = new PongGame(container);
+    return container;
 }

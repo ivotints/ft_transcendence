@@ -1,38 +1,140 @@
-.pong-game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: #2e2e2e;
-    color: #ffffff;
+/* pongGame.css */
+.match-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  color: #fff;
+  background-color: #2e2e2e;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-canvas {
-    border: 2px solid #ffffff;
-    margin: 20px;
+.pong-canvas {
+  background-color: #4CAF50;
+  border: 2px solid #fff;
+  margin: 20px 0;
+  width: 700px;
+  height: 500px;
 }
 
-.game-controls {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
+.menu, .pong-game {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
 }
 
-.score {
-    font-size: 2em;
-    font-family: 'Courier New', monospace;
-    margin: 20px 0;
+.start-button, .reset-button, .confirm-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.start-button, .confirm-button {
+  background-color: #4CAF50;
+}
+
+.start-button:hover, .confirm-button:hover {
+  background-color: #45a049;
+}
+
+.reset-button {
+  background-color: #dc3545;
+  margin-top: 10px;
+}
+
+.reset-button:hover {
+  background-color: #c82333;
+}
+
+.name-input {
+  padding: 10px;
+  font-size: 1rem;
+  margin-top: 15px;
+  border-radius: 5px;
+  border: 1px solid #4CAF50;
+  width: 80%;
+  max-width: 300px;
+  box-sizing: border-box;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.instructions {
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4CAF50;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  width: 90%;
+  max-width: 600px;
+}
+
+.start-text {
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+  color: #4CAF50;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  text-align: left;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-row p {
+  display: table-cell;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.profileH2 {
+  color: #4CAF50;
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .game-over {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(76, 175, 80, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .pong-canvas {
+    width: 100%;
+    height: auto;
+  }
+
+  .name-input {
+    width: 90%;
+  }
+
+  .start-button, .reset-button, .confirm-button {
+    width: 100%;
+    margin: 5px 0;
+  }
 }
