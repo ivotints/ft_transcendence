@@ -4,7 +4,9 @@ import { tournamentPage } from './components/tournamentPage.js';
 import { header } from './components/header.js';
 import { profilePage } from './components/profilePage.js';
 import { gamePage } from './components/gamePage.js';
-import { pongGamePage } from './components/pongGame.js';
+import { PongVsPlayerPage } from './components/PongVsPlayerPage.js';
+import { PongVsAIPage } from './components/PongVsAIPage.js';
+import { PongTwoVsTwoPage } from './components/PongTwoVsTwoPage.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app');
@@ -18,7 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         '/tournament': tournamentPage,
         '/profile': profilePage,
         '/game': gamePage,
-        '/player-vs-player': pongGamePage,
+        '/vs-player': PongVsPlayerPage,
+        '/vs-ai': PongVsAIPage,
+        '/2v2': PongTwoVsTwoPage,
         // Add other routes here
     };
 
