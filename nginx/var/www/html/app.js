@@ -37,24 +37,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function renderPage(path) {
         const page = routes[path] || notFoundPage;
+
+        // List of routes that shouldn't be cached (game pages)
+        const noCacheRoutes = ['/vs-player', '/vs-ai', '/2v2'];
+
+        // Run cleanup on existing game if present
+        const existingGame = app.querySelector('.match-container');
+        if (existingGame) {
+            const cleanupEvent = new Event('cleanup');
+            existingGame.dispatchEvent(cleanupEvent);
+        }
+
         app.innerHTML = '';
         showLoadingIndicator();
 
-        if (cache[path]) {
+        // Skip cache for game routes
+        if (cache[path] && !noCacheRoutes.includes(path)) {
             app.appendChild(cache[path]);
             hideLoadingIndicator();
         } else {
             const container = document.createElement('div');
             container.className = 'page-container';
 
-            // Always add header to every page
             const headerElement = await header();
             container.appendChild(headerElement);
 
             const pageContent = await page();
             container.appendChild(pageContent);
 
-            cache[path] = container;
+            // Only cache non-game pages
+            if (!noCacheRoutes.includes(path)) {
+                cache[path] = container;
+            }
+
             app.appendChild(container);
             hideLoadingIndicator();
         }
