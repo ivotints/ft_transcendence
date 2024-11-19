@@ -14,7 +14,7 @@ export async function PongVsAIPage() {
 
     const players = {
         player1: 'Player 1',
-        player2: 'AI',
+        player2: 'none',
         player3: 'none',
         player4: 'none'
     };
