@@ -7,6 +7,7 @@ import { gamePage } from './components/gamePage.js';
 import { PongVsPlayerPage } from './components/PongVsPlayerPage.js';
 import { PongVsAIPage } from './components/PongVsAIPage.js';
 import { PongTwoVsTwoPage } from './components/PongTwoVsTwoPage.js';
+import { cowboyPage } from './components/cowboyPage.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app');
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         '/vs-player': PongVsPlayerPage,
         '/vs-ai': PongVsAIPage,
         '/2v2': PongTwoVsTwoPage,
+        '/cowboy': cowboyPage,
         // Add other routes here
     };
 

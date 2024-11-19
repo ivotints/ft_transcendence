@@ -29,6 +29,7 @@ export async function loadAllStyles() {
         '/components/styles/ScoreTracker.css',
         '/components/styles/profilePage.css',
         '/components/styles/gamePage.css',
+        '/components/styles/cowboyPage.css',
     ];
 
     try {

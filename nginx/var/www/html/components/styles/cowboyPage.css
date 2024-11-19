@@ -1,0 +1,107 @@
+/* General Styles */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 20px;
+  }
+
+  .message {
+	font-size: 2.5em;
+	color: #4CAF50;
+	margin: 15px 0;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Scoreboard */
+  .scoreboard {
+	display: flex;
+	justify-content: center;
+	gap: 30px;
+	width: 100%;
+	max-width: 400px;
+	padding: 15px;
+	background-color: #404040;
+	border-radius: 12px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .score-label {
+	font-size: 1.2em;
+	margin-bottom: 5px;
+  }
+
+  .score-value {
+	font-size: 2em;
+	background-color: #4CAF50;
+	padding: 10px 20px;
+	border-radius: 8px;
+  }
+
+  /* Players */
+  .players {
+	display: flex;
+	justify-content: center;
+	gap: 40px;
+	margin: 20px 0;
+  }
+
+  .player {
+	background-color: #404040;
+	border: 3px solid #4CAF50;
+	border-radius: 12px;
+	padding: 15px;
+	text-align: center;
+  }
+
+  .cowboy-image {
+	width: 150px;
+	height: auto;
+	border-radius: 12px;
+  }
+
+  .player h3 {
+	color: #ffffff;
+	font-size: 1.2em;
+	margin-top: 10px;
+  }
+
+  /* Result */
+  .result {
+	padding: 15px;
+	background-color: #404040;
+	border-radius: 12px;
+	text-align: center;
+	color: #ffffff;
+	max-width: 400px;
+	margin: 15px auto;
+  }
+
+  .result h3 {
+	color: #4CAF50;
+	font-size: 1.5em;
+	margin-bottom: 10px;
+  }
+
+  /* Game States and Animations */
+  @keyframes shake {
+	0%, 100% { transform: rotate(0deg); }
+	25% { transform: rotate(-5deg); }
+	75% { transform: rotate(5deg); }
+  }
+
+  .player.steady {
+	animation: shake 0.5s ease-in-out infinite;
+	border-color: #ffd700;
+  }
+
+  .player.shoot {
+	transform: scale(1.1);
+	border-color: #ff4444;
+  }
+
+  .message.bang { color: #ff4444; }
+  .message.steady { color: #ffd700; }
+  .message.ready { color: #4CAF50; }

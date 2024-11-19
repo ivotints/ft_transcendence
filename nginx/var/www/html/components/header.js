@@ -52,21 +52,6 @@ export async function header() {
             }
         };
         userSection.appendChild(logoutButton);
-    } else {
-        const loginButton = document.createElement('button');
-        loginButton.innerText = 'Login';
-        loginButton.className = 'auth-button';
-        loginButton.onclick = async () => {
-            setLoggedIn(true);
-            document.querySelector('.header').replaceWith(await header());
-            document.querySelector('.home-page').replaceWith(await homePage()); // Re-render homePage
-        };
-
-        const registerButton = document.createElement('button');
-        registerButton.innerText = 'Register';
-        registerButton.className = 'auth-button';
-        userSection.appendChild(loginButton);
-        userSection.appendChild(registerButton);
     }
 
     headerElement.appendChild(navButtons);
