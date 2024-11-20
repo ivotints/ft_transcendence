@@ -1,19 +1,21 @@
 /* homePage.css */
+
 .home-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   height: 100vh;
   gap: 20px;
 }
 
-.auth-buttons, .logged-in-buttons {
+.logged-in-buttons {
   display: flex;
   gap: 20px;
 }
 
-.auth-button, .logged-in-button {
+.logged-in-button {
   background-color: #4CAF50;
   color: white;
   padding: 10px 20px;
@@ -24,40 +26,6 @@
   transition: background-color 0.3s ease;
 }
 
-.auth-button:hover, .logged-in-button:hover {
+.logged-in-button:hover {
   background-color: #45a049;
 }
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.auth-form input {
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.auth-form button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.auth-form button:hover {
-  background-color: #45a049;
-}
-
-
-
-
-
