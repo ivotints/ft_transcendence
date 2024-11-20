@@ -77,7 +77,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-	
+
     "django_extensions",
     "rest_framework",
 	"rest_framework.authtoken",
@@ -185,8 +185,8 @@ FT_REDIRECT_URI = 'https://localhost:8000/oauth/callback/'
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=3*60),
 	"AUTH_COOKIE": "access_token",  # Cookie name. Enables cookies if value is set.
     "AUTH_COOKIE_DOMAIN": None,     # A string like "example.com", or None for standard domain cookie.
     "AUTH_COOKIE_SECURE": True,    # Whether the auth cookies should be secure (https:// only).

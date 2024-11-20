@@ -3,6 +3,111 @@ import { setLoggedIn } from './state.js';
 import { header } from '../header.js';
 import { homePage } from '../homePage.js';
 
+// Add timestamp tracking for login
+let loginTimestamp = null;
+const TOKEN_EXPIRY_TIME = 3*60 * 60 * 1000; // 3 minutes in milliseconds
+let refreshIntervalId = null;
+
+// Modified refreshToken function with logging
+export async function refreshToken() {
+  console.log('Attempting token refresh at:', new Date().toISOString());
+
+  try {
+    const response = await fetch('/api/token/refresh/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      console.log('Token refresh failed:', response.status);
+      await handleTokenExpiration();
+      return false;
+    }
+
+    console.log('Token refresh successful');
+    return true;
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    await handleTokenExpiration();
+    return false;
+  }
+}
+
+// Modified setupTokenRefresh function
+export function setupTokenRefresh() {
+  console.log('Setting up token refresh interval');
+
+  // Clear any existing interval
+  if (refreshIntervalId) {
+    clearInterval(refreshIntervalId);
+  }
+
+  // Set login timestamp
+  loginTimestamp = Date.now();
+
+  // Set up new interval
+  refreshIntervalId = setInterval(async () => {
+    // Check if token has expired
+    if (Date.now() - loginTimestamp >= TOKEN_EXPIRY_TIME) {
+      console.log('Token expired - logging out');
+      await handleTokenExpiration();
+      return;
+    }
+
+    await refreshToken();
+  }, 45 * 1000); // Refresh every 45 seconds
+
+  // Initial refresh check
+  refreshToken();
+
+  // Clear interval on page unload
+  window.addEventListener('unload', () => {
+    if (refreshIntervalId) {
+      clearInterval(refreshIntervalId);
+    }
+  });
+}
+
+// Modified handleTokenExpiration function
+async function handleTokenExpiration() {
+  console.log('Handling token expiration');
+
+  // Clear refresh interval
+  if (refreshIntervalId) {
+    clearInterval(refreshIntervalId);
+    refreshIntervalId = null;
+  }
+
+  // Reset login timestamp
+  loginTimestamp = null;
+
+  // Clear the cache first
+  window.clearPageCache(); // We'll add this to app.js
+
+  // Log out user and force re-render
+  setLoggedIn(false);
+
+  try {
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = ''; // Clear current content
+      const container = document.createElement('div');
+      container.className = 'page-container';
+
+      // Re-render header and homepage with new state
+      const headerElement = await header();
+      const pageContent = await homePage();
+
+      container.appendChild(headerElement);
+      container.appendChild(pageContent);
+      app.appendChild(container);
+    }
+  } catch (error) {
+    console.error('Error handling token expiration:', error);
+  }
+}
+
 export function authForms() {
   const container = document.createElement('div');
   container.className = 'auth-options';
@@ -129,6 +234,7 @@ export function authForms() {
     }
   }
 
+  // Modified handleLoginSubmit to set timestamp
   async function handleLoginSubmit(event) {
     event.preventDefault();
     errorMessageDiv.textContent = '';
@@ -142,8 +248,9 @@ export function authForms() {
       });
 
       if (response.ok) {
-        console.log('Login successful');
+        console.log('Login successful at:', new Date().toISOString());
         setLoggedIn(true);
+        setupTokenRefresh();
         document.querySelector('.header').replaceWith(await header());
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
@@ -221,4 +328,48 @@ export function authForms() {
   }
 
   return container;
+}
+
+// Modified logout function
+export async function logout() {
+  console.log('Logging out');
+
+  try {
+    // Clear refresh interval
+    if (refreshIntervalId) {
+      clearInterval(refreshIntervalId);
+      refreshIntervalId = null;
+    }
+
+    // Reset login timestamp
+    loginTimestamp = null;
+
+    // Call logout endpoint if exists
+    await fetch('/api/logout/', {
+      method: 'POST',
+      credentials: 'include'
+    });
+
+    // Clear cache and set logged out state
+    window.clearPageCache();
+    setLoggedIn(false);
+
+    // Force re-render main page
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = '';
+      const container = document.createElement('div');
+      container.className = 'page-container';
+
+      // Re-render header and homepage with new state
+      const headerElement = await header();
+      const pageContent = await homePage();
+
+      container.appendChild(headerElement);
+      container.appendChild(pageContent);
+      app.appendChild(container);
+    }
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
 }
