@@ -1,7 +1,7 @@
 // header.js
 import { state, setLoggedIn } from './utils/state.js';
 import { loadAllStyles } from './utils/loadCSS.js';
-import { homePage } from './homePage.js';
+import { logout } from './utils/auth.js';
 
 export async function header() {
     await loadAllStyles();
@@ -42,15 +42,7 @@ export async function header() {
         const logoutButton = document.createElement('button');
         logoutButton.innerText = 'Log out';
         logoutButton.className = 'auth-button';
-        logoutButton.onclick = async () => {
-            navigateTo('/'); // Redirect to home page
-            setLoggedIn(false);
-            const headerElement = document.querySelector('.header');
-            if (headerElement) {
-                headerElement.replaceWith(await header());
-                document.querySelector('.home-page').replaceWith(await homePage()); // Re-render homePage
-            }
-        };
+        logoutButton.onclick = logout;
         userSection.appendChild(logoutButton);
     }
 

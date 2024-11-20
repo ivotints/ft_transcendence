@@ -8,8 +8,18 @@ import { PongVsPlayerPage } from './components/PongVsPlayerPage.js';
 import { PongVsAIPage } from './components/PongVsAIPage.js';
 import { PongTwoVsTwoPage } from './components/PongTwoVsTwoPage.js';
 import { cowboyPage } from './components/cowboyPage.js';
+import { checkLoginStatus } from './components/utils/state.js';
+import { refreshToken, setupTokenRefresh } from './components/utils/auth.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check if user is logged in and setup token refresh
+    if (checkLoginStatus()) {
+        const isValid = await refreshToken();
+        if (isValid) {
+            setupTokenRefresh();
+        }
+    }
+
     const app = document.getElementById('app');
     const loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
@@ -28,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Add other routes here
     };
 
-    const cache = {};
+    let cache = {};
 
     async function navigateTo(path) {
         if (window.location.pathname !== path) {
@@ -85,6 +95,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingIndicator.style.display = 'none';
     }
 
+    // Add cache clearing function
+    function clearPageCache() {
+        cache = {};
+    }
+
     window.onpopstate = () => renderPage(window.location.pathname);
 
     document.body.addEventListener('click', (e) => {
@@ -95,6 +110,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     window.navigateTo = navigateTo; // Attach navigateTo to the window object
+    window.renderPage = renderPage; // Expose renderPage
+    window.clearPageCache = clearPageCache; // Expose clearPageCache
     renderPage(window.location.pathname);
 });
 
