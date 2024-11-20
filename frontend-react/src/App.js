@@ -26,14 +26,14 @@ function App() {
   const { translate } = useTranslate();
   const checkLoginIntervalRef = useRef(null);
   const refreshTokenIntervalRef = useRef(null);
-  
+
 
   // const checkLoginStatus = async () => {
   //   try {
   //     const response = await axios.get('https://localhost:8000/check-login/', {
   //       withCredentials: true,
   //     });
-  
+
   //     if (response.status === 200) {
   //       setIsLoggedIn(true);
   //     } else {
@@ -67,23 +67,17 @@ function App() {
   };
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  
+
   useEffect(() => {
     const initializeIntervals = async () => {
       await refreshToken();
-      // await sleep(1000);
-      // await checkLoginStatus();
-
       refreshTokenIntervalRef.current = setInterval(refreshToken, 60 * 1000);
-      // await sleep(1000);
-      // checkLoginIntervalRef.current = setInterval(checkLoginStatus, 60 * 1000);
     };
 
     initializeIntervals();
 
     return () => {
       clearInterval(refreshTokenIntervalRef.current);
-      // clearInterval(checkLoginIntervalRef.current);
     };
   }, []);
 
