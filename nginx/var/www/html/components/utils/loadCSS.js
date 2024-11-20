@@ -30,6 +30,7 @@ export async function loadAllStyles() {
         '/components/styles/profilePage.css',
         '/components/styles/gamePage.css',
         '/components/styles/cowboyPage.css',
+        '/components/styles/auth.css',
     ];
 
     try {

@@ -36,6 +36,5 @@ export async function homePage() {
         const authContainer = authForms();
         container.appendChild(authContainer);
     }
-
     return container;
 }

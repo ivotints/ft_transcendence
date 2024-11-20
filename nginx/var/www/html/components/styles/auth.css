@@ -1,0 +1,126 @@
+/* auth.css */
+
+.auth-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.auth-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #45a049;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.auth-form input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.auth-form button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-form button:hover {
+  background-color: #45a049;
+}
+
+/* Optional: Error message styling */
+.error-message {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/*  */
+
+
+
+
+/* Styling for the login and create user buttons */
+.auth-options {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+  }
+
+  .auth-buttons {
+	display: flex;
+	gap: 20px;
+  }
+
+  .auth-button {
+	background-color: #4CAF50;
+	color: white;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+  }
+
+  .auth-button:hover {
+	background-color: #45a049;
+  }
+
+  .auth-table {
+	margin-top: 20px;
+  }
+
+  .auth-table td {
+	padding: 10px 0;
+  }
+
+  .auth-table input {
+	width: 100%;
+	padding: 10px;
+	font-size: 16px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+  }
+
+  .submit-button {
+	background-color: #4CAF50;
+	color: white;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	font-size: 16px;
+	cursor: pointer;
+	width: 110%;
+  }
+
+  .submit-button:hover {
+	background-color: #45a049;
+  }
+
+
+
+
+
