@@ -407,6 +407,9 @@ export class PongGame {
 
 			if (this.player1.score >= this.winningScore || this.player2.score >= this.winningScore) {
 				this.over = true;
+				const winner = this.player1.score > this.player2.score ? this.player1 : this.player2;
+				if (this.onGameEnd)
+					this.onGameEnd(winner);
 			}
 		}
 	}
@@ -574,7 +577,7 @@ export class PongGame {
 		this.context.textAlign = 'center';
 		this.context.fillStyle = '#ffffff';
 		this.context.fillText(
-			`${this.player1.score > this.player2.score ? 'Player 1' : 'Player 2'} Wins!`,
+			`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} Wins!`,
 			this.canvas.width / 2,
 			this.canvas.height / 2
 		);
