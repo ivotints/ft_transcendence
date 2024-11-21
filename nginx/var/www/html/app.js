@@ -95,8 +95,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingIndicator.style.display = 'none';
     }
 
+    window.clearPageCache = function() {
+        console.log('Clearing page cache');
+        // Add logic to clear the page cache if needed
+        // For example, you can clear localStorage or sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        cache = {};
+      };
+
     // Add cache clearing function
     function clearPageCache() {
+        console.log('Clearing page cache');
+        // Add logic to clear the page cache if needed
+        // For example, you can clear localStorage or sessionStorage
+        localStorage.clear();
+        sessionStorage.clear()
         cache = {};
     }
 

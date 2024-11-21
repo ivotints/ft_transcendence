@@ -83,7 +83,7 @@ async function handleTokenExpiration() {
   loginTimestamp = null;
 
   // Clear the cache first
-  window.clearPageCache(); // We'll add this to app.js
+  //window.clearPageCache(); // We'll add this to app.js
 
   // Log out user and force re-render
   setLoggedIn(false);
