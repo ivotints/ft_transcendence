@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const page = routes[path] || notFoundPage;
 
         // List of routes that shouldn't be cached (game pages)
-        const noCacheRoutes = ['/vs-player', '/vs-ai', '/2v2'];
+        const noCacheRoutes = ['/vs-player', '/vs-ai', '/2v2', '/cowboy', '/profile'];
 
         // Run cleanup on existing game if present
         const existingGame = app.querySelector('.match-container');
