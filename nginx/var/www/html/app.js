@@ -35,10 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         '/vs-ai': PongVsAIPage,
         '/2v2': PongTwoVsTwoPage,
         '/cowboy': cowboyPage,
-        // Add other routes here
     };
-
-    let cache = {};
 
     async function navigateTo(path) {
         if (window.location.pathname !== path) {
@@ -50,9 +47,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function renderPage(path) {
         const page = routes[path] || notFoundPage;
 
-        // List of routes that shouldn't be cached (game pages)
-        const noCacheRoutes = ['/vs-player', '/vs-ai', '/2v2', '/cowboy', '/profile'];
-
         // Run cleanup on existing game if present
         const existingGame = app.querySelector('.match-container');
         if (existingGame) {
@@ -63,28 +57,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.innerHTML = '';
         showLoadingIndicator();
 
-        // Skip cache for game routes
-        if (cache[path] && !noCacheRoutes.includes(path)) {
-            app.appendChild(cache[path]);
-            hideLoadingIndicator();
-        } else {
-            const container = document.createElement('div');
-            container.className = 'page-container';
+        const container = document.createElement('div');
+        container.className = 'page-container';
 
-            const headerElement = await header();
-            container.appendChild(headerElement);
+        const headerElement = await header();
+        container.appendChild(headerElement);
 
-            const pageContent = await page();
-            container.appendChild(pageContent);
+        const pageContent = await page();
+        container.appendChild(pageContent);
 
-            // Only cache non-game pages
-            if (!noCacheRoutes.includes(path)) {
-                cache[path] = container;
-            }
-
-            app.appendChild(container);
-            hideLoadingIndicator();
-        }
+        app.appendChild(container);
+        hideLoadingIndicator();
     }
 
     function showLoadingIndicator() {
@@ -93,25 +76,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function hideLoadingIndicator() {
         loadingIndicator.style.display = 'none';
-    }
-
-    window.clearPageCache = function() {
-        console.log('Clearing page cache');
-        // Add logic to clear the page cache if needed
-        // For example, you can clear localStorage or sessionStorage
-        localStorage.clear();
-        sessionStorage.clear();
-        cache = {};
-      };
-
-    // Add cache clearing function
-    function clearPageCache() {
-        console.log('Clearing page cache');
-        // Add logic to clear the page cache if needed
-        // For example, you can clear localStorage or sessionStorage
-        localStorage.clear();
-        sessionStorage.clear()
-        cache = {};
     }
 
     window.onpopstate = () => renderPage(window.location.pathname);
@@ -123,9 +87,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    window.navigateTo = navigateTo; // Attach navigateTo to the window object
-    window.renderPage = renderPage; // Expose renderPage
-    window.clearPageCache = clearPageCache; // Expose clearPageCache
+    window.navigateTo = navigateTo;
+    window.renderPage = renderPage;
     renderPage(window.location.pathname);
 });
 

@@ -351,7 +351,7 @@ export async function logout() {
     });
 
     // Clear cache and set logged out state
-    window.clearPageCache();
+    // window.clearPageCache();
     setLoggedIn(false);
 
     // Force re-render main page
