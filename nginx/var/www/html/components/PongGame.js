@@ -407,9 +407,8 @@ export class PongGame {
 
 			if (this.player1.score >= this.winningScore || this.player2.score >= this.winningScore) {
 				this.over = true;
-				const winner = this.player1.score > this.player2.score ? this.player1 : this.player2;
 				if (this.onGameEnd)
-					this.onGameEnd(winner);
+					this.onGameEnd();
 			}
 		}
 	}
