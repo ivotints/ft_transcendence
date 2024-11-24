@@ -5,7 +5,7 @@ import { homePage } from '../homePage.js';
 
 // Add timestamp tracking for login
 let loginTimestamp = null;
-const TOKEN_EXPIRY_TIME = 3*60 * 60 * 1000; // 3 minutes in milliseconds
+const TOKEN_EXPIRY_TIME = 3*60 * 60 * 1000; // 3 hours in milliseconds
 let refreshIntervalId = null;
 
 // Modified refreshToken function with logging
@@ -139,13 +139,15 @@ export function authForms() {
   });
   buttonsDiv.appendChild(createUserButton);
 
-
   const Button42 = document.createElement('button');
   Button42.className = 'auth-button';
   Button42.textContent = '42';
+
   Button42.addEventListener('click', () => {
-    //42 logic
+    window.location.href = '/api/oauth/redirect/';
+    setLoggedIn(1);
   });
+
   buttonsDiv.appendChild(Button42);
 
   container.appendChild(buttonsDiv);

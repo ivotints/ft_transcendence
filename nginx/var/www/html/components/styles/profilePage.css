@@ -65,11 +65,31 @@
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid #21db72;
+    margin-bottom: 15px;
 }
 
 .avatar-upload {
-    margin-top: 15px;
-    width: 100%;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.avatar-upload + label {
+    background-color: #21db72;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.avatar-upload + label:hover {
+    background-color: #27ae60;
 }
 
 /* Forms */
@@ -617,3 +637,8 @@
     padding: 0.5em;
     box-sizing: border-box;
   }
+
+
+
+
+  

@@ -185,7 +185,7 @@ FT_REDIRECT_URI = 'https://localhost:8000/oauth/callback/'
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1*60),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=3*60),
 	"AUTH_COOKIE": "access_token",  # Cookie name. Enables cookies if value is set.
     "AUTH_COOKIE_DOMAIN": None,     # A string like "example.com", or None for standard domain cookie.

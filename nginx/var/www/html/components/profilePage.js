@@ -79,6 +79,7 @@ export async function profilePage() {
 				cowboyWins: data.cowboy_wins,
 				cowboyLosses: data.cowboy_losses
 			};
+			console.log(data.avatar);
 			showSection('User Info');
 		} catch (error) {
 			console.error('Error fetching user data:', error);
@@ -118,38 +119,67 @@ export async function profilePage() {
 	function renderUserInfo() {
 		const userInfoDiv = document.createElement('div');
 		userInfoDiv.innerHTML = `
-            <h2 class="profileH2">User Info</h2>
-            <p>Username: ${userInfo.username}</p>
-            <p>Email: ${userInfo.email}</p>
+			<h2 class="profileH2">User Info</h2>
+			<p>Username: ${userInfo.username}</p>
+			<p>Email: ${userInfo.email}</p>
 
-            <h3 class="profileH2">Player Statistics</h3>
-            <h4>Pong Game</h4>
-            <p>Wins: ${userInfo.wins}</p>
-            <p>Losses: ${userInfo.losses}</p>
+			<h3 class="profileH2">Player Statistics</h3>
+			<h4>Pong Game</h4>
+			<p>Wins: ${userInfo.wins}</p>
+			<p>Losses: ${userInfo.losses}</p>
 
-            <h4>Cowboy Game</h4>
-            <p>Wins: ${userInfo.cowboyWins}</p>
-            <p>Losses: ${userInfo.cowboyLosses}</p>
-        `;
+			<h4>Cowboy Game</h4>
+			<p>Wins: ${userInfo.cowboyWins}</p>
+			<p>Losses: ${userInfo.cowboyLosses}</p>
+		`;
 
 		const avatarContainer = document.createElement('div');
 		avatarContainer.className = 'avatar-container';
 
+		// Create avatar image element
 		const avatar = document.createElement('img');
-		avatar.src = userInfo.avatar || 'default-avatar.jpg';
+		const avatarUrl = userInfo.avatar
+			? (userInfo.avatar.startsWith('http') ? userInfo.avatar : `${window.location.origin}${userInfo.avatar}`)
+			: 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg';
+		avatar.src = avatarUrl;
 		avatar.alt = 'Avatar';
 		avatar.className = 'avatar';
 
+		// Create label container for file input
+		const label = document.createElement('label');
+		label.className = 'change-avatar-label';
+
+		// Create file input
 		const fileInput = document.createElement('input');
 		fileInput.type = 'file';
 		fileInput.accept = 'image/*';
 		fileInput.className = 'avatar-upload';
+		fileInput.maxLength = 320;
+
+		// Create change avatar text
+		const changeAvatarText = document.createElement('p');
+		changeAvatarText.className = 'change-avatar-text';
+		changeAvatarText.textContent = 'Change Avatar';
+
+		// Create error message container
+		const errorContainer = document.createElement('div');
+		const errorMessage = document.createElement('p');
+		errorMessage.className = 'error-message';
+		errorMessage.style.display = 'none';
+		errorContainer.appendChild(errorMessage);
+
+		// Add file input event listener using handleAvatarChange
 		fileInput.addEventListener('change', handleAvatarChange);
 
-		avatarContainer.appendChild(avatar);
-		avatarContainer.appendChild(fileInput);
-		userInfoDiv.appendChild(avatarContainer);
+		// Assemble the avatar container
+		label.appendChild(fileInput);
+		label.appendChild(changeAvatarText);
 
+		avatarContainer.appendChild(avatar);
+		avatarContainer.appendChild(label);
+		avatarContainer.appendChild(errorContainer);
+
+		userInfoDiv.appendChild(avatarContainer);
 		mainContent.appendChild(userInfoDiv);
 	}
 
@@ -159,31 +189,54 @@ export async function profilePage() {
 			const formData = new FormData();
 			formData.append('avatar', file);
 
+			const errorElement = document.querySelector('.error-message');
+			const avatar = document.querySelector('.avatar');
+
 			try {
 				const response = await fetch('/api/profiles/me/', {
 					method: 'PATCH',
 					body: formData,
 					credentials: 'include'
 				});
+
+				if (!response.ok) {
+					const data = await response.json();
+					errorElement.textContent = data.avatar?.[0] || 'Error uploading avatar';
+					errorElement.style.display = 'block';
+					return;
+				}
+
 				const data = await response.json();
-				userInfo.avatar = data.avatar;
-				showSection('User Info');
+				if (data && data.avatar) {
+					userInfo.avatar = data.avatar;
+					avatar.src = data.avatar.startsWith('http') ? data.avatar : `${window.location.origin}${data.avatar}`;
+					errorElement.style.display = 'none';
+				} else {
+					throw new Error('Avatar property is missing in the response');
+				}
 			} catch (error) {
 				console.error('Error updating avatar:', error);
+				errorElement.textContent = 'Error updating avatar';
+				errorElement.style.display = 'block';
 			}
 		}
 	}
 
+	// Add message elements for each form
 	function renderEmailForm() {
 		const form = document.createElement('form');
+		const messageElement = document.createElement('p');
+		messageElement.className = 'message';
+
 		form.innerHTML = `
-        <h2 class="profileH2">Change Email</h2>
-        <div class="input-group_profile">
-            <label>New Email: </label>
-            <input type="email" placeholder="New Email" required>
-        </div>
-        <button type="submit" class="confirm-btn">Update Email</button>
-    `;
+			<h2 class="profileH2">Change Email</h2>
+			<div class="input-group_profile">
+				<label>New Email: </label>
+				<input type="email" placeholder="New Email" required>
+			</div>
+			<button type="submit" class="confirm-btn">Update Email</button>
+		`;
+		form.appendChild(messageElement);
 
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault();
@@ -191,18 +244,25 @@ export async function profilePage() {
 			try {
 				const response = await fetch('/api/users/me/', {
 					method: 'PATCH',
-					headers: {
-						'Content-Type': 'application/json',
-					},
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ email: newEmail }),
 					credentials: 'include'
 				});
+
 				if (response.ok) {
 					userInfo.email = newEmail;
-					showSection('User Info');
+					messageElement.className = 'success-message';
+					messageElement.textContent = 'Email updated successfully.';
+					setTimeout(() => showSection('User Info'), 1500);
+				} else {
+					const data = await response.json();
+					messageElement.className = 'error-message';
+					messageElement.textContent = data.email?.[0] || data.user?.email?.[0] || 'Failed to update email.';
 				}
 			} catch (error) {
 				console.error('Error updating email:', error);
+				messageElement.className = 'error-message';
+				messageElement.textContent = 'Error updating email';
 			}
 		});
 
