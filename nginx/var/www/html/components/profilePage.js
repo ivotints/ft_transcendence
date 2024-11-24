@@ -62,6 +62,9 @@ export async function profilePage() {
 	let qrCode = '';
 	let twoFactorMessage = '';
 	let confirmationOtp = '';
+	let twoFactorSuccess = '';
+	let twoFactorError = '';
+	let otpSecret = ''; // Add this line
 
 	// Fetch user data
 	async function fetchUserData() {
@@ -88,6 +91,18 @@ export async function profilePage() {
 
 	function showSection(sectionName) {
 		mainContent.innerHTML = '';
+		// Clear 2FA state when switching to a different section
+		if (sectionName !== '2-Factor Authentication') {
+			selected2FAMethod = '';
+			userPhone = '';
+			qrCode = '';
+			twoFactorMessage = '';
+			confirmationOtp = '';
+			twoFactorSuccess = '';
+			twoFactorError = '';
+			otpSecret = '';
+		}
+
 		switch (sectionName) {
 			case 'User Info':
 				renderUserInfo();
@@ -593,84 +608,83 @@ export async function profilePage() {
 
 	async function setup2FA(method) {
 		const data = { method: method };
-		try {
-			if (method === 'sms') {
-				if (!userPhone) {
-					alert('Please enter a phone number');
-					return;
-				}
-				data.user_phone = userPhone.startsWith('+') ? userPhone : "+" + userPhone;
-			}
+		if (method === 'sms') {
+			data.user_phone = userPhone.startsWith('+') ? userPhone : "+" + userPhone;
+		}
 
+		try {
+			// Changed endpoint from /api/users/2fa/setup/ to /api/setup-2fa/
 			const response = await fetch('/api/setup-2fa/', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: { 'Content-Type': 'application/json' },
 				credentials: 'include',
-				body: JSON.stringify(data)
+				body: JSON.stringify(data),
 			});
+			const result = await response.json();
 
-			const responseData = await response.json();
-
-			if (method === 'authenticator') {
-				qrCode = responseData.qr_code;
-				twoFactorMessage = '';
+			if (response.ok) {
+				if (method === 'authenticator') {
+					qrCode = result.qr_code;
+					twoFactorMessage = '';
+				} else if (method === 'sms') {
+					twoFactorMessage = 'OTP has been sent by sms';
+				} else {
+					twoFactorMessage = 'OTP has been sent to your ' + method;
+				}
+				otpSecret = result.otp_secret;
 			} else {
-				qrCode = '';
-				twoFactorMessage = `OTP has been sent to your ${method}`;
+				twoFactorError = result.detail || 'An error occurred during setup.';
 			}
-
-			render2FA(); // Re-render to show changes
 		} catch (error) {
 			console.error('Error setting up 2FA:', error);
-			twoFactorMessage = 'Error setting up 2FA';
-			render2FA();
+			twoFactorError = 'Network error occurred during setup.';
 		}
+		render2FA();
 	}
 
 	async function confirm2FA(event) {
 		event.preventDefault();
-		twoFactorMessage = '';
+		twoFactorError = '';
+		twoFactorSuccess = '';
 
 		try {
 			const data = {
-				method: selected2FAMethod === 'authenticator' ? 'authenticator' :
-						selected2FAMethod === 'sms' ? 'sms' : 'email',
-				code: confirmationOtp
+				method: selected2FAMethod,
+				code: confirmationOtp,
 			};
 
 			if (selected2FAMethod === 'sms') {
 				data.user_phone = userPhone;
 			}
 
-			const response = await fetch('/api/confirm-2fa/', {
+			const response = await fetch('/api/setup-2fa/', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: { 'Content-Type': 'application/json' },
 				credentials: 'include',
-				body: JSON.stringify(data)
+				body: JSON.stringify(data),
 			});
 
-			const responseData = await response.json();
-
-			if (responseData.success) {
-				twoFactorMessage = '2FA setup successful!';
+			const result = await response.json();
+			if (response.ok && result.success) {
+				twoFactorSuccess = '2FA setup successfully.';
+				// Reset variables
+				selected2FAMethod = '';
+				qrCode = '';
+				confirmationOtp = '';
+				twoFactorMessage = '';
 			} else {
-				twoFactorMessage = responseData.error || 'Verification failed';
+				twoFactorError = result.errors ? result.errors.join(', ') : 'Failed to confirm Two-Factor Authentication.';
 			}
-
-			render2FA(); // Re-render to show result
 		} catch (error) {
 			console.error('Error confirming 2FA:', error);
-			twoFactorMessage = 'Error confirming 2FA';
-			render2FA();
+			twoFactorError = 'Network error occurred during confirmation.';
 		}
+		render2FA();
 	}
 
 	function render2FA() {
-		mainContent.innerHTML = '';
+		mainContent.innerHTML = ''; // Clear the main content
+
 		const twoFactorDiv = document.createElement('div');
 		twoFactorDiv.className = 'two-factor-container';
 
@@ -679,103 +693,131 @@ export async function profilePage() {
 			twoFactorDiv.innerHTML = `
 				<h2 class="profileH2">2-Factor Authentication</h2>
 				<div class="two-factor-options">
-					<button class="confirm-btn">Setup with Authenticator App</button>
-					<button class="confirm-btn">Setup with SMS</button>
-					<button class="confirm-btn">Setup with Email</button>
+					<button class="confirm-btn" data-method="authenticator">Setup with Authenticator App</button>
+					<button class="confirm-btn" data-method="sms">Setup with SMS</button>
+					<button class="confirm-btn" data-method="email">Setup with Email</button>
 				</div>
 			`;
 
-			const [authenticatorBtn, smsBtn, emailBtn] = twoFactorDiv.querySelectorAll('button');
-			authenticatorBtn.addEventListener('click', () => {
-				selected2FAMethod = 'authenticator';
-				render2FA();
-			});
-			smsBtn.addEventListener('click', () => {
-				selected2FAMethod = 'sms';
-				render2FA();
-			});
-			emailBtn.addEventListener('click', () => {
-				selected2FAMethod = 'email';
-				render2FA();
+			// Attach event listeners to method buttons
+			const methodButtons = twoFactorDiv.querySelectorAll('.confirm-btn');
+			methodButtons.forEach(button => {
+				button.addEventListener('click', () => {
+					selected2FAMethod = button.getAttribute('data-method');
+					render2FA();
+				});
 			});
 		} else {
 			// Method-specific setup view
 			twoFactorDiv.innerHTML = `
-				<h2 class="profileH2">Setup ${selected2FAMethod.charAt(0).toUpperCase() + selected2FAMethod.slice(1)} Authentication</h2>
+				<h2 class="profileH2">Setup ${capitalizeFirstLetter(selected2FAMethod)} Authentication</h2>
 			`;
 
 			if (selected2FAMethod === 'authenticator') {
 				if (!qrCode) {
-					twoFactorDiv.innerHTML += `
-						<button class="confirm-btn" id="generate-qr">Generate QR Code</button>
-					`;
-					twoFactorDiv.querySelector('#generate-qr').addEventListener('click', () => setup2FA('authenticator'));
+					const generateButton = document.createElement('button');
+					generateButton.className = 'confirm-btn';
+					generateButton.id = 'generate-qr';
+					generateButton.textContent = 'Generate QR Code';
+					generateButton.addEventListener('click', () => setup2FA('authenticator'));
+					twoFactorDiv.appendChild(generateButton);
 				} else {
-					twoFactorDiv.innerHTML += `
-						<div class="qr-code-section">
-							<p>Scan the QR code with your authenticator app:</p>
-							<div class="qr-code-display">${qrCode}</div>
-						</div>
+					const qrSection = document.createElement('div');
+					qrSection.className = 'qr-code-section';
+					qrSection.innerHTML = `
+						<p>Scan the QR code with your authenticator app:</p>
+						<div class="qr-code-display"></div>
 					`;
+					const qrDisplay = qrSection.querySelector('.qr-code-display');
+					qrDisplay.innerHTML = qrCode; // Assume qrCode contains the SVG or IMG element
+					twoFactorDiv.appendChild(qrSection);
 				}
 			} else if (selected2FAMethod === 'sms') {
-				twoFactorDiv.innerHTML += `
-					<div class="phone-input-section">
-						<input type="text" placeholder="Enter phone number" maxLength="15" value="${userPhone}">
-						<button class="confirm-btn">Send Code</button>
-					</div>
+				const phoneSection = document.createElement('div');
+				phoneSection.className = 'phone-input-section';
+				phoneSection.innerHTML = `
+					<input type="text" placeholder="Enter phone number" maxLength="15" value="${userPhone}">
+					<button class="confirm-btn">Send Code</button>
 				`;
-
-				const phoneInput = twoFactorDiv.querySelector('input');
-				const sendButton = twoFactorDiv.querySelector('button');
+				const phoneInput = phoneSection.querySelector('input');
+				const sendButton = phoneSection.querySelector('button');
 
 				phoneInput.addEventListener('input', (e) => {
 					userPhone = e.target.value;
 				});
 
 				sendButton.addEventListener('click', () => setup2FA('sms'));
+				twoFactorDiv.appendChild(phoneSection);
 			} else if (selected2FAMethod === 'email') {
-				twoFactorDiv.innerHTML += `
-					<button class="confirm-btn" id="send-email">Send Code via Email</button>
-				`;
-				twoFactorDiv.querySelector('#send-email').addEventListener('click', () => setup2FA('email'));
+				const emailButton = document.createElement('button');
+				emailButton.className = 'confirm-btn';
+				emailButton.id = 'send-email';
+				emailButton.textContent = 'Send Code via Email';
+				emailButton.addEventListener('click', () => setup2FA('email'));
+				twoFactorDiv.appendChild(emailButton);
 			}
 
 			// Add verification form if setup is initiated
 			if (twoFactorMessage || qrCode) {
-				twoFactorDiv.innerHTML += `
-					<form class="verification-form">
-						<input type="text" placeholder="Enter verification code" maxLength="6">
-						<button type="submit" class="confirm-btn">Verify</button>
-					</form>
+				const verificationForm = document.createElement('form');
+				verificationForm.className = 'verification-form';
+				verificationForm.innerHTML = `
+					<input type="text" placeholder="Enter verification code" maxLength="6">
+					<button type="submit" class="confirm-btn">Verify</button>
 				`;
 
-				const form = twoFactorDiv.querySelector('form');
-				const input = form.querySelector('input');
-
+				const input = verificationForm.querySelector('input');
 				input.addEventListener('input', (e) => {
 					confirmationOtp = e.target.value;
 				});
 
-				form.addEventListener('submit', confirm2FA);
+				verificationForm.addEventListener('submit', confirm2FA);
+				twoFactorDiv.appendChild(verificationForm);
 			}
 
-			// Add back button and messages
-			twoFactorDiv.innerHTML += `
-				<button class="back-btn">Back</button>
-				${twoFactorMessage ? `<p class="message">${twoFactorMessage}</p>` : ''}
-			`;
-
-			twoFactorDiv.querySelector('.back-btn').addEventListener('click', () => {
+			// Add back button
+			const backButton = document.createElement('button');
+			backButton.className = 'back-btn';
+			backButton.textContent = 'Back';
+			backButton.addEventListener('click', () => {
 				selected2FAMethod = '';
 				qrCode = '';
 				twoFactorMessage = '';
 				confirmationOtp = '';
+				twoFactorSuccess = '';
+				twoFactorError = '';
+				otpSecret = '';
 				render2FA();
 			});
+			twoFactorDiv.appendChild(backButton);
+
+			// Display messages
+			if (twoFactorMessage) {
+				const messagePara = document.createElement('p');
+				messagePara.className = 'message';
+				messagePara.textContent = twoFactorMessage;
+				twoFactorDiv.appendChild(messagePara);
+			}
+			if (twoFactorSuccess) {
+				const successPara = document.createElement('p');
+				successPara.className = 'success-message';
+				successPara.textContent = twoFactorSuccess;
+				twoFactorDiv.appendChild(successPara);
+			}
+			if (twoFactorError) {
+				const errorPara = document.createElement('p');
+				errorPara.className = 'error-message';
+				errorPara.textContent = twoFactorError;
+				twoFactorDiv.appendChild(errorPara);
+			}
 		}
 
 		mainContent.appendChild(twoFactorDiv);
+	}
+
+	// Helper function to capitalize the first letter of a string
+	function capitalizeFirstLetter(string) {
+		return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 
 	// Initial load
