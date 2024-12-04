@@ -20,6 +20,7 @@ class UserProfile(models.Model):
 	# oauth = models.BooleanField(default=False)
 	is_online = models.BooleanField(default=False)
 	match_history = models.ManyToManyField("MatchHistory", blank=True)
+	last_activity = models.DateTimeField(null=True, blank=True)
 
 	def calculate_wins(self):
 		wins_1v1 = MatchHistory.objects.filter(winner=self.user.get_username()).count()
