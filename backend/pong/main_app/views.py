@@ -431,7 +431,6 @@ class CowboyMatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 
 
 class TournamentListCreateAPIView(generics.ListCreateAPIView):
-	queryset = Tournament.objects.all()
 	serializer_class = TournamentSerializer
 	authentication_classes = [
 		CustomJWTAuthentication,
@@ -569,17 +568,21 @@ class CustomTokenVerifyView(TokenVerifyView):
 
 
 class LogoutView(APIView):
-	authentication_classes = [
-		CustomJWTAuthentication,
-	]
-	permission_classes = [permissions.IsAuthenticated]
-	
-	def post(self, request):
-		response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
-		response.delete_cookie('access_token')
-		response.delete_cookie('refresh_token')
-		return response
-	
+    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            user_profile.is_online = False
+            user_profile.save()
+        except UserProfile.DoesNotExist:
+            logger.warning(f"UserProfile does not exist for user: {request.user.username}")
+
+        response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
 
 class ProtectedMediaView(APIView):
 	authentication_classes = [
