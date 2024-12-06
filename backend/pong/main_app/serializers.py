@@ -157,6 +157,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			'avatar',
 			'is_online',
 		]
+		read_only_fields = ['is_online']
 
 	def get_wins(self, obj):
 		return obj.calculate_wins()
