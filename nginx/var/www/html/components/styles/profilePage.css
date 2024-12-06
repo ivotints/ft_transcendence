@@ -1,11 +1,12 @@
 /* Main container */
 .user-container {
     display: flex;
-    height: calc(100vh - 80px); /* Account for header */
+    height: 90vh; /* 80vh minus header height */
     width: 100%;
     background-color: #2c2c2c;
     margin-top: 80px; /* Match header height */
-    overflow: hidden;
+    overflow: hidden; /* Add this to prevent scrolling issues */
+    position: relative;
 }
 
 /* Sidebar */
@@ -179,15 +180,6 @@
 
 
 
-
-.user-container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-    background-color: #2c2c2c;
-    position: relative;
-    margin-top: 80px;
-}
 
 .sidebar {
     width: 200px;
@@ -641,4 +633,3 @@
 
 
 
-  
