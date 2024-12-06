@@ -11,7 +11,7 @@ class UpdateLastActivityMiddleware:
 
     def __call__(self, request):
         token = request.COOKIES.get('access_token')
-        User = get_user_model()  # Define User before the try block
+        User = get_user_model()
         if token:
             try:
                 payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
@@ -21,7 +21,7 @@ class UpdateLastActivityMiddleware:
                     user = User.objects.get(id=user_id)
                     request.user = user
             except (ExpiredSignatureError, InvalidTokenError, User.DoesNotExist):
-                request.user = None  # Set request.user to None if there's an error
+                request.user = None
 
         excluded_paths = ['/token/refresh/', '/token/verify/']
         if request.path not in excluded_paths and request.user and request.user.is_authenticated:
