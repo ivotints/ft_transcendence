@@ -431,6 +431,7 @@ export class PongGame {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.fillStyle = '#ffffff';
 
+		// Draw paddles and field
 		const roundRect = (x, y, width, height) => {
 			const radius = 9;
 			this.context.beginPath();
@@ -443,37 +444,95 @@ export class PongGame {
 			this.context.fill();
 		};
 
+		// Draw paddles
 		if (this.is2v2) {
+			// Draw all paddles
 			roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
 			roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
 			roundRect(this.player3.x, this.player3.y, this.player3.width, this.player3.height);
 			roundRect(this.player4.x, this.player4.y, this.player4.width, this.player4.height);
 
+			// Draw middle line
 			this.context.beginPath();
 			this.context.strokeStyle = '#ffffff';
 			this.context.setLineDash([5, 15]);
 			this.context.moveTo(0, this.canvas.height / 2);
 			this.context.lineTo(this.canvas.width, this.canvas.height / 2);
 			this.context.stroke();
+
+			// Draw team names and scores
+			this.context.font = '24px Arial';
+			this.context.textAlign = 'center';
+
+			// Left Team players
+			this.context.fillText(this.player1.name, this.canvas.width / 4, 30);
+			this.context.fillText(this.player3.name, this.canvas.width / 4, this.canvas.height - 10);
+
+			// Left Team score
+			this.context.font = '48px Arial';
+			this.context.fillText(
+				(this.player1.score + this.player3.score).toString(),
+				this.canvas.width / 4,
+				80
+			);
+
+			// Right Team players
+			this.context.font = '24px Arial';
+			this.context.fillText(this.player2.name, (this.canvas.width / 4) * 3, 30);
+			this.context.fillText(this.player4.name, (this.canvas.width / 4) * 3, this.canvas.height - 10);
+
+			// Right Team score
+			this.context.font = '48px Arial';
+			this.context.fillText(
+				(this.player2.score + this.player4.score).toString(),
+				(this.canvas.width / 4) * 3,
+				80
+			);
 		} else {
+			// Original 1v1 drawing
 			roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
 			roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
+
+			// Draw player names and scores
+			this.context.font = '24px Arial';
+			this.context.textAlign = 'center';
+
+			// Player 1
+			this.context.fillText(this.player1.name, this.canvas.width / 4, 50);
+			this.context.font = '48px Arial';
+			this.context.fillText(this.player1.score.toString(), this.canvas.width / 4, 100);
+
+			// Player 2
+			this.context.font = '24px Arial';
+			this.context.fillText(this.player2.name, (this.canvas.width / 4) * 3, 50);
+			this.context.font = '48px Arial';
+			this.context.fillText(this.player2.score.toString(), (this.canvas.width / 4) * 3, 100);
 		}
 
+		// Draw ball
 		this.context.fillRect(this.ball.x, this.ball.y, this.ball.width, this.ball.height);
 
-		this.context.font = '48px Arial';
-		this.context.textAlign = 'center';
-		this.context.fillText(this.player1.score.toString(), this.canvas.width / 4, 100);
-		this.context.fillText(this.player2.score.toString(), (this.canvas.width / 4) * 3, 100);
-
+		// Draw game over message if needed
 		if (this.over) {
 			this.context.font = '64px Arial';
-			this.context.fillText(
-				`${this.player1.score > this.player2.score ? 'Player 1' : 'Player 2'} Wins!`,
-				this.canvas.width / 2,
-				this.canvas.height / 2
-			);
+			if (this.is2v2) {
+				const leftTeamScore = this.player1.score + this.player3.score;
+				const rightTeamScore = this.player2.score + this.player4.score;
+				const winningTeam = leftTeamScore > rightTeamScore ?
+					`${this.player1.name} & ${this.player3.name}` :
+					`${this.player2.name} & ${this.player4.name}`;
+				this.context.fillText(
+					`${winningTeam} Win!`,
+					this.canvas.width / 2,
+					this.canvas.height / 2
+				);
+			} else {
+				this.context.fillText(
+					`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} Wins!`,
+					this.canvas.width / 2,
+					this.canvas.height / 2
+				);
+			}
 		}
 	}
 
