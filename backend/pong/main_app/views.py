@@ -39,6 +39,7 @@ class SetupTwoFactorView(APIView):
 		user = request.user
 		method = request.data.get('method')
 		user_phone = request.data.get('user_phone')
+
 		code = request.data.get('code')
 
 		account_sid = settings.TWILIO_ACCOUNT_SID
@@ -47,8 +48,6 @@ class SetupTwoFactorView(APIView):
 
 		try:
 			# Generate 2FA data
-			# two_factor_auth_data = user_two_factor_auth_data_create(user=user)
-
 			two_factor_auth_data = user_two_factor_auth_data_create(user=user)
 
 			if method == 'authenticator':
@@ -59,12 +58,10 @@ class SetupTwoFactorView(APIView):
 				
 				if not code:
 					# Creates qr_code on first call
-
 					qr_code = two_factor_auth_data.generate_qr_code(name=user.email)
 					return JsonResponse({"otp_secret": two_factor_auth_data.otp_secret, "qr_code": qr_code})
 				else:
 					# Checks if code is correct so it can be written to DB
-
 					otp = request.data.get('code')
 					if not two_factor_auth_data.validate_otp(otp):
 						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
@@ -82,7 +79,8 @@ class SetupTwoFactorView(APIView):
 					return JsonResponse({"errors": ["This 2FA method is already enabled"]}, status=400)
 				if not user_phone:
 					return JsonResponse({"errors": ["Mobile number is required for SMS 2FA"]}, status=400)
-				
+				if not '+' in user_phone:
+					user_phone = '+' + user_phone
 				if not re.match(r'^\+[1-9]\d{1,14}$', user_phone):
 					return JsonResponse({"errors": ["Invalid phone number format."]}, status=400)
 
@@ -97,7 +95,6 @@ class SetupTwoFactorView(APIView):
 						to=user_phone,
 						code=code
 					)
-
 					if verification_check.status == 'approved':
 						two_factor_auth_data.sms_enabled = True
 						two_factor_auth_data.mobile_number = user_phone
@@ -118,11 +115,11 @@ class SetupTwoFactorView(APIView):
 				else:
 
 					if not two_factor_auth_data.validate_email_otp(code):
-						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+						return Response({"error": "Invalid OTP code."}, status=400)
 
 					two_factor_auth_data.email_enabled = True
 					two_factor_auth_data.save()
-					return Response({"success": "2FA setup successfully."}, status=status.HTTP_200_OK)
+					return Response({"success": "2FA setup successfully."}, status=200)
 
 			else:
 				return JsonResponse({"errors": ["Invalid method"]}, status=400)
@@ -254,8 +251,10 @@ class SendVerificationCode(APIView):
 			elif method == 'email':
 				send_email_code(user.email, two_factor_auth_data.otp_secret)
 				return JsonResponse({"success": "OTP sent successfully."})
+			else:
+				return JsonResponse({"errors": ["Invalid method"]}, status=400)
 		except Exception as e:
-			return JsonResponse({"detail": str(e)}, status=500)
+			return JsonResponse({"detail": str(e)}, status=400)
 
 
 
@@ -460,9 +459,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		username = request.data.get('username')
 		otp = request.data.get('otp')
 		User = get_user_model()
-		account_sid = settings.TWILIO_ACCOUNT_SID
-		auth_token = settings.TWILIO_AUTH_TOKEN
-		verify_service_sid = settings.TWILIO_VERIFY_SERVICE_SID
+
 		try:
 			user = User.objects.get(username=username)
 		except User.DoesNotExist:
@@ -474,25 +471,33 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			# If the user does not have two-factor authentication data,
 			pass
 		else:
-			if two_factor_auth_data.app_enabled or two_factor_auth_data.email_enabled or two_factor_auth_data.sms_enabled:
-				method = request.data.get('method')
-				if not otp:
-					return Response({'detail': 'OTP required'}, status=401)
-				
-				if method == 'sms':
-					client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-					verification_check = client.verify.services(settings.TWILIO_VERIFY_SERVICE_SID).verification_checks.create(
-						to=two_factor_auth_data.mobile_number,
-						code=otp
-					)
-					if verification_check.status != 'approved':
-						return Response({"detail": "Invalid OTP code."}, status=401)
-				elif method == 'app':
-					if not two_factor_auth_data.validate_otp(otp):
-						return Response({"detail": "Invalid OTP code."}, status=401)
-				elif method == 'email':
-					if not two_factor_auth_data.validate_email_otp(otp):
-						return Response({"detail": "Invalid OTP code."}, status=401)
+			try:
+				if two_factor_auth_data.app_enabled or two_factor_auth_data.email_enabled or two_factor_auth_data.sms_enabled:
+					method = request.data.get('method')
+					if not otp:
+						return Response({'detail': 'OTP required.'}, status=401)
+					
+					if method == 'sms':
+						try:
+							client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+							verification_check = client.verify.services(settings.TWILIO_VERIFY_SERVICE_SID).verification_checks.create(
+								to=two_factor_auth_data.mobile_number,
+								code=otp
+							)
+						except Exception as e:
+							return Response({"detail": "Invalid OTP code."}, status=401)
+						if verification_check.status != 'approved':
+							return Response({"detail": "Invalid OTP code."}, status=401)
+					elif method == 'app':
+						if not two_factor_auth_data.validate_otp(otp):
+							return Response({"detail": "Invalid OTP code."}, status=401)
+					elif method == 'email':
+						if not two_factor_auth_data.validate_email_otp(otp):
+							return Response({"detail": "Invalid OTP code."}, status=401)
+					else:
+						return Response({"detail": "Invalid method."}, status=400)
+			except Exception as e:
+				return Response({"detail": str(e)}, status=400)
 					
 
 		response = super().post(request, *args, **kwargs)
@@ -672,7 +677,7 @@ def oauth_callback(request):
 		'access_token',
 		access_token,
 		httponly=True,
-		samesite='None',
+		samesite='Strict',
 		secure=True,
 		expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
 	)
@@ -680,7 +685,7 @@ def oauth_callback(request):
 		'refresh_token',
 		refresh_token,
 		httponly=True,
-		samesite='None',
+		samesite='Strict',
 		secure=True,
 		expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
 	)
