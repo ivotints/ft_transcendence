@@ -613,7 +613,6 @@ export async function profilePage() {
 		}
 
 		try {
-			// Changed endpoint from /api/users/2fa/setup/ to /api/setup-2fa/
 			const response = await fetch('/api/setup-2fa/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -633,7 +632,8 @@ export async function profilePage() {
 				}
 				otpSecret = result.otp_secret;
 			} else {
-				twoFactorError = result.detail || 'An error occurred during setup.';
+				// Updated error handling to display errors from response
+				twoFactorError = result.errors ? result.errors[0] : result.detail || 'An error occurred during setup.';
 			}
 		} catch (error) {
 			console.error('Error setting up 2FA:', error);
