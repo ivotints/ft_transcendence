@@ -390,34 +390,36 @@ export function authForms() {
     errorMessageDiv.textContent = '';
 
     try {
-      const response = await fetch('/api/users/register/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username, email, password })
-      });
+        const response = await fetch('/api/users/register/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username, email, password })
+        });
 
-      if (response.ok) {
-        console.log('User created successfully');
-        await handleLogin(username, password);
-      } else {
-        const errorData = await response.json();
-        if (errorData.username) {
-          errorMessage = `Username error: ${errorData.username[0]}`;
-        } else if (errorData.email) {
-          errorMessage = `Email error: ${errorData.email[0]}`;
-        } else if (errorData.password) {
-          errorMessage = `Password error: ${errorData.password[0]}`;
+        if (response.ok) {
+            console.log('User created successfully');
+            await handleLogin(username, password);
         } else {
-          errorMessage = `Error: ${errorData.detail || 'An error occurred'}`;
+            const errorData = await response.json();
+            if (errorData.password && errorData.password.password) {
+                errorMessage = errorData.password.password;
+            } else if (errorData.username) {
+                errorMessage = `Username error: ${errorData.username[0]}`;
+            } else if (errorData.email) {
+                errorMessage = `Email error: ${errorData.email[0]}`;
+            } else if (errorData.password) {
+                errorMessage = `Password error: ${errorData.password[0]}`;
+            } else {
+                errorMessage = `Error: ${errorData.detail || 'An error occurred'}`;
+            }
+            errorMessageDiv.textContent = errorMessage;
         }
-        errorMessageDiv.textContent = errorMessage;
-      }
     } catch (error) {
-      console.error('Error creating user:', error);
-      errorMessageDiv.textContent = 'Error: Network error';
+        console.error('Error creating user:', error);
+        errorMessageDiv.textContent = 'Error: Network error';
     }
-  }
+}
 
   async function handleLogin(usernameParam, passwordParam) {
     try {
