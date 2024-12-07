@@ -623,6 +623,11 @@
 	background-color: #2a2a2a;
   }
 
+.input-group_profile .error-message {
+    text-align: left;
+    color: red;
+    margin-top: 10px;
+}
 
   .password-input {
     width: 100%;
