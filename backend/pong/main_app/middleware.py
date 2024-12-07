@@ -17,7 +17,6 @@ class UpdateLastActivityMiddleware:
                 payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
                 user_id = payload.get('user_id')
                 if user_id is not None:
-                    # Get the user
                     user = User.objects.get(id=user_id)
                     request.user = user
             except (ExpiredSignatureError, InvalidTokenError, User.DoesNotExist):

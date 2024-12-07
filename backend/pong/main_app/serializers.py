@@ -30,17 +30,11 @@ class UserSerializer(serializers.ModelSerializer):
 			'old_password',
 			'first_name',
 			'last_name',
-			'is_active',
 		]
 
 	def validate_username(self, value):
 		if len(value) > 32:
 			raise serializers.ValidationError({'username:': 'Username must be 32 characters or fewer'})
-		
-		# username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
-		# if not re.match(username_regex, value):
-		# 	raise serializers.ValidationError("Your username contains invalid characters.")
-		
 		return value
 	
 	def validate_email(self, value):
@@ -74,7 +68,10 @@ class UserSerializer(serializers.ModelSerializer):
 						raise serializers.ValidationError({"old_password": "Old password is incorrect"})
 				else:
 					pass
-		
+		elif request and request.method == 'POST':
+			if 'old_password' in data:
+				data.pop('old_password')
+
 		if request and request.method == 'POST':
 			if 'email' not in data or not data.get('email'):
 				raise serializers.ValidationError({"email": "Email cannot be empty"})
@@ -89,13 +86,6 @@ class UserSerializer(serializers.ModelSerializer):
 				raise serializers.ValidationError({"email": "Invalid email address"})
 			if user and user.email == email:
 				raise serializers.ValidationError({"email": "New email cannot be the same as the old email"})
-
-		# if 'old_password' in data:
-		# 	old_password = data.get('old_password')
-		# 	if old_password is None:
-		# 		raise serializers.ValidationError({"old_password": "You need to validate old password"})
-		# 	if user and not user.check_password(old_password):
-		# 		raise serializers.ValidationError({"old_password": "Old password is incorrect"})
 
 		if 'password' in data:
 			password = data.get('password')
