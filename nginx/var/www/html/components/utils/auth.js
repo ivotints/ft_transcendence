@@ -189,6 +189,7 @@ export function authForms() {
       usernameInput.placeholder = 'Username';
       usernameInput.value = username;
       usernameInput.required = true;
+      usernameInput.setAttribute('required', ''); // Extra required attribute
       usernameInput.addEventListener('input', (e) => {
         username = e.target.value;
       });
@@ -243,9 +244,23 @@ export function authForms() {
       formContainer.appendChild(table);
 
       if (formType === 'login') {
-        submitButton.addEventListener('click', handleLoginSubmit);
+        submitButton.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (!username.trim() || !password.trim()) {
+            errorMessageDiv.textContent = 'All fields must be filled out';
+            return;
+          }
+          await handleLoginSubmit(e);
+        });
       } else if (formType === 'createUser') {
-        submitButton.addEventListener('click', handleCreateUserSubmit);
+        submitButton.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (!username.trim() || !email.trim() || !password.trim()) {
+            errorMessageDiv.textContent = 'All fields must be filled out';
+            return;
+          }
+          await handleCreateUserSubmit(e);
+        });
       }
     } else {
       // 2FA verification form
@@ -256,6 +271,8 @@ export function authForms() {
       otpInput.maxLength = 6;
       otpInput.placeholder = 'Enter verification code';
       otpInput.value = otp;
+      otpInput.required = true;
+      otpInput.setAttribute('required', '');
       otpInput.addEventListener('input', (e) => {
         otp = e.target.value;
       });
@@ -295,6 +312,10 @@ export function authForms() {
       submitButton.className = 'submit-button';
       submitButton.textContent = 'Verify';
       submitButton.onclick = async () => {
+        if (!otp.trim()) {
+          errorMessageDiv.textContent = 'Verification code is required';
+          return;
+        }
         try {
           let method;
           if (twoFactorMethods.email_enabled) method = 'email';

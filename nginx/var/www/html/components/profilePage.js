@@ -247,7 +247,7 @@ export async function profilePage() {
 			<h2 class="profileH2">Change Email</h2>
 			<div class="input-group_profile">
 				<label>New Email: </label>
-				<input type="email" placeholder="New Email" required>
+				<input type="email" maxLength="32" placeholder="New Email" required>
 			</div>
 			<button type="submit" class="confirm-btn">Update Email</button>
 		`;
@@ -290,15 +290,15 @@ export async function profilePage() {
         <h2 class="profileH2">Change Password</h2>
         <div class="input-group_profile">
             <label>Old Password: </label>
-            <input type="password" placeholder="Old Password" required>
+            <input type="password" maxLength="32" placeholder="Old Password" required>
         </div>
         <div class="input-group_profile">
             <label>New Password: </label>
-            <input type="password" placeholder="New Password" required>
+            <input type="password" maxLength="32" placeholder="New Password" required>
         </div>
         <div class="input-group_profile">
             <label>Confirm Password: </label>
-            <input type="password" placeholder="Confirm Password" required>
+            <input type="password" maxLength="32" placeholder="Confirm Password" required>
         </div>
         <button type="submit" class="confirm-btn">Update Password</button>
     `;
@@ -762,7 +762,7 @@ export async function profilePage() {
 				const verificationForm = document.createElement('form');
 				verificationForm.className = 'verification-form';
 				verificationForm.innerHTML = `
-					<input type="text" placeholder="Enter verification code" maxLength="6">
+					<input type="text" maxLength="32" placeholder="Enter verification code" maxLength="6">
 					<button type="submit" class="confirm-btn">Verify</button>
 				`;
 
