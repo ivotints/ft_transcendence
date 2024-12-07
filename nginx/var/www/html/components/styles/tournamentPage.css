@@ -397,3 +397,15 @@ font-weight: normal;
     margin-top: 10px;
     text-align: center;
 }
+
+.player-registration .start-button {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.player-registration .error-message {
+    margin: 10px 0;
+    color: #ff4444;
+    text-align: center;
+    width: 100%;
+}

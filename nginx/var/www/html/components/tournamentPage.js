@@ -106,6 +106,18 @@ export async function tournamentPage() {
         const playerList = document.createElement('ul');
         playerList.className = 'player-list';
 
+        // Create start button
+        const startButton = document.createElement('button');
+        startButton.textContent = 'Start Tournament';
+        startButton.className = 'start-button';
+        startButton.onclick = () => {
+            if (players.length < 4) {
+                errorMessage.textContent = 'Need 4 players to start tournament';
+                return;
+            }
+            startTournament();
+        };
+
         addButton.addEventListener('click', () => {
             const alias = input.value.trim();
             // Updated regex to only allow letters, numbers, and @/./+/-/_
@@ -154,6 +166,7 @@ export async function tournamentPage() {
         container.appendChild(inputGroup);
         container.appendChild(errorMessage);
         container.appendChild(playerList);
+        container.appendChild(startButton); // Add start button inside container
 
         return container;
     }
@@ -344,15 +357,9 @@ export async function tournamentPage() {
         }
     }
 
-    // Initial render
+    // Initial render - remove separate start button
     const playerRegistration = createPlayerRegistration();
     tournamentContainer.appendChild(playerRegistration);
-
-    const startButton = document.createElement('button');
-    startButton.textContent = 'Start Tournament';
-    startButton.className = 'start-button';
-    startButton.onclick = startTournament;
-    tournamentContainer.appendChild(startButton);
 
     return tournamentContainer;
 }
