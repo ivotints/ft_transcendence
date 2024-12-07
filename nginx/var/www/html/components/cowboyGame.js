@@ -57,8 +57,9 @@ export class CowboyGame {
     createScoreElement(name, score) {
         const div = document.createElement('div');
         div.className = 'score';
+        const truncatedName = name.length > 10 ? name.slice(0, 10) + '...' : name;
         div.innerHTML = `
-            <span class="score-label">${name}</span>
+            <span class="score-label">${truncatedName}</span>
             <span class="score-value">${score}</span>
         `;
         return div;
@@ -67,10 +68,11 @@ export class CowboyGame {
     createPlayerElement(name, playerNum) {
         const div = document.createElement('div');
         div.className = `player player${playerNum}`;
+        const truncatedName = name.length > 10 ? name.slice(0, 10) + '...' : name;
         div.innerHTML = `
             <img src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
                 alt="Player ${playerNum} Cowboy" class="cowboy-image">
-            <h3>${name}</h3>
+            <h3>${truncatedName}</h3>
         `;
         return div;
     }

@@ -32,24 +32,48 @@ export async function PongVsPlayerPage() {
         const player2Input = document.createElement('input');
         player2Input.type = 'text';
         player2Input.placeholder = 'Enter Player 2 name';
+        player2Input.maxLength = 32;
         player2Input.required = true;
 
         const startButton = document.createElement('button');
         startButton.type = 'submit';
         startButton.textContent = 'Start Game';
 
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'error-message';
+        errorMessage.style.display = 'none';
+
         setupForm.appendChild(createInputGroup('Player 1:', player1Input));
         setupForm.appendChild(createInputGroup('Player 2:', player2Input));
         setupForm.appendChild(startButton);
+        setupForm.appendChild(errorMessage);
 
         container.appendChild(setupForm);
 
         setupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const player2Value = player2Input.value.trim();
+            const validNameRegex = /^[a-zA-Z0-9@.+\-_]+$/;
+
+            // Check for duplicate names first
+            if (player2Value === currentUsername) {
+                errorMessage.textContent = 'Player names must be different';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Then check for valid characters
+            if (!validNameRegex.test(player2Value)) {
+                errorMessage.textContent = 'This value may contain only letters, numbers, and @/./+/-/_ characters.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            errorMessage.style.display = 'none';
             const players = {
                 player1: currentUsername,
-                player2: player2Input.value,
+                player2: player2Value,
                 player3: 'none',
                 player4: 'none'
             };

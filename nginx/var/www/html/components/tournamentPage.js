@@ -108,8 +108,21 @@ export async function tournamentPage() {
 
         addButton.addEventListener('click', () => {
             const alias = input.value.trim();
-            if (!alias || players.includes(alias) || alias.includes(' ')) {
-                errorMessage.textContent = 'Alias cannot be empty, contain spaces, or already be registered.';
+            // Updated regex to only allow letters, numbers, and @/./+/-/_
+            const validAliasRegex = /^[a-zA-Z0-9@.+\-_]+$/;
+
+            if (!alias) {
+                errorMessage.textContent = 'Alias cannot be empty.';
+                return;
+            }
+
+            if (!validAliasRegex.test(alias)) {
+                errorMessage.textContent = 'Alias may contain only letters, numbers, and @/./+/-/_ characters.';
+                return;
+            }
+
+            if (players.includes(alias)) {
+                errorMessage.textContent = 'This alias is already registered.';
                 return;
             }
 

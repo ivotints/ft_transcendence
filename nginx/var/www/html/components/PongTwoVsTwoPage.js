@@ -32,38 +32,76 @@ export async function PongTwoVsTwoPage() {
         const player2Input = document.createElement('input');
         player2Input.type = 'text';
         player2Input.placeholder = 'Enter Player 2 name';
+        player2Input.maxLength = 32;
         player2Input.required = true;
 
         const player3Input = document.createElement('input');
         player3Input.type = 'text';
         player3Input.placeholder = 'Enter Player 3 name';
+        player3Input.maxLength = 32;
         player3Input.required = true;
 
         const player4Input = document.createElement('input');
         player4Input.type = 'text';
         player4Input.placeholder = 'Enter Player 4 name';
+        player4Input.maxLength = 32;
         player4Input.required = true;
 
         const startButton = document.createElement('button');
         startButton.type = 'submit';
         startButton.textContent = 'Start Game';
 
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'error-message';
+        errorMessage.style.display = 'none';
+
         setupForm.appendChild(createInputGroup('Player 1:', player1Input));
         setupForm.appendChild(createInputGroup('Player 2:', player2Input));
         setupForm.appendChild(createInputGroup('Player 3:', player3Input));
         setupForm.appendChild(createInputGroup('Player 4:', player4Input));
         setupForm.appendChild(startButton);
+        setupForm.appendChild(errorMessage);
 
         container.appendChild(setupForm);
 
         setupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const validNameRegex = /^[a-zA-Z0-9@.+\-_]+$/;
+            const playerInputs = [player2Input, player3Input, player4Input];
+            const playerValues = playerInputs.map(input => input.value.trim().toLowerCase());
+
+            // Check for duplicate names with current user
+            if (playerValues.includes(currentUsername.toLowerCase())) {
+                errorMessage.textContent = 'Player names must be different';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Check for duplicates between other players
+            const uniqueNames = new Set(playerValues);
+            if (uniqueNames.size !== playerValues.length) {
+                errorMessage.textContent = 'All player names must be different';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Check for valid characters
+            for (const input of playerInputs) {
+                const value = input.value.trim();
+                if (!validNameRegex.test(value)) {
+                    errorMessage.textContent = 'This value may contain only letters, numbers, and @/./+/-/_ characters.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+            }
+
+            errorMessage.style.display = 'none';
             const players = {
                 player1: currentUsername,
-                player2: player2Input.value,
-                player3: player3Input.value,
-                player4: player4Input.value
+                player2: player2Input.value.trim(),
+                player3: player3Input.value.trim(),
+                player4: player4Input.value.trim()
             };
 
             setupForm.remove();

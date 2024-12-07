@@ -369,8 +369,8 @@ export async function profilePage() {
 					const data = await response.json();
 					messageFriendElement.className = 'error-message';
 					messageFriendElement.textContent = data.friend_username?.[0] ||
-													 data.non_field_errors?.[0] ||
-													 'Error sending friend request';
+						data.non_field_errors?.[0] ||
+						'Error sending friend request';
 					return;
 				}
 
@@ -502,7 +502,7 @@ export async function profilePage() {
 
 		try {
 			let endpoint = '/api/matches/';
-			switch(type) {
+			switch (type) {
 				case '2v2':
 					endpoint = '/api/matches/2v2/';
 					break;
@@ -530,11 +530,11 @@ export async function profilePage() {
 						<p><strong>Winners Order:</strong></p>
 						<ul>
 							${Array.isArray(match.winners_order_display)
-								? match.winners_order_display.map((username, index) =>
-									`<li><strong>${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place:</strong> ${username}</li>`
-								).join('')
-								: '<li>N/A</li>'
-							}
+							? match.winners_order_display.map((username, index) =>
+								`<li><strong>${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place:</strong> ${username}</li>`
+							).join('')
+							: '<li>N/A</li>'
+						}
 						</ul>
 					`;
 				} else {
