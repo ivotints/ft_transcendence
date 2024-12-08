@@ -1,5 +1,7 @@
 // profileSections/twoFactorSection.js
 
+import { translate } from '../utils/translate.js';
+
 let state = {
     selected2FAMethod: '',
     userPhone: '',
@@ -102,7 +104,6 @@ function resetState() {
 }
 
 export function render2FA(mainContent) {
-    // Store the reference when render2FA is called
     mainContentRef = mainContent;
     mainContent.innerHTML = '';
     const twoFactorDiv = document.createElement('div');
@@ -110,11 +111,11 @@ export function render2FA(mainContent) {
 
     if (!state.selected2FAMethod) {
         twoFactorDiv.innerHTML = `
-            <h2 class="profileH2">2-Factor Authentication</h2>
+            <h2 class="profileH2">${translate('2-Factor Authentication')}</h2>
             <div class="two-factor-options">
-                <button class="confirm-btn" data-method="authenticator">Setup with Authenticator App</button>
-                <button class="confirm-btn" data-method="sms">Setup with SMS</button>
-                <button class="confirm-btn" data-method="email">Setup with Email</button>
+                <button class="confirm-btn" data-method="authenticator">${translate('Setup with Authenticator App')}</button>
+                <button class="confirm-btn" data-method="sms">${translate('Setup with SMS')}</button>
+                <button class="confirm-btn" data-method="email">${translate('Setup with Email')}</button>
             </div>
         `;
 
@@ -127,7 +128,7 @@ export function render2FA(mainContent) {
         });
     } else {
         twoFactorDiv.innerHTML = `
-            <h2 class="profileH2">Setup ${capitalizeFirstLetter(state.selected2FAMethod)} Authentication</h2>
+            <h2 class="profileH2">${translate('Setup')} ${capitalizeFirstLetter(state.selected2FAMethod)} ${translate('Authentication')}</h2>
         `;
 
         if (state.selected2FAMethod === 'authenticator') {
@@ -135,14 +136,14 @@ export function render2FA(mainContent) {
                 const generateButton = document.createElement('button');
                 generateButton.className = 'confirm-btn';
                 generateButton.id = 'generate-qr';
-                generateButton.textContent = 'Generate QR Code';
+                generateButton.textContent = translate('Generate QR Code');
                 generateButton.addEventListener('click', () => setup2FA('authenticator'));
                 twoFactorDiv.appendChild(generateButton);
             } else {
                 const qrSection = document.createElement('div');
                 qrSection.className = 'qr-code-section';
                 qrSection.innerHTML = `
-                    <p>Scan the QR code with your authenticator app:</p>
+                    <p>${translate('Scan the QR code with your authenticator app:')}</p>
                     <div class="qr-code-display"></div>
                 `;
                 const qrDisplay = qrSection.querySelector('.qr-code-display');
@@ -153,8 +154,8 @@ export function render2FA(mainContent) {
             const phoneSection = document.createElement('div');
             phoneSection.className = 'phone-input-section';
             phoneSection.innerHTML = `
-                <input type="text" placeholder="Enter phone number" maxLength="15" value="${state.userPhone}">
-                <button class="confirm-btn">Send Code</button>
+                <input type="text" placeholder="${translate('Enter phone number')}" maxLength="15" value="${state.userPhone}">
+                <button class="confirm-btn">${translate('Send Code')}</button>
             `;
             const phoneInput = phoneSection.querySelector('input');
             const sendButton = phoneSection.querySelector('button');
@@ -169,7 +170,7 @@ export function render2FA(mainContent) {
             const emailButton = document.createElement('button');
             emailButton.className = 'confirm-btn';
             emailButton.id = 'send-email';
-            emailButton.textContent = 'Send Code via Email';
+            emailButton.textContent = translate('Send Code via Email');
             emailButton.addEventListener('click', () => setup2FA('email'));
             twoFactorDiv.appendChild(emailButton);
         }
@@ -178,8 +179,8 @@ export function render2FA(mainContent) {
             const verificationForm = document.createElement('form');
             verificationForm.className = 'verification-form';
             verificationForm.innerHTML = `
-                <input type="text" maxLength="32" placeholder="Enter verification code" maxLength="6">
-                <button type="submit" class="confirm-btn">Verify</button>
+                <input type="text" maxLength="32" placeholder="${translate('Enter verification code')}" maxLength="6">
+                <button type="submit" class="confirm-btn">${translate('Verify')}</button>
             `;
 
             const input = verificationForm.querySelector('input');
@@ -193,18 +194,18 @@ export function render2FA(mainContent) {
 
         const backButton = document.createElement('button');
         backButton.className = 'back-btn';
-        backButton.textContent = 'Back';
+        backButton.textContent = translate('Back');
         backButton.addEventListener('click', () => {
             resetState();
             render2FA(mainContent);
         });
         twoFactorDiv.appendChild(backButton);
 
-        // Display messages
+        // Display translated messages
         [
-            { text: state.twoFactorMessage, className: 'message' },
-            { text: state.twoFactorSuccess, className: 'success-message' },
-            { text: state.twoFactorError, className: 'error-message' }
+            { text: state.twoFactorMessage && translate(state.twoFactorMessage), className: 'message' },
+            { text: state.twoFactorSuccess && translate(state.twoFactorSuccess), className: 'success-message' },
+            { text: state.twoFactorError && translate(state.twoFactorError), className: 'error-message' }
         ].forEach(({ text, className }) => {
             if (text) {
                 const para = document.createElement('p');
