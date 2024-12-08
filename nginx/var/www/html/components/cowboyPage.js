@@ -1,6 +1,7 @@
 // cowboyPage.js
 import { checkLoginStatus } from './utils/state.js';
 import { CowboyGame } from './cowboyGame.js';
+import { translate } from './utils/translate.js';
 
 export async function cowboyPage() {
     if (!checkLoginStatus()) {
@@ -35,20 +36,20 @@ export async function cowboyPage() {
 
         const player2Input = document.createElement('input');
         player2Input.type = 'text';
-        player2Input.placeholder = 'Enter Player 2 name';
+        player2Input.placeholder = translate('Enter Player 2 name');
         player2Input.maxLength = 32;
         player2Input.required = true;
 
         const startButton = document.createElement('button');
         startButton.type = 'submit';
-        startButton.textContent = 'Start Game';
+        startButton.textContent = translate('Start Game');
 
         const errorMessage = document.createElement('p');
         errorMessage.className = 'error-message';
         errorMessage.style.display = 'none';
 
-        setupForm.appendChild(createInputGroup('Player 1:', player1Input));
-        setupForm.appendChild(createInputGroup('Player 2:', player2Input));
+        setupForm.appendChild(createInputGroup(translate('Player 1:'), player1Input));
+        setupForm.appendChild(createInputGroup(translate('Player 2:'), player2Input));
         setupForm.appendChild(startButton);
         setupForm.appendChild(errorMessage);
 
@@ -62,13 +63,13 @@ export async function cowboyPage() {
 
             // Check for duplicate names
             if (player2Value === currentUsername) {
-                errorMessage.textContent = 'Player names must be different';
+                errorMessage.textContent = translate('Player names must be different');
                 errorMessage.style.display = 'block';
                 return;
             }
 
             if (!validNameRegex.test(player2Value)) {
-                errorMessage.textContent = 'This value may contain only letters, numbers, and @/./+/-/_ characters.';
+                errorMessage.textContent = translate('This value may contain only letters, numbers, and @/./+/-/_ characters.');
                 errorMessage.style.display = 'block';
                 return;
             }
@@ -98,13 +99,13 @@ export async function cowboyPage() {
                         })
                     });
                 } catch (error) {
-                    console.error('Error saving match result:', error);
+                    console.error(translate('Error saving match result:'), error);
                 }
             };
         });
 
     } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error(translate('Error fetching user data:'), error);
     }
 
     return container;

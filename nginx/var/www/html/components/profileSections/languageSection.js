@@ -29,8 +29,8 @@ export function renderLanguageChange(container, showSection) {
 
     languageSelect.addEventListener('change', (e) => {
         setLanguage(e.target.value);
-        // Reload the page to apply new language
-		showSection('Language');
+        window.navigateTo('/profile'); // Nav
+
     });
 
     section.appendChild(languageSelect);

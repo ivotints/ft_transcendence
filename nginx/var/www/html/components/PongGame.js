@@ -1,4 +1,6 @@
 // PongGame.js
+import { translate } from './utils/translate.js';
+
 export class PongGame {
 	constructor(container, players) {
 		this.DIRECTION = {
@@ -213,7 +215,7 @@ export class PongGame {
 
 		this.context.font = '48px Arial';
 		this.context.fillText(
-			'Press any key to begin',
+			translate('Press any key to begin'),
 			this.canvas.width / 2,
 			this.canvas.height / 2 - 150
 		);
@@ -221,51 +223,51 @@ export class PongGame {
 		this.context.font = '26px Arial';
 		if (this.is2v2) {
 			this.context.fillText(
-				'Left Team Controls:',
+				translate('Left Team Controls:'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 50
 			);
 			this.context.fillText(
-				'Top: W/S, Bottom: / and \'',
+				translate('Top: W/S, Bottom: / and \''),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 20
 			);
 			this.context.fillText(
-				'Right Team Controls:',
+				translate('Right Team Controls:'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 20
 			);
 			this.context.fillText(
-				'Top: ↑/↓, Bottom: 8/2',
+				translate('Top: ↑/↓, Bottom: 8/2'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 50
 			);
 		} else if (this.player2AI) {
 			this.context.fillText(
-				'Player Controls: W/S',
+				translate('Player Controls: W/S'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 20
 			);
 			this.context.fillText(
-				'AI Controls right paddle',
+				translate('AI Controls right paddle'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 20
 			);
 		} else {
 			this.context.fillText(
-				'Left Player: W/S',
+				translate('Left Player: W/S'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 20
 			);
 			this.context.fillText(
-				'Right Player: ↑/↓',
+				translate('Right Player: ↑/↓'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 20
 			);
 		}
 
 		this.context.fillText(
-			'Press 1-4 to toggle AI for each player',
+			translate('Press 1-4 to toggle AI for each player'),
 			this.canvas.width / 2,
 			this.canvas.height / 2 + 100
 		);
@@ -568,13 +570,13 @@ export class PongGame {
 					`${this.player1.name} & ${this.player3.name}` :
 					`${this.player2.name} & ${this.player4.name}`;
 				this.context.fillText(
-					`${winningTeam} Win!`,
+					`${winningTeam} ${translate('Win!')}`,
 					this.canvas.width / 2,
 					this.canvas.height / 2
 				);
 			} else {
 				this.context.fillText(
-					`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} Wins!`,
+					`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} ${translate('Wins!')}`,
 					this.canvas.width / 2,
 					this.canvas.height / 2
 				);
@@ -694,16 +696,16 @@ export class PongGame {
 		// Safely access player1 and player2
         const winnerName = this.player1 && this.player2
             ? (this.player1.score > this.player2.score ? this.player1.name : this.player2.name)
-            : 'Player';
+            : translate('Player');
 
 		this.context.fillText(
-			`${winnerName} Wins!`,
+			`${winnerName} ${translate('Wins!')}`,
 			this.canvas.width / 2,
 			this.canvas.height / 2
 		);
 		this.context.font = '48px Arial';
 		this.context.fillText(
-			'Press Space or Enter to Restart',
+			translate('Press Space or Enter to Restart'),
 			this.canvas.width / 2,
 			this.canvas.height / 2 + 100
 		);
