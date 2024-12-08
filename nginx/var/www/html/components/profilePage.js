@@ -8,6 +8,7 @@ import { renderPasswordForm } from './profileSections/passwordSection.js';
 import { renderAddFriendForm, renderFriendList, renderPendingRequests } from './profileSections/friendsSection.js';
 import { renderMatchHistory } from './profileSections/matchHistorySection.js';
 import { render2FA } from './profileSections/twoFactorSection.js';
+import { renderLanguageChange } from './profileSections/languageSection.js';
 
 export async function profilePage() {
 	if (!checkLoginStatus()) {
@@ -33,7 +34,8 @@ export async function profilePage() {
 		'Add Friend',
 		'Friend List',
 		'Pending Requests',
-		'Match History'
+		'Match History',
+		'Language',
 	];
 
 	sections.forEach(section => {
@@ -112,6 +114,9 @@ export async function profilePage() {
 				break;
 			case '2-Factor Authentication':
 				render2FA(mainContent);
+				break;
+			case 'Language':
+				renderLanguageChange(mainContent, showSection);
 				break;
 		}
 	}
