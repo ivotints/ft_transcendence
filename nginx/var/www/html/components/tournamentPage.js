@@ -1,6 +1,7 @@
 // tournamentPage.js
 import { checkLoginStatus } from './utils/state.js';
 import { PongGame } from './PongGame.js';
+import { translate } from './utils/translate.js';
 
 export async function tournamentPage() {
     if (!checkLoginStatus()) {
@@ -25,13 +26,13 @@ export async function tournamentPage() {
         queueContainer.className = 'match-queue';
 
         const title = document.createElement('h2');
-        title.textContent = 'Upcoming Matches';
+        title.textContent = translate('Upcoming Matches');
         queueContainer.appendChild(title);
 
         const list = document.createElement('ul');
         matchQueue.forEach(match => {
             const li = document.createElement('li');
-            li.textContent = match;
+            li.textContent = match.replace(' vs ', ` ${translate('vs')} `);
             list.appendChild(li);
         });
         queueContainer.appendChild(list);
@@ -44,13 +45,13 @@ export async function tournamentPage() {
         scoreContainer.className = 'score-tracker';
 
         const title = document.createElement('h2');
-        title.textContent = 'Scores';
+        title.textContent = translate('Scores');
         scoreContainer.appendChild(title);
 
         const list = document.createElement('ul');
         Object.entries(scores).forEach(([player, score]) => {
             const li = document.createElement('li');
-            li.innerHTML = `<span>${player}</span><span class="points">${score} points</span>`;
+            li.innerHTML = `<span>${player}</span><span class="points">${score} ${translate('points')}</span>`;
             list.appendChild(li);
         });
         scoreContainer.appendChild(list);
@@ -63,17 +64,17 @@ export async function tournamentPage() {
         displayContainer.className = 'match-display';
 
         const title = document.createElement('h2');
-        title.textContent = 'Current Match';
+        title.textContent = translate('Current Match');
         displayContainer.appendChild(title);
 
         const matchText = document.createElement('p');
-        matchText.textContent = currentMatch || 'No matches yet.';
+        matchText.textContent = currentMatch ? currentMatch.replace(' vs ', ` ${translate('vs')} `) : translate('No matches yet.');
         displayContainer.appendChild(matchText);
 
         // Update match counter to use currentMatchIndex
         const matchCounter = document.createElement('p');
         matchCounter.className = 'match-counter';
-        matchCounter.textContent = `Match ${currentMatchIndex + 1} of ${matchQueue.length}`;
+        matchCounter.textContent = `${translate('Match')} ${currentMatchIndex + 1} ${translate('of')} ${matchQueue.length}`;
         displayContainer.appendChild(matchCounter);
 
         return displayContainer;
@@ -84,7 +85,7 @@ export async function tournamentPage() {
         container.className = 'player-registration';
 
         const title = document.createElement('h2');
-        title.textContent = 'Player Registration';
+        title.textContent = translate('Player Registration');
         container.appendChild(title);
 
         const inputGroup = document.createElement('div');
@@ -93,11 +94,11 @@ export async function tournamentPage() {
         const input = document.createElement('input');
         input.type = 'text';
         input.maxLength = 32;
-        input.placeholder = 'Enter alias';
+        input.placeholder = translate('Enter alias');
         input.className = 'alias-input';
 
         const addButton = document.createElement('button');
-        addButton.textContent = 'Add Player';
+        addButton.textContent = translate('Add Player');
         addButton.className = 'add-button';
 
         const errorMessage = document.createElement('p');
@@ -108,11 +109,11 @@ export async function tournamentPage() {
 
         // Create start button
         const startButton = document.createElement('button');
-        startButton.textContent = 'Start Tournament';
+        startButton.textContent = translate('Start Tournament');
         startButton.className = 'start-button';
         startButton.onclick = () => {
             if (players.length < 4) {
-                errorMessage.textContent = 'Need 4 players to start tournament';
+                errorMessage.textContent = translate('Need 4 players to start tournament');
                 return;
             }
             startTournament();
@@ -124,17 +125,17 @@ export async function tournamentPage() {
             const validAliasRegex = /^[a-zA-Z0-9@.+\-_]+$/;
 
             if (!alias) {
-                errorMessage.textContent = 'Alias cannot be empty.';
+                errorMessage.textContent = translate('Alias cannot be empty.');
                 return;
             }
 
             if (!validAliasRegex.test(alias)) {
-                errorMessage.textContent = 'Alias may contain only letters, numbers, and @/./+/-/_ characters.';
+                errorMessage.textContent = translate('Alias may contain only letters, numbers, and @/./+/-/_ characters.');
                 return;
             }
 
             if (players.includes(alias)) {
-                errorMessage.textContent = 'This alias is already registered.';
+                errorMessage.textContent = translate('This alias is already registered.');
                 return;
             }
 
@@ -214,7 +215,7 @@ export async function tournamentPage() {
         // Add play button between match display and scores
         const playButton = document.createElement('button');
         playButton.className = 'submit-button';
-        playButton.textContent = 'Play Game';
+        playButton.textContent = translate('Play Game');
         playButton.onclick = () => {
             if (currentMatch) {
                 const [player1, player2] = currentMatch.split(' vs ');
@@ -284,16 +285,16 @@ export async function tournamentPage() {
         // Create win table
         const winTableContainer = document.createElement('div');
         winTableContainer.innerHTML = `
-            <h1 class="profileH2">Final standings were determined by your score and performance!</h1>
+            <h1 class="profileH2">${translate('Final standings were determined by your score and performance!')}</h1>
             <div class="win-table-wrapper">
-                <h1 class="win-table-title">Final Standings</h1>
+                <h1 class="win-table-title">${translate('Final Standings')}</h1>
                 <div class="win-table-content">
                     <table class="win-table">
                         <thead>
                             <tr>
-                                <th>Position</th>
-                                <th>Player</th>
-                                <th>Score</th>
+                                <th>${translate('Position')}</th>
+                                <th>${translate('Player')}</th>
+                                <th>${translate('Score')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -306,21 +307,30 @@ export async function tournamentPage() {
                             `).join('')}
                         </tbody>
                     </table>
-                    <button class="win-table-restart-button">Start New Tournament</button>
+                    <button class="win-table-restart-button">${translate('Start New Tournament')}</button>
                 </div>
             </div>
         `;
 
-        // Add restart functionality
+        // Update restart functionality to re-render instead of reload
         const restartButton = winTableContainer.querySelector('.win-table-restart-button');
         restartButton.addEventListener('click', () => {
-            sessionStorage.clear();
-            window.location.reload();
+            // Reset all state variables
+            players = [];
+            matches = [];
+            matchQueue = [];
+            currentMatchIndex = 0;
+            scores = {};
+            tournamentStarted = false;
+            sessionStorage.removeItem('resultsPosted');
+
+            // Clear and re-render the tournament container
+            tournamentContainer.innerHTML = '';
+            const playerRegistration = createPlayerRegistration();
+            tournamentContainer.appendChild(playerRegistration);
         });
 
         tournamentContainer.appendChild(winTableContainer);
-
-        // Send results to backend
         sendTournamentResults(rankedPlayers);
     }
 
