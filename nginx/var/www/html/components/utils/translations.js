@@ -79,6 +79,15 @@ export const translations = {
         "Error uploading avatar": "Ошибка загрузки аватара",
         "Avatar property is missing in the response": "Свойство аватара отсутствует в ответе",
         "Error updating avatar": "Ошибка обновления аватара",
+        "Welcome to Pong Transcendence": "Добро пожаловать в Pong Transcendence",
+        "Player vs Player": "Игрок против Игрока",
+        "Player vs AI": "Игрок против ИИ",
+        "2 Players vs 2 Players": "2 Игрока против 2 Игроков",
+        "Tournament": "Турнир",
+        "Home": "Главная",
+        "Profile": "Профиль",
+        "Games": "Игры",
+        "Log out": "Выйти",
 
         // User validation errors
         "Username must be 32 characters or fewer": "Имя пользователя должно быть не более 32 символов",
@@ -122,7 +131,37 @@ export const translations = {
 
         // Tournament errors
         "Error creating tournament:": "Ошибка при создании турнира:",
-        "Refresh token not found in cookies": "Токен обновления не найден в cookies"
+        "Refresh token not found in cookies": "Токен обновления не найден в cookies",
+
+        // Profile sections
+        "Pending Requests": "Ожидающие запросы",
+        "Error fetching user data:": "Ошибка при получении данных пользователя:",
+
+        // Tournament page
+        "Upcoming Matches": "Предстоящие матчи",
+        "Scores": "Счет",
+        "points": "очков",
+        "Current Match": "Текущий матч",
+        "No matches yet.": "Матчей пока нет.",
+        "Match": "Матч",
+        "of": "из",
+        "Player Registration": "Регистрация игроков",
+        "Enter alias": "Введите псевдоним",
+        "Add Player": "Добавить игрока",
+        "Start Tournament": "Начать турнир",
+        "Need 4 players to start tournament": "Нужно 4 игрока для начала турнира",
+        "Alias cannot be empty.": "Псевдоним не может быть пустым.",
+        "Alias may contain only letters, numbers, and @/./+/-/_ characters.": "Псевдоним может содержать только буквы, цифры и символы @/./+/-/_",
+        "This alias is already registered.": "Этот псевдоним уже зарегистрирован.",
+        "vs": "против",
+        "Play Game": "Начать игру",
+        "Final standings were determined by your score and performance!": "Итоговые места определены по вашему счету и результатам!",
+        "Final Standings": "Итоговая таблица",
+        "Position": "Место",
+        "Player": "Игрок",
+        "Score": "Счет",
+        "Start New Tournament": "Начать новый турнир",
+        "Error posting tournament results:": "Ошибка при отправке результатов турнира:"
     },
     "cz": {
         "Change Email": "Změnit e-mail",
@@ -203,6 +242,15 @@ export const translations = {
         "Error uploading avatar": "Chyba při nahrávání avataru",
         "Avatar property is missing in the response": "Chybí vlastnost avataru v odpovědi",
         "Error updating avatar": "Chyba při aktualizaci avataru",
+        "Welcome to Pong Transcendence": "Vítejte v Pong Transcendence",
+        "Player vs Player": "Hráč proti Hráči",
+        "Player vs AI": "Hráč proti AI",
+        "2 Players vs 2 Players": "2 Hráči proti 2 Hráčům",
+        "Tournament": "Turnaj",
+        "Home": "Domů",
+        "Profile": "Profil",
+        "Games": "Hry",
+        "Log out": "Odhlásit se",
 
         // User validation errors
         "Username must be 32 characters or fewer": "Uživatelské jméno nesmí být delší než 32 znaků",
@@ -246,7 +294,37 @@ export const translations = {
 
         // Tournament errors
         "Error creating tournament:": "Chyba při vytváření turnaje:",
-        "Refresh token not found in cookies": "Obnovovací token nebyl nalezen v cookies"
+        "Refresh token not found in cookies": "Obnovovací token nebyl nalezen v cookies",
+
+        // Profile sections
+        "Pending Requests": "Čekající žádosti",
+        "Error fetching user data:": "Chyba při načítání dat uživatele:",
+
+        // Tournament page
+        "Upcoming Matches": "Nadcházející zápasy",
+        "Scores": "Skóre",
+        "points": "bodů",
+        "Current Match": "Aktuální zápas",
+        "No matches yet.": "Zatím žádné zápasy.",
+        "Match": "Zápas",
+        "of": "z",
+        "Player Registration": "Registrace hráčů",
+        "Enter alias": "Zadejte přezdívku",
+        "Add Player": "Přidat hráče",
+        "Start Tournament": "Zahájit turnaj",
+        "Need 4 players to start tournament": "Pro zahájení turnaje je potřeba 4 hráčů",
+        "Alias cannot be empty.": "Přezdívka nemůže být prázdná.",
+        "Alias may contain only letters, numbers, and @/./+/-/_ characters.": "Přezdívka může obsahovat pouze písmena, čísla a znaky @/./+/-/_",
+        "This alias is already registered.": "Tato přezdívka je již registrována.",
+        "vs": "proti",
+        "Play Game": "Hrát hru",
+        "Final standings were determined by your score and performance!": "Konečné pořadí bylo určeno podle vašeho skóre a výkonu!",
+        "Final Standings": "Konečné pořadí",
+        "Position": "Pozice",
+        "Player": "Hráč",
+        "Score": "Skóre",
+        "Start New Tournament": "Začít nový turnaj",
+        "Error posting tournament results:": "Chyba při odesílání výsledků turnaje:"
     }
 };
 
