@@ -20,6 +20,9 @@ export async function tournamentPage() {
     let scores = {};
     let tournamentStarted = false;
 
+    // Add game instance tracking
+    let activeGame = null;
+
     // Create components
     function createMatchQueue() {
         const queueContainer = document.createElement('div');
@@ -200,6 +203,12 @@ export async function tournamentPage() {
     }
 
     function renderTournament() {
+        // Cleanup any active game when returning to tournament view
+        if (activeGame) {
+            activeGame.cleanup();
+            activeGame = null;
+        }
+
         tournamentContainer.innerHTML = '';
 
         const tournamentLayout = document.createElement('div');
@@ -237,23 +246,45 @@ export async function tournamentPage() {
 
     // Update startGame() function:
     function startGame(player1, player2) {
+        // Cleanup any existing game first
+        if (activeGame) {
+            activeGame.cleanup();
+            activeGame = null;
+        }
+
         tournamentContainer.innerHTML = '';
         const gameContainer = document.createElement('div');
         gameContainer.className = 'game-container';
         tournamentContainer.appendChild(gameContainer);
 
-        const game = new PongGame(gameContainer, {
+        activeGame = new PongGame(gameContainer, {
             player1,
             player2,
             player3: 'none',
             player4: 'none'
         });
 
-        game.onGameEnd = () => {
-            const winner = game.player1.score > game.player2.score ? player1 : player2;
+        // Use local variables to store scores before cleanup
+        let finalPlayer1Score = 0;
+        let finalPlayer2Score = 0;
+
+        activeGame.onGameEnd = () => {
+            // Store scores before cleanup
+            finalPlayer1Score = activeGame.player1.score;
+            finalPlayer2Score = activeGame.player2.score;
+
+            // Determine winner based on stored scores
+            const winner = finalPlayer1Score > finalPlayer2Score ? player1 : player2;
+
+            // Cleanup game AFTER getting scores
+            activeGame.cleanup();
+            activeGame = null;
+
+            // Update tournament scores
             scores[winner]++;
             currentMatchIndex++;
 
+            // Render next view
             if (currentMatchIndex < matchQueue.length) {
                 renderTournament();
             } else {
@@ -263,6 +294,12 @@ export async function tournamentPage() {
     }
 
     function showFinalResults() {
+        // Cleanup any active game when showing results
+        if (activeGame) {
+            activeGame.cleanup();
+            activeGame = null;
+        }
+
         tournamentContainer.innerHTML = '';
 
         // Sort players by score
@@ -366,6 +403,32 @@ export async function tournamentPage() {
             console.error('Error posting tournament results:', error);
         }
     }
+
+    // Add cleanup on tournament container removal
+    const cleanup = () => {
+        if (activeGame) {
+            activeGame.cleanup();
+            activeGame = null;
+        }
+    };
+
+    // Create MutationObserver to watch for container removal
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.removedNodes.forEach((node) => {
+                if (node === tournamentContainer) {
+                    cleanup();
+                    observer.disconnect();
+                }
+            });
+        });
+    });
+
+    // Start observing the document body for container removal
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     // Initial render - remove separate start button
     const playerRegistration = createPlayerRegistration();

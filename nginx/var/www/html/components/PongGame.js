@@ -52,6 +52,14 @@ export class PongGame {
 		this.container.appendChild(this.canvas);
 		this.addEventListeners();
 		this.showStartMenu();
+
+		// Store event listeners for cleanup
+		this.keyDownHandler = null;
+		this.keyUpHandler = null;
+		this.restartHandler = null;
+
+		// Initialize cleanedUp flag
+		this.cleanedUp = false;
 	}
 
 	initializeOneVsOne() {
@@ -264,7 +272,8 @@ export class PongGame {
 	}
 
 	addEventListeners() {
-		document.addEventListener('keydown', (key) => {
+		// Store handlers as class properties
+		this.keyDownHandler = (key) => {
 			if (!this.running) {
 				this.startGame();
 			}
@@ -303,9 +312,9 @@ export class PongGame {
 					if (code === 'ArrowDown') this.player2.move = this.DIRECTION.DOWN;
 				}
 			}
-		});
+		};
 
-		document.addEventListener('keyup', (key) => {
+		this.keyUpHandler = (key) => {
 			const code = key.code;
 			if (this.is2v2) {
 				if (!this.player1AI && (code === 'KeyW' || code === 'KeyS'))
@@ -323,7 +332,44 @@ export class PongGame {
 				if (!this.player2AI && (code === 'ArrowUp' || code === 'ArrowDown'))
 					this.player2.move = this.DIRECTION.IDLE;
 			}
-		});
+		};
+
+		document.addEventListener('keydown', this.keyDownHandler);
+		document.addEventListener('keyup', this.keyUpHandler);
+	}
+
+	cleanup() {
+		// Cancel animation frame
+		if (this.animationFrameId) {
+			cancelAnimationFrame(this.animationFrameId);
+			this.animationFrameId = null;
+		}
+
+		// Remove event listeners
+		if (this.keyDownHandler) {
+			document.removeEventListener('keydown', this.keyDownHandler);
+		}
+		if (this.keyUpHandler) {
+			document.removeEventListener('keyup', this.keyUpHandler);
+		}
+		if (this.restartHandler) {
+			document.removeEventListener('keydown', this.restartHandler);
+		}
+
+		// Clear game state
+		this.running = false;
+		this.over = true;
+
+		 // Set cleanedUp flag
+        this.cleanedUp = true;
+
+		// Remove canvas from container
+		if (this.canvas && this.canvas.parentNode) {
+			this.canvas.parentNode.removeChild(this.canvas);
+		}
+
+		// Clear any reference to the container
+		this.container = null;
 	}
 
 	checkWallCollision() {
@@ -537,6 +583,11 @@ export class PongGame {
 	}
 
 	gameLoop() {
+		// Check if the game has been cleaned up
+        if (this.cleanedUp) {
+            return; // Stop the game loop if cleaned up
+        }
+
 		if (!this.over) {
 			this.update();
 			this.draw();
@@ -630,12 +681,23 @@ export class PongGame {
 	}
 
 	showGameOver() {
+		// Check if the game has been cleaned up
+        if (this.cleanedUp) {
+            return; // Do not proceed if cleaned up
+        }
+
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.font = '64px Arial';
 		this.context.textAlign = 'center';
 		this.context.fillStyle = '#ffffff';
+
+		// Safely access player1 and player2
+        const winnerName = this.player1 && this.player2
+            ? (this.player1.score > this.player2.score ? this.player1.name : this.player2.name)
+            : 'Player';
+
 		this.context.fillText(
-			`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} Wins!`,
+			`${winnerName} Wins!`,
 			this.canvas.width / 2,
 			this.canvas.height / 2
 		);
@@ -648,14 +710,18 @@ export class PongGame {
 
 		if (!this.restartListenerAdded) {
 			this.restartListenerAdded = true;
-			const restartHandler = (e) => {
+			this.restartHandler = (e) => {
 				if (e.code === 'Space' || e.code === 'Enter') {
-					document.removeEventListener('keydown', restartHandler);
+					// Prevent restarting if cleaned up
+                    if (this.cleanedUp) {
+                        return;
+                    }
+					document.removeEventListener('keydown', this.restartHandler);
 					this.restartListenerAdded = false;
 					this.resetGame();
 				}
 			};
-			document.addEventListener('keydown', restartHandler);
+			document.addEventListener('keydown', this.restartHandler);
 		}
 	}
 }
