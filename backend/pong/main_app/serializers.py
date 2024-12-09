@@ -278,7 +278,7 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 		player3 = data['player3']
 		player4 = data['player4']
 		if len(player2) > 32 or len(player3) > 32 or len(player4) > 32:
-			raise serializers.ValidationError("Player2's username must be 32 characters or fewer.")
+			raise serializers.ValidationError("Player's username must be 32 characters or fewer.")
 		
 		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
 		if not re.match(username_regex, player2) or not re.match(username_regex, player3) or not re.match(username_regex, player4):
@@ -382,7 +382,7 @@ class FriendSerializer(serializers.ModelSerializer):
 			'user_detail',
 			'is_user_online',
 			'status',
-			'is_activated',
+			'is_activated', #remove
 			'created_at',
 		]
 		read_only_fields = ['id', 'user', 'user_detail', 'friend', 'friend_detail', 'created_at', 'is_activated']
