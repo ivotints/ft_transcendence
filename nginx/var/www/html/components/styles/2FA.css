@@ -1,0 +1,113 @@
+/* Improved CSS for the 2FA section */
+
+.two-factor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    margin: 40px auto;
+    max-width: 500px;
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    color: #f4f4f9;
+}
+
+.two-factor-container h2 {
+    margin-bottom: 25px;
+    font-size: 26px;
+    text-align: center;
+}
+
+.two-factor-options {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.two-factor-options .confirm-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+}
+
+.confirm-btn {
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.back-btn {
+    margin-top: 25px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.back-btn:hover {
+    background-color: #5a6268;
+}
+
+.qr-code-section {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.qr-code-display {
+    padding: 10px;
+    background-color: white;
+    display: inline-block;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.phone-input-section,
+.verification-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px; /* Add space between input field and button */
+}
+
+.phone-input-section input,
+.verification-form input {
+    width: 100%;
+    max-width: 320px;
+    padding: 12px;
+    margin-bottom: 15px;
+    background-color: #444;
+    border: 1px solid #555;
+    border-radius: 5px;
+    color: #f4f4f9;
+    font-size: 16px;
+}
+
+.verification-form input,
+.verification-form button {
+    width: 100%;
+    max-width: 320px;
+}
+
+.message,
+.success-message,
+.error-message {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.error-message {
+    color: #dc3545;
+}
+
+.email-section {
+    margin: 20px 0; /* Adds space around the button */
+}

@@ -2,7 +2,7 @@
 
 import { translate } from '../utils/translate.js';
 
-let state = {
+const initialState = {
     selected2FAMethod: '',
     userPhone: '',
     qrCode: '',
@@ -13,13 +13,14 @@ let state = {
     otpSecret: ''
 };
 
-// Keep track of mainContent reference
+let state = { ...initialState };
 let mainContentRef = null;
 
 async function setup2FA(method) {
-    const data = { method: method };
+    const data = { method };
+
     if (method === 'sms') {
-        data.user_phone = state.userPhone.startsWith('+') ? state.userPhone : "+" + state.userPhone;
+        data.user_phone = state.userPhone.startsWith('+') ? state.userPhone : `+${state.userPhone}`;
     }
 
     try {
@@ -29,46 +30,54 @@ async function setup2FA(method) {
             credentials: 'include',
             body: JSON.stringify(data),
         });
+
         const result = await response.json();
 
         if (response.ok) {
-            if (method === 'authenticator') {
-                state.qrCode = result.qr_code;
-                state.twoFactorMessage = '';
-            } else if (method === 'sms') {
-                state.twoFactorMessage = 'OTP has been sent by sms';
-            } else {
-                state.twoFactorMessage = 'OTP has been sent to your ' + method;
-            }
-            state.otpSecret = result.otp_secret;
+            handleSetupSuccess(method, result);
         } else {
-            state.twoFactorError = result.errors ? result.errors[0] : result.detail || 'An error occurred during setup.';
+            handleError(result);
         }
     } catch (error) {
         console.error('Error setting up 2FA:', error);
         state.twoFactorError = 'Network error occurred during setup.';
     }
-    // Use stored mainContentRef
+
     if (mainContentRef) {
         render2FA(mainContentRef);
     }
 }
 
-async function confirm2FA(event, mainContent) {
+function handleSetupSuccess(method, result) {
+    if (method === 'authenticator') {
+        state.qrCode = result.qr_code;
+        state.twoFactorMessage = '';
+    } else {
+        const methodMessage = method === 'sms' ? 'OTP has been sent by sms' : `OTP has been sent to your ${method}`;
+        state.twoFactorMessage = methodMessage;
+    }
+    state.otpSecret = result.otp_secret;
+}
+
+function handleError(result) {
+    state.twoFactorError = result.errors ? result.errors[0] : result.detail || 'An error occurred during setup.';
+}
+
+async function confirm2FA(event) {
     event.preventDefault();
     state.twoFactorError = '';
     state.twoFactorSuccess = '';
 
+    const data = {
+        method: state.selected2FAMethod,
+        code: state.confirmationOtp,
+    };
+
+    if (state.selected2FAMethod === 'sms') {
+        data.user_phone = state.userPhone;
+    }
+
     try {
-        const data = {
-            method: state.selected2FAMethod,
-            code: state.confirmationOtp,
-        };
-
-        if (state.selected2FAMethod === 'sms') {
-            data.user_phone = state.userPhone;
-        }
-
         const response = await fetch('/api/setup-2fa/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -87,136 +96,167 @@ async function confirm2FA(event, mainContent) {
         console.error('Error confirming 2FA:', error);
         state.twoFactorError = 'Network error occurred during confirmation.';
     }
-    render2FA(mainContent);
+    render2FA(mainContentRef);
 }
 
 function resetState() {
-    state = {
-        selected2FAMethod: '',
-        qrCode: '',
-        confirmationOtp: '',
-        twoFactorMessage: '',
-        userPhone: '',
-        twoFactorSuccess: '',
-        twoFactorError: '',
-        otpSecret: ''
-    };
+    state = { ...initialState };
 }
 
 export function render2FA(mainContent) {
     mainContentRef = mainContent;
     mainContent.innerHTML = '';
-    const twoFactorDiv = document.createElement('div');
-    twoFactorDiv.className = 'two-factor-container';
+
+    const twoFactorDiv = createTwoFactorDiv();
+    mainContent.appendChild(twoFactorDiv);
+}
+
+function createTwoFactorDiv() {
+    const div = document.createElement('div');
+    div.className = 'two-factor-container';
 
     if (!state.selected2FAMethod) {
-        twoFactorDiv.innerHTML = `
-            <h2 class="profileH2">${translate('2-Factor Authentication')}</h2>
-            <div class="two-factor-options">
-                <button class="confirm-btn" data-method="authenticator">${translate('Setup with Authenticator App')}</button>
-                <button class="confirm-btn" data-method="sms">${translate('Setup with SMS')}</button>
-                <button class="confirm-btn" data-method="email">${translate('Setup with Email')}</button>
-            </div>
-        `;
-
-        const methodButtons = twoFactorDiv.querySelectorAll('.confirm-btn');
-        methodButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                state.selected2FAMethod = button.getAttribute('data-method');
-                render2FA(mainContent);
-            });
-        });
+        renderMethodSelection(div);
     } else {
-        twoFactorDiv.innerHTML = `
-            <h2 class="profileH2">${translate('Setup')} ${capitalizeFirstLetter(state.selected2FAMethod)} ${translate('Authentication')}</h2>
-        `;
-
-        if (state.selected2FAMethod === 'authenticator') {
-            if (!state.qrCode) {
-                const generateButton = document.createElement('button');
-                generateButton.className = 'confirm-btn';
-                generateButton.id = 'generate-qr';
-                generateButton.textContent = translate('Generate QR Code');
-                generateButton.addEventListener('click', () => setup2FA('authenticator'));
-                twoFactorDiv.appendChild(generateButton);
-            } else {
-                const qrSection = document.createElement('div');
-                qrSection.className = 'qr-code-section';
-                qrSection.innerHTML = `
-                    <p>${translate('Scan the QR code with your authenticator app:')}</p>
-                    <div class="qr-code-display"></div>
-                `;
-                const qrDisplay = qrSection.querySelector('.qr-code-display');
-                qrDisplay.innerHTML = state.qrCode;
-                twoFactorDiv.appendChild(qrSection);
-            }
-        } else if (state.selected2FAMethod === 'sms') {
-            const phoneSection = document.createElement('div');
-            phoneSection.className = 'phone-input-section';
-            phoneSection.innerHTML = `
-                <input type="text" placeholder="${translate('Enter phone number')}" maxLength="15" value="${state.userPhone}">
-                <button class="confirm-btn">${translate('Send Code')}</button>
-            `;
-            const phoneInput = phoneSection.querySelector('input');
-            const sendButton = phoneSection.querySelector('button');
-
-            phoneInput.addEventListener('input', (e) => {
-                state.userPhone = e.target.value;
-            });
-
-            sendButton.addEventListener('click', () => setup2FA('sms'));
-            twoFactorDiv.appendChild(phoneSection);
-        } else if (state.selected2FAMethod === 'email') {
-            const emailButton = document.createElement('button');
-            emailButton.className = 'confirm-btn';
-            emailButton.id = 'send-email';
-            emailButton.textContent = translate('Send Code via Email');
-            emailButton.addEventListener('click', () => setup2FA('email'));
-            twoFactorDiv.appendChild(emailButton);
-        }
-
-        if (state.twoFactorMessage || state.qrCode) {
-            const verificationForm = document.createElement('form');
-            verificationForm.className = 'verification-form';
-            verificationForm.innerHTML = `
-                <input type="text" maxLength="32" placeholder="${translate('Enter verification code')}" maxLength="6">
-                <button type="submit" class="confirm-btn">${translate('Verify')}</button>
-            `;
-
-            const input = verificationForm.querySelector('input');
-            input.addEventListener('input', (e) => {
-                state.confirmationOtp = e.target.value;
-            });
-
-            verificationForm.addEventListener('submit', (e) => confirm2FA(e, mainContent));
-            twoFactorDiv.appendChild(verificationForm);
-        }
-
-        const backButton = document.createElement('button');
-        backButton.className = 'back-btn';
-        backButton.textContent = translate('Back');
-        backButton.addEventListener('click', () => {
-            resetState();
-            render2FA(mainContent);
-        });
-        twoFactorDiv.appendChild(backButton);
-
-        // Display translated messages
-        [
-            { text: state.twoFactorMessage && translate(state.twoFactorMessage), className: 'message' },
-            { text: state.twoFactorSuccess && translate(state.twoFactorSuccess), className: 'success-message' },
-            { text: state.twoFactorError && translate(state.twoFactorError), className: 'error-message' }
-        ].forEach(({ text, className }) => {
-            if (text) {
-                const para = document.createElement('p');
-                para.className = className;
-                para.textContent = text;
-                twoFactorDiv.appendChild(para);
-            }
-        });
+        renderMethodSetup(div);
     }
 
-    mainContent.appendChild(twoFactorDiv);
+    return div;
+}
+
+function renderMethodSelection(container) {
+    container.innerHTML = `
+        <h2 class="profileH2">${translate('2-Factor Authentication')}</h2>
+        <div class="two-factor-options">
+            <button class="confirm-btn" data-method="authenticator">${translate('Setup with Authenticator App')}</button>
+            <button class="confirm-btn" data-method="sms">${translate('Setup with SMS')}</button>
+            <button class="confirm-btn" data-method="email">${translate('Setup with Email')}</button>
+        </div>
+    `;
+
+    container.querySelectorAll('.confirm-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            state.selected2FAMethod = button.getAttribute('data-method');
+            render2FA(mainContentRef);
+        });
+    });
+}
+
+function renderMethodSetup(container) {
+    container.innerHTML = `
+        <h2 class="profileH2">${translate('Setup')} ${capitalizeFirstLetter(state.selected2FAMethod)} ${translate('Authentication')}</h2>
+    `;
+
+    if (state.selected2FAMethod === 'authenticator') {
+        renderAuthenticatorSetup(container);
+    } else if (state.selected2FAMethod === 'sms') {
+        renderSmsSetup(container);
+    } else if (state.selected2FAMethod === 'email') {
+        renderEmailSetup(container);
+    }
+
+    if (state.twoFactorMessage || state.qrCode) {
+        renderVerificationForm(container);
+    }
+
+    const backButton = document.createElement('button');
+    backButton.className = 'back-btn';
+    backButton.textContent = translate('Back');
+    backButton.addEventListener('click', () => {
+        resetState();
+        render2FA(mainContentRef);
+    });
+    container.appendChild(backButton);
+
+    renderMessages(container);
+}
+
+function renderAuthenticatorSetup(container) {
+    if (!state.qrCode) {
+        const generateButton = document.createElement('button');
+        generateButton.className = 'confirm-btn';
+        generateButton.textContent = translate('Generate QR Code');
+        generateButton.addEventListener('click', () => setup2FA('authenticator'));
+        container.appendChild(generateButton);
+    } else {
+        const qrSection = document.createElement('div');
+        qrSection.className = 'qr-code-section';
+        qrSection.innerHTML = `
+            <p>${translate('Scan the QR code with your authenticator app:')}</p>
+            <div class="qr-code-display">${state.qrCode}</div>
+        `;
+        container.appendChild(qrSection);
+    }
+}
+
+function renderSmsSetup(container) {
+    const phoneSection = document.createElement('div');
+    phoneSection.className = 'phone-input-section';
+    phoneSection.innerHTML = `
+        <input type="text" placeholder="${translate('Enter phone number')}" maxLength="15" value="${state.userPhone}">
+        <button class="confirm-btn">${translate('Send Code')}</button>
+    `;
+
+    const phoneInput = phoneSection.querySelector('input');
+    phoneInput.addEventListener('input', (e) => {
+        state.userPhone = e.target.value;
+    });
+
+    const sendButton = phoneSection.querySelector('button');
+    sendButton.addEventListener('click', () => setup2FA('sms'));
+    container.appendChild(phoneSection);
+}
+
+function renderEmailSetup(container) {
+    const emailSection = document.createElement('div');
+    emailSection.className = 'email-section';
+
+    const emailButton = document.createElement('button');
+    emailButton.className = 'confirm-btn';
+    emailButton.textContent = translate('Send Code via Email');
+    emailButton.addEventListener('click', () => setup2FA('email'));
+
+    emailSection.appendChild(emailButton);
+    container.appendChild(emailSection);
+}
+
+function renderVerificationForm(container) {
+    const form = document.createElement('form');
+    form.className = 'verification-form';
+    form.innerHTML = `
+        <input type="text" maxLength="6" placeholder="${translate('Enter verification code')}" value="${state.confirmationOtp}">
+        <button type="submit" class="confirm-btn">${translate('Verify')}</button>
+    `;
+
+    form.querySelector('input').addEventListener('input', (e) => {
+        state.confirmationOtp = e.target.value;
+    });
+
+    form.addEventListener('submit', confirm2FA);
+    container.appendChild(form);
+}
+
+function renderMessages(container) {
+    if (state.twoFactorMessage) {
+        const message = document.createElement('p');
+        message.className = 'message';
+        message.textContent = translate(state.twoFactorMessage);
+        container.appendChild(message);
+    }
+
+    if (state.twoFactorSuccess) {
+        const successMessage = document.createElement('p');
+        successMessage.className = 'success-message';
+        successMessage.textContent = translate(state.twoFactorSuccess);
+        container.appendChild(successMessage);
+    }
+
+    if (state.twoFactorError) {
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'error-message';
+        errorMessage.textContent = translate(state.twoFactorError);
+        container.appendChild(errorMessage);
+    }
 }
 
 function capitalizeFirstLetter(string) {

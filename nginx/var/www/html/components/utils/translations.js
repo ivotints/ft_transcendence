@@ -151,7 +151,7 @@ export const translations = {
         "Start Tournament": "Начать турнир",
         "Need 4 players to start tournament": "Нужно 4 игрока для начала турнира",
         "Alias cannot be empty.": "Псевдоним не может быть пустым.",
-        "Alias may contain only letters, numbers, and @/./+/-/_ characters.": "Псевдоним может содержать только буквы, цифры �� символы @/./+/-/_",
+        "Alias may contain only letters, numbers, and @/./+/-/_ characters.": "Псевдоним может содержать только буквы, цифры и символы @/./+/-/_",
         "This alias is already registered.": "Этот псевдоним уже зарегистрирован.",
         "vs": "против",
         "Play Game": "Начать игру",
@@ -226,7 +226,45 @@ export const translations = {
         "Error:": "Ошибка:",
         "Username error:": "Ошибка имени пользователя:",
         "Email error:": "Ошибка электронной почты:",
-        "Password error:": "Ошибка пароля:"
+        "Password error:": "Ошибка пароля:",
+
+        // 2FA Errors
+        "Another 2FA method is already enabled": "Другой метод 2FA уже активирован",
+        "This 2FA method is already enabled": "Этот метод 2FA уже активирован",
+        "Mobile number is required for SMS 2FA": "Номер телефона необходим для SMS 2FA",
+        "Invalid phone number format.": "Неверный формат номера телефона",
+        "Invalid OTP code.": "Неверный код OTP",
+        "Invalid method": "Неверный метод",
+        "2FA is not set up for this user.": "2FA не настроен для этого пользователя",
+        "2FA setup successfully.": "2FA успешно настроен",
+        "2FA verified successfully.": "2FA успешно подтвержден",
+        "OTP sent successfully.": "OTP успешно отправлен",
+        "OTP required.": "Требуется OTP",
+
+        // User Related Errors
+        "User not found": "Пользователь не найден",
+        "Invalid token": "Недействительный токен",
+        "Access token not found": "Токен доступа не найден",
+        "Refresh token not found": "Токен обновления не найден",
+        "Successfully logged out.": "Успешно выполнен выход",
+
+        // Permission Errors
+        "You do not have permission to access this friend request.": "У вас нет прав для доступа к этому запросу в друзья",
+        "You do not have permission to update this friend request.": "У вас нет прав для обновления этого запроса в друзья",
+        "You do not have permission to delete this friend request.": "У вас нет прав для удаления этого запроса в друзья",
+        "Friend request not found.": "Запрос в друзья не найден",
+        "Friend request rejected and deleted.": "Запрос в друзья отклонен и удален",
+        "Friend request deleted successfully.": "Запрос в друзья успешно удален",
+
+        // Match Related Errors
+        "You can only create matches for yourself.": "Вы можете создавать матчи только для себя",
+        "You can only create tournaments for yourself.": "Вы можете создавать турниры только для себя",
+
+        // OAuth Errors
+        "Invalid state parameter": "Недействительный параметр состояния",
+        "Failed to obtain access token": "Не удалось получить токен доступа",
+        "Failed to fetch user info": "Не удалось получить информацию о пользователе",
+        "User is authenticated": "Пользователь аутентифицирован"
     },
     "cz": {
         "Change Email": "Změnit e-mail",
@@ -378,7 +416,7 @@ export const translations = {
         "Add Player": "Přidat hráče",
         "Start Tournament": "Zahájit turnaj",
         "Need 4 players to start tournament": "Pro zahájení turnaje je potřeba 4 hráčů",
-        "Alias cannot be empty.": "Přezdívка nemůže být prázdná.",
+        "Alias cannot be empty.": "Přezdívka nemůže být prázdná.",
         "Alias may contain only letters, numbers, and @/./+/-/_ characters.": "Přezdívka může obsahovat pouze písmena, čísla a znaky @/./+/-/_",
         "This alias is already registered.": "Tato přezdívka je již registrována.",
         "vs": "proti",
@@ -454,7 +492,45 @@ export const translations = {
         "Error:": "Chyba:",
         "Username error:": "Chyba uživatelského jména:",
         "Email error:": "Chyba e-mailu:",
-        "Password error:": "Chyba hesla:"
+        "Password error:": "Chyba hesla:",
+
+        // 2FA Errors
+        "Another 2FA method is already enabled": "Jiná metoda 2FA je již aktivována",
+        "This 2FA method is already enabled": "Tato metoda 2FA je již aktivována",
+        "Mobile number is required for SMS 2FA": "Pro SMS 2FA je vyžadováno telefonní číslo",
+        "Invalid phone number format.": "Neplatný formát telefonního čísla",
+        "Invalid OTP code.": "Neplatný OTP kód",
+        "Invalid method": "Neplatná metoda",
+        "2FA is not set up for this user.": "2FA není pro tohoto uživatele nastavena",
+        "2FA setup successfully.": "2FA úspěšně nastavena",
+        "2FA verified successfully.": "2FA úspěšně ověřena",
+        "OTP sent successfully.": "OTP úspěšně odesláno",
+        "OTP required.": "OTP je vyžadováno",
+
+        // User Related Errors
+        "User not found": "Uživatel nenalezen",
+        "Invalid token": "Neplatný token",
+        "Access token not found": "Přístupový token nenalezen",
+        "Refresh token not found": "Obnovovací token nenalezen",
+        "Successfully logged out.": "Úspěšně odhlášeno",
+
+        // Permission Errors
+        "You do not have permission to access this friend request.": "Nemáte oprávnění k přístupu k této žádosti o přátelství",
+        "You do not have permission to update this friend request.": "Nemáte oprávnění k aktualizaci této žádosti o přátelství",
+        "You do not have permission to delete this friend request.": "Nemáte oprávnění ke smazání této žádosti o přátelství",
+        "Friend request not found.": "Žádost o přátelství nenalezena",
+        "Friend request rejected and deleted.": "Žádost o přátelství odmítnuta a smazána",
+        "Friend request deleted successfully.": "Žádost o přátelství úspěšně smazána",
+
+        // Match Related Errors
+        "You can only create matches for yourself.": "Můžete vytvářet zápasy pouze pro sebe",
+        "You can only create tournaments for yourself.": "Můžete vytvářet turnaje pouze pro sebe",
+
+        // OAuth Errors
+        "Invalid state parameter": "Neplatný parametr stavu",
+        "Failed to obtain access token": "Nepodařilo se získat přístupový token",
+        "Failed to fetch user info": "Nepodařilo se získat informace o uživateli",
+        "User is authenticated": "Uživatel je ověřen"
     }
 };
 

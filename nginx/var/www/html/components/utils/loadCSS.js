@@ -30,6 +30,7 @@ export async function loadAllStyles() {
         '/components/styles/auth.css',
         '/components/styles/PongVsPlayerPage.css',
         '/components/styles/language.css',
+        '/components/styles/2FA.css',
     ];
 
     try {
