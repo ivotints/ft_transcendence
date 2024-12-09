@@ -8,7 +8,7 @@ function constructAvatarUrl(avatarPath) {
 
     const normalizedPath = cleanPath.startsWith('/') ? cleanPath : '/' + cleanPath;
 
-    return `https://localhost:8000${normalizedPath}`;
+    return `https://localhost/api${normalizedPath}`;
 }
 
 export function renderUserInfo(userInfo, mainContent) {
