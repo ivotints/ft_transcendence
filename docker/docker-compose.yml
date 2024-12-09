@@ -15,8 +15,6 @@ services:
 
   web:
     build: ../backend/pong/
-    ports:
-      - "8000:8000"
     volumes:
       - ../backend/pong/:/code
     depends_on:
