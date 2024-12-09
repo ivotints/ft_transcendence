@@ -2,6 +2,7 @@
 import { setLoggedIn } from './state.js';
 import { header } from '../header.js';
 import { homePage } from '../homePage.js';
+import { translate } from './translate.js';
 
 // Add timestamp tracking for login
 let loginTimestamp = null;
@@ -128,7 +129,7 @@ export function authForms() {
 
   const loginButton = document.createElement('button');
   loginButton.className = 'auth-button';
-  loginButton.textContent = 'Log In';
+  loginButton.textContent = translate('Log In');
   loginButton.addEventListener('click', () => {
     formType = 'login';
     otpRequired = false;
@@ -140,7 +141,7 @@ export function authForms() {
 
   const createUserButton = document.createElement('button');
   createUserButton.className = 'auth-button';
-  createUserButton.textContent = 'Create User';
+  createUserButton.textContent = translate('Create User');
   createUserButton.addEventListener('click', () => {
     formType = 'createUser';
     otpRequired = false;
@@ -186,9 +187,10 @@ export function authForms() {
       const usernameInput = document.createElement('input');
       usernameInput.type = 'text';
       usernameInput.maxLength = 32;
-      usernameInput.placeholder = 'Username';
+      usernameInput.placeholder = translate('Username');
       usernameInput.value = username;
       usernameInput.required = true;
+      usernameInput.setAttribute('required', ''); // Extra required attribute
       usernameInput.addEventListener('input', (e) => {
         username = e.target.value;
       });
@@ -203,7 +205,7 @@ export function authForms() {
         emailInput = document.createElement('input');
         emailInput.type = 'email';
         emailInput.maxLength = 32;
-        emailInput.placeholder = 'Email';
+        emailInput.placeholder = translate('Email');
         emailInput.value = email;
         emailInput.required = true;
         emailInput.addEventListener('input', (e) => {
@@ -219,7 +221,7 @@ export function authForms() {
       const passwordInput = document.createElement('input');
       passwordInput.type = 'password';
       passwordInput.maxLength = 32;
-      passwordInput.placeholder = 'Password';
+      passwordInput.placeholder = translate('Password');
       passwordInput.value = password;
       passwordInput.required = true;
       passwordInput.addEventListener('input', (e) => {
@@ -234,7 +236,7 @@ export function authForms() {
       const submitButton = document.createElement('button');
       submitButton.type = 'submit';
       submitButton.className = 'submit-button';
-      submitButton.textContent = formType === 'login' ? 'Log In' : 'Create User';
+      submitButton.textContent = translate(formType === 'login' ? 'Log In' : 'Create User');
       submitCell.appendChild(submitButton);
       submitRow.appendChild(submitCell);
       tbody.appendChild(submitRow);
@@ -243,9 +245,23 @@ export function authForms() {
       formContainer.appendChild(table);
 
       if (formType === 'login') {
-        submitButton.addEventListener('click', handleLoginSubmit);
+        submitButton.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (!username.trim() || !password.trim()) {
+            errorMessageDiv.textContent = translate('All fields must be filled out');
+            return;
+          }
+          await handleLoginSubmit(e);
+        });
       } else if (formType === 'createUser') {
-        submitButton.addEventListener('click', handleCreateUserSubmit);
+        submitButton.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (!username.trim() || !email.trim() || !password.trim()) {
+            errorMessageDiv.textContent = translate('All fields must be filled out');
+            return;
+          }
+          await handleCreateUserSubmit(e);
+        });
       }
     } else {
       // 2FA verification form
@@ -254,8 +270,10 @@ export function authForms() {
       const otpInput = document.createElement('input');
       otpInput.type = 'text';
       otpInput.maxLength = 6;
-      otpInput.placeholder = 'Enter verification code';
+      otpInput.placeholder = translate('Enter verification code');
       otpInput.value = otp;
+      otpInput.required = true;
+      otpInput.setAttribute('required', '');
       otpInput.addEventListener('input', (e) => {
         otp = e.target.value;
       });
@@ -269,7 +287,7 @@ export function authForms() {
         const sendCodeCell = document.createElement('td');
         const sendCodeButton = document.createElement('button');
         sendCodeButton.className = 'send-code';
-        sendCodeButton.textContent = 'Send verification code';
+        sendCodeButton.textContent = translate('Send verification code');
         sendCodeButton.onclick = async () => {
           try {
             const method = twoFactorMethods.email_enabled ? 'email' : 'sms';
@@ -281,7 +299,7 @@ export function authForms() {
             });
           } catch (error) {
             console.error('Error sending code:', error);
-            errorMessageDiv.textContent = 'Error sending verification code';
+            errorMessageDiv.textContent = translate('Error sending verification code');
           }
         };
         sendCodeCell.appendChild(sendCodeButton);
@@ -295,6 +313,10 @@ export function authForms() {
       submitButton.className = 'submit-button';
       submitButton.textContent = 'Verify';
       submitButton.onclick = async () => {
+        if (!otp.trim()) {
+          errorMessageDiv.textContent = translate('Verification code is required');
+          return;
+        }
         try {
           let method;
           if (twoFactorMethods.email_enabled) method = 'email';
@@ -321,11 +343,11 @@ export function authForms() {
             document.querySelector('.home-page').replaceWith(await homePage());
           } else {
             const errorData = await response.json();
-            errorMessageDiv.textContent = errorData.detail || 'Verification failed';
+            errorMessageDiv.textContent = translate(errorData.detail || 'Verification failed');
           }
         } catch (error) {
           console.error('Error verifying 2FA:', error);
-          errorMessageDiv.textContent = 'Error verifying code';
+          errorMessageDiv.textContent = translate('Error verifying code');
         }
       };
       submitCell.appendChild(submitButton);
@@ -376,12 +398,12 @@ export function authForms() {
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
         const errorData = await response.json();
-        errorMessage = `Error: ${errorData.detail || 'An error occurred'}`;
+        errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
         errorMessageDiv.textContent = errorMessage;
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      errorMessageDiv.textContent = 'Error: Network error';
+      errorMessageDiv.textContent = translate('Error: Network error');
     }
   }
 
@@ -390,34 +412,36 @@ export function authForms() {
     errorMessageDiv.textContent = '';
 
     try {
-      const response = await fetch('/api/users/register/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username, email, password })
-      });
+        const response = await fetch('/api/users/register/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username, email, password })
+        });
 
-      if (response.ok) {
-        console.log('User created successfully');
-        await handleLogin(username, password);
-      } else {
-        const errorData = await response.json();
-        if (errorData.username) {
-          errorMessage = `Username error: ${errorData.username[0]}`;
-        } else if (errorData.email) {
-          errorMessage = `Email error: ${errorData.email[0]}`;
-        } else if (errorData.password) {
-          errorMessage = `Password error: ${errorData.password[0]}`;
+        if (response.ok) {
+            console.log('User created successfully');
+            await handleLogin(username, password);
         } else {
-          errorMessage = `Error: ${errorData.detail || 'An error occurred'}`;
+            const errorData = await response.json();
+            if (errorData.password && errorData.password.password) {
+                errorMessage = translate(errorData.password.password);
+            } else if (errorData.username) {
+                errorMessage = `${translate('Username error:')} ${translate(errorData.username[0])}`;
+            } else if (errorData.email) {
+                errorMessage = `${translate('Email error:')} ${translate(errorData.email[0])}`;
+            } else if (errorData.password) {
+                errorMessage = `${translate('Password error:')} ${translate(errorData.password[0])}`;
+            } else {
+                errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
+            }
+            errorMessageDiv.textContent = errorMessage;
         }
-        errorMessageDiv.textContent = errorMessage;
-      }
     } catch (error) {
-      console.error('Error creating user:', error);
-      errorMessageDiv.textContent = 'Error: Network error';
+        console.error('Error creating user:', error);
+        errorMessageDiv.textContent = translate('Error: Network error');
     }
-  }
+}
 
   async function handleLogin(usernameParam, passwordParam) {
     try {
@@ -435,12 +459,12 @@ export function authForms() {
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
         const errorData = await response.json();
-        errorMessage = `Error: ${errorData.detail || 'An error occurred'}`;
+        errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
         errorMessageDiv.textContent = errorMessage;
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      errorMessageDiv.textContent = 'Error: Network error';
+      errorMessageDiv.textContent = translate('Error: Network error');
     }
   }
 

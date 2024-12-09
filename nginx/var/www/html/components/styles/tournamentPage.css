@@ -21,3 +21,391 @@ color: #ffffff;
 font-size: 22px;
 font-weight: normal;
 }
+
+/* Add to your existing CSS */
+.win-table-wrapper {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.win-table-title {
+    color: #4CAF50;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.win-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.win-table th,
+.win-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+    color: white;
+}
+
+.win-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.win-table tr:hover {
+    background-color: #444;
+}
+
+.win-table-restart-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.win-table-restart-button:hover {
+    background-color: #45a049;
+}
+
+
+.match-queue {
+  background-color: #4CAF50;
+  border: 1px solid #28a745;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: none;
+  margin: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  overflow-wrap: break-word; /* Ensure long words wrap within container */
+  width: 100%;
+  height: 100%;
+  max-height: 500px; /* Limit height */
+  overflow-y: auto; /* Add scroll for overflow */
+}
+
+/* Update column layout styles */
+.tournament-layout {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    gap: 30px;
+    padding: 20px;
+    height: 100%;
+    align-items: flex-start; /* Align columns to top */
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    gap: 20px;
+    padding: 20px;
+}
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    height: 100%;
+    gap: 20px;
+    padding: 20px;
+    align-items: flex-start; /* Align to top */
+}
+
+.match-queue h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+  /* Allow text to wrap and remove ellipsis */
+  white-space: normal; /* Allow line wrapping */
+  overflow: visible; /* Let content flow without truncating */
+  text-overflow: clip; /* Show full content without ellipsis */
+}
+
+.match-queue ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.match-queue li {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  background-color: #fff;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  /* Allow text to wrap and show full content */
+  white-space: normal; /* Allow line wrapping */
+  overflow: visible; /* Show full content */
+  text-overflow: clip; /* Don't show ellipsis */
+}
+
+.match-queue li:nth-child(odd) {
+  background-color: #f0f8ff;
+}
+
+.match-queue p {
+  font-size: 18px;
+  color: #f44336;
+  background-color: #ffe6e6;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-wrap: break-word; /* Wrap long words within error message */
+  word-wrap: break-word;
+}
+
+
+.match-display {
+  background-color: #4CAF50;
+  border: 1px solid #28a745;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: none;
+  margin: 0 0 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  overflow-wrap: break-word; /* Ensure long words wrap within container */
+  width: 100%;
+}
+
+.match-display h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+  /* text-transform: uppercase; */
+  /* letter-spacing: 2px; */
+  overflow: hidden; /* Hide overflowed content */
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+  white-space: nowrap; /* Prevent line wrapping */
+}
+
+.match-display p {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  white-space: nowrap; /* Prevent line wrapping */
+}
+
+.match-display p.no-match {
+  font-size: 18px;
+  color: #333;
+  background-color: #ffffff;
+  overflow-wrap: break-word; /* Allow error message to wrap if necessary */
+  word-wrap: break-word;
+}
+
+
+.score-tracker {
+  background-color: #4CAF50;
+  border: 1px solid #28a745;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: none;
+  margin: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: auto; /* Push to bottom */
+  width: 100%;
+  margin: 0 0 20px 0; /* Add bottom margin */
+  order: -1; /* Move to top */
+}
+
+.score-tracker h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.score-tracker ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.score-tracker li {
+  background-color: #ffffff;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Ensure vertical alignment */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.score-tracker li:last-child {
+  margin-bottom: 0;
+}
+
+.score-tracker li span {
+  font-weight: bold;
+  color: #333;
+}
+
+.score-tracker li span.points {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.score-tracker li span:first-child {
+  flex: 1; /* Take up available space */
+  margin-right: 10px; /* Add some spacing between name and points */
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden; /* Hide the overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis (...) when text is too long */
+}
+
+/* Update tournament container and layout styles */
+.tournament-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 85vh; /* Adjusted to 85% of viewport height */
+    padding: 20px;
+    background-color: #2c2c2c;
+    margin-top: 80px;
+    overflow-y: auto;
+}
+
+/* Update play button styles */
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 0 20px 0;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+/* Update tournament container and player registration styles */
+.tournament-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 87vh; /* Changed from 100vh to 90vh */
+    padding: 20px;
+    background-color: #2c2c2c;
+    margin-top: 80px; /* Add margin for header */
+    overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.player-registration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 30px;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: auto; /* Center vertically */
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.alias-input {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.add-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.player-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.player-item {
+    background-color: #444;
+    color: white;
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.start-button {
+    width: 450px; /* Match max-width of player registration */
+    max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
+    padding: 12px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    display: block; /* Make it a block element */
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto;
+}
+
+.start-button:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: #ff4444;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.player-registration .start-button {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.player-registration .error-message {
+    margin: 10px 0;
+    color: #ff4444;
+    text-align: center;
+    width: 100%;
+}

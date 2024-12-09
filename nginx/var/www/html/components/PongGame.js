@@ -1,4 +1,6 @@
 // PongGame.js
+import { translate } from './utils/translate.js';
+
 export class PongGame {
 	constructor(container, players) {
 		this.DIRECTION = {
@@ -52,6 +54,14 @@ export class PongGame {
 		this.container.appendChild(this.canvas);
 		this.addEventListeners();
 		this.showStartMenu();
+
+		// Store event listeners for cleanup
+		this.keyDownHandler = null;
+		this.keyUpHandler = null;
+		this.restartHandler = null;
+
+		// Initialize cleanedUp flag
+		this.cleanedUp = false;
 	}
 
 	initializeOneVsOne() {
@@ -205,7 +215,7 @@ export class PongGame {
 
 		this.context.font = '48px Arial';
 		this.context.fillText(
-			'Press any key to begin',
+			translate('Press any key to begin'),
 			this.canvas.width / 2,
 			this.canvas.height / 2 - 150
 		);
@@ -213,58 +223,59 @@ export class PongGame {
 		this.context.font = '26px Arial';
 		if (this.is2v2) {
 			this.context.fillText(
-				'Left Team Controls:',
+				translate('Left Team Controls:'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 50
 			);
 			this.context.fillText(
-				'Top: W/S, Bottom: / and \'',
+				translate('Top: W/S, Bottom: / and \''),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 20
 			);
 			this.context.fillText(
-				'Right Team Controls:',
+				translate('Right Team Controls:'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 20
 			);
 			this.context.fillText(
-				'Top: ↑/↓, Bottom: 8/2',
+				translate('Top: ↑/↓, Bottom: 8/2'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 50
 			);
 		} else if (this.player2AI) {
 			this.context.fillText(
-				'Player Controls: W/S',
+				translate('Player Controls: W/S'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 20
 			);
 			this.context.fillText(
-				'AI Controls right paddle',
+				translate('AI Controls right paddle'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 20
 			);
 		} else {
 			this.context.fillText(
-				'Left Player: W/S',
+				translate('Left Player: W/S'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 - 20
 			);
 			this.context.fillText(
-				'Right Player: ↑/↓',
+				translate('Right Player: ↑/↓'),
 				this.canvas.width / 2,
 				this.canvas.height / 2 + 20
 			);
 		}
 
 		this.context.fillText(
-			'Press 1-4 to toggle AI for each player',
+			translate('Press 1-4 to toggle AI for each player'),
 			this.canvas.width / 2,
 			this.canvas.height / 2 + 100
 		);
 	}
 
 	addEventListeners() {
-		document.addEventListener('keydown', (key) => {
+		// Store handlers as class properties
+		this.keyDownHandler = (key) => {
 			if (!this.running) {
 				this.startGame();
 			}
@@ -303,9 +314,9 @@ export class PongGame {
 					if (code === 'ArrowDown') this.player2.move = this.DIRECTION.DOWN;
 				}
 			}
-		});
+		};
 
-		document.addEventListener('keyup', (key) => {
+		this.keyUpHandler = (key) => {
 			const code = key.code;
 			if (this.is2v2) {
 				if (!this.player1AI && (code === 'KeyW' || code === 'KeyS'))
@@ -323,7 +334,44 @@ export class PongGame {
 				if (!this.player2AI && (code === 'ArrowUp' || code === 'ArrowDown'))
 					this.player2.move = this.DIRECTION.IDLE;
 			}
-		});
+		};
+
+		document.addEventListener('keydown', this.keyDownHandler);
+		document.addEventListener('keyup', this.keyUpHandler);
+	}
+
+	cleanup() {
+		// Cancel animation frame
+		if (this.animationFrameId) {
+			cancelAnimationFrame(this.animationFrameId);
+			this.animationFrameId = null;
+		}
+
+		// Remove event listeners
+		if (this.keyDownHandler) {
+			document.removeEventListener('keydown', this.keyDownHandler);
+		}
+		if (this.keyUpHandler) {
+			document.removeEventListener('keyup', this.keyUpHandler);
+		}
+		if (this.restartHandler) {
+			document.removeEventListener('keydown', this.restartHandler);
+		}
+
+		// Clear game state
+		this.running = false;
+		this.over = true;
+
+		 // Set cleanedUp flag
+        this.cleanedUp = true;
+
+		// Remove canvas from container
+		if (this.canvas && this.canvas.parentNode) {
+			this.canvas.parentNode.removeChild(this.canvas);
+		}
+
+		// Clear any reference to the container
+		this.container = null;
 	}
 
 	checkWallCollision() {
@@ -431,6 +479,7 @@ export class PongGame {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.fillStyle = '#ffffff';
 
+		// Draw paddles and field
 		const roundRect = (x, y, width, height) => {
 			const radius = 9;
 			this.context.beginPath();
@@ -443,41 +492,104 @@ export class PongGame {
 			this.context.fill();
 		};
 
+		// Draw paddles
 		if (this.is2v2) {
+			// Draw all paddles
 			roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
 			roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
 			roundRect(this.player3.x, this.player3.y, this.player3.width, this.player3.height);
 			roundRect(this.player4.x, this.player4.y, this.player4.width, this.player4.height);
 
+			// Draw middle line
 			this.context.beginPath();
 			this.context.strokeStyle = '#ffffff';
 			this.context.setLineDash([5, 15]);
 			this.context.moveTo(0, this.canvas.height / 2);
 			this.context.lineTo(this.canvas.width, this.canvas.height / 2);
 			this.context.stroke();
+
+			// Draw team names and scores
+			this.context.font = '24px Arial';
+			this.context.textAlign = 'center';
+
+			// Left Team players
+			this.context.fillText(this.player1.name, this.canvas.width / 4, 30);
+			this.context.fillText(this.player3.name, this.canvas.width / 4, this.canvas.height - 10);
+
+			// Left Team score
+			this.context.font = '48px Arial';
+			this.context.fillText(
+				(this.player1.score + this.player3.score).toString(),
+				this.canvas.width / 4,
+				80
+			);
+
+			// Right Team players
+			this.context.font = '24px Arial';
+			this.context.fillText(this.player2.name, (this.canvas.width / 4) * 3, 30);
+			this.context.fillText(this.player4.name, (this.canvas.width / 4) * 3, this.canvas.height - 10);
+
+			// Right Team score
+			this.context.font = '48px Arial';
+			this.context.fillText(
+				(this.player2.score + this.player4.score).toString(),
+				(this.canvas.width / 4) * 3,
+				80
+			);
 		} else {
+			// Original 1v1 drawing
 			roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
 			roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
+
+			// Draw player names and scores
+			this.context.font = '24px Arial';
+			this.context.textAlign = 'center';
+
+			// Player 1
+			this.context.fillText(this.player1.name, this.canvas.width / 4, 50);
+			this.context.font = '48px Arial';
+			this.context.fillText(this.player1.score.toString(), this.canvas.width / 4, 100);
+
+			// Player 2
+			this.context.font = '24px Arial';
+			this.context.fillText(this.player2.name, (this.canvas.width / 4) * 3, 50);
+			this.context.font = '48px Arial';
+			this.context.fillText(this.player2.score.toString(), (this.canvas.width / 4) * 3, 100);
 		}
 
+		// Draw ball
 		this.context.fillRect(this.ball.x, this.ball.y, this.ball.width, this.ball.height);
 
-		this.context.font = '48px Arial';
-		this.context.textAlign = 'center';
-		this.context.fillText(this.player1.score.toString(), this.canvas.width / 4, 100);
-		this.context.fillText(this.player2.score.toString(), (this.canvas.width / 4) * 3, 100);
-
+		// Draw game over message if needed
 		if (this.over) {
 			this.context.font = '64px Arial';
-			this.context.fillText(
-				`${this.player1.score > this.player2.score ? 'Player 1' : 'Player 2'} Wins!`,
-				this.canvas.width / 2,
-				this.canvas.height / 2
-			);
+			if (this.is2v2) {
+				const leftTeamScore = this.player1.score + this.player3.score;
+				const rightTeamScore = this.player2.score + this.player4.score;
+				const winningTeam = leftTeamScore > rightTeamScore ?
+					`${this.player1.name} & ${this.player3.name}` :
+					`${this.player2.name} & ${this.player4.name}`;
+				this.context.fillText(
+					`${winningTeam} ${translate('Win!')}`,
+					this.canvas.width / 2,
+					this.canvas.height / 2
+				);
+			} else {
+				this.context.fillText(
+					`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} ${translate('Wins!')}`,
+					this.canvas.width / 2,
+					this.canvas.height / 2
+				);
+			}
 		}
 	}
 
 	gameLoop() {
+		// Check if the game has been cleaned up
+        if (this.cleanedUp) {
+            return; // Stop the game loop if cleaned up
+        }
+
 		if (!this.over) {
 			this.update();
 			this.draw();
@@ -571,32 +683,47 @@ export class PongGame {
 	}
 
 	showGameOver() {
+		// Check if the game has been cleaned up
+        if (this.cleanedUp) {
+            return; // Do not proceed if cleaned up
+        }
+
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.font = '64px Arial';
 		this.context.textAlign = 'center';
 		this.context.fillStyle = '#ffffff';
+
+		// Safely access player1 and player2
+        const winnerName = this.player1 && this.player2
+            ? (this.player1.score > this.player2.score ? this.player1.name : this.player2.name)
+            : translate('Player');
+
 		this.context.fillText(
-			`${this.player1.score > this.player2.score ? this.player1.name : this.player2.name} Wins!`,
+			`${winnerName} ${translate('Wins!')}`,
 			this.canvas.width / 2,
 			this.canvas.height / 2
 		);
 		this.context.font = '48px Arial';
 		this.context.fillText(
-			'Press Space or Enter to Restart',
+			translate('Press Space or Enter to Restart'),
 			this.canvas.width / 2,
 			this.canvas.height / 2 + 100
 		);
 
 		if (!this.restartListenerAdded) {
 			this.restartListenerAdded = true;
-			const restartHandler = (e) => {
+			this.restartHandler = (e) => {
 				if (e.code === 'Space' || e.code === 'Enter') {
-					document.removeEventListener('keydown', restartHandler);
+					// Prevent restarting if cleaned up
+                    if (this.cleanedUp) {
+                        return;
+                    }
+					document.removeEventListener('keydown', this.restartHandler);
 					this.restartListenerAdded = false;
 					this.resetGame();
 				}
 			};
-			document.addEventListener('keydown', restartHandler);
+			document.addEventListener('keydown', this.restartHandler);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 // gamePage.js
 import { checkLoginStatus } from './utils/state.js';
+import { translate } from './utils/translate.js';
 
 export async function gamePage() {
     // Check login status and redirect if not logged in
@@ -14,7 +15,7 @@ export async function gamePage() {
     // Add title
     const title = document.createElement('h1');
     title.className = 'profileH2';
-    title.textContent = 'Select Match Type';
+    title.textContent = translate('Select Match Type');
     container.appendChild(title);
 
     // Create button group
@@ -33,7 +34,7 @@ export async function gamePage() {
     gameOptions.forEach(option => {
         const button = document.createElement('button');
         button.className = 'submit-button';
-        button.textContent = option.text;
+        button.textContent = translate(option.text);
         button.addEventListener('click', () => {
             window.navigateTo(option.path);
         });

@@ -1,13 +1,14 @@
 // homePage.js
 import { checkLoginStatus } from './utils/state.js';
 import { authForms } from './utils/auth.js';
+import { translate } from './utils/translate.js';
 
 export async function homePage() {
     const container = document.createElement('div');
     container.className = 'home-page';
 
     const welcomeMessage = document.createElement('h1');
-    welcomeMessage.innerText = 'Welcome to Pong Transcendence';
+    welcomeMessage.innerText = translate('Welcome to Pong Transcendence');
     container.appendChild(welcomeMessage);
 
     if (checkLoginStatus()) {
@@ -23,7 +24,7 @@ export async function homePage() {
 
         gameOptions.forEach(option => {
             const button = document.createElement('button');
-            button.innerText = option.text;
+            button.innerText = translate(option.text);
             button.className = 'logged-in-button';
             button.addEventListener('click', () => {
                 window.navigateTo(option.path);

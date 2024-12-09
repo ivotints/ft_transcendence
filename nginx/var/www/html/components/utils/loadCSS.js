@@ -24,14 +24,13 @@ export async function loadAllStyles() {
         '/components/styles/tournamentPage.css',
         '/components/styles/playerRegistration.css',
         '/components/styles/pongGame.css',
-        '/components/styles/MatchQueue.css',
-        '/components/styles/MatchDisplay.css',
-        '/components/styles/ScoreTracker.css',
         '/components/styles/profilePage.css',
         '/components/styles/gamePage.css',
         '/components/styles/cowboyPage.css',
         '/components/styles/auth.css',
         '/components/styles/PongVsPlayerPage.css',
+        '/components/styles/language.css',
+        '/components/styles/2FA.css',
     ];
 
     try {

@@ -1,4 +1,5 @@
 // cowboyGame.js
+import { translate } from './utils/translate.js';
 
 export class CowboyGame {
     constructor(container, players) {
@@ -57,8 +58,9 @@ export class CowboyGame {
     createScoreElement(name, score) {
         const div = document.createElement('div');
         div.className = 'score';
+        const truncatedName = name.length > 10 ? name.slice(0, 10) + '...' : name;
         div.innerHTML = `
-            <span class="score-label">${name}</span>
+            <span class="score-label">${truncatedName}</span>
             <span class="score-value">${score}</span>
         `;
         return div;
@@ -67,10 +69,11 @@ export class CowboyGame {
     createPlayerElement(name, playerNum) {
         const div = document.createElement('div');
         div.className = `player player${playerNum}`;
+        const truncatedName = name.length > 10 ? name.slice(0, 10) + '...' : name;
         div.innerHTML = `
             <img src="https://thumbs.dreamstime.com/b/old-man-cowboy-thick-mustache-carrying-gun-vector-illustration-art-doodle-icon-image-kawaii-228493204.jpg"
-                alt="Player ${playerNum} Cowboy" class="cowboy-image">
-            <h3>${name}</h3>
+                alt="${translate('Player')} ${playerNum} ${translate('Cowboy')}" class="cowboy-image">
+            <h3>${truncatedName}</h3>
         `;
         return div;
     }
@@ -96,12 +99,12 @@ export class CowboyGame {
         }
 
         if (phase === 'ready') {
-            this.messageDiv.textContent = 'Ready...';
+            this.messageDiv.textContent = translate('Ready...');
             if (!this.winner) {
                 this.timeouts.push(setTimeout(() => this.updateGamePhase('steady'), 1000));
             }
         } else if (phase === 'steady') {
-            this.messageDiv.textContent = 'Steady...';
+            this.messageDiv.textContent = translate('Steady...');
             if (!this.winner) {
                 const randomTime = Math.floor(Math.random() * 3000) + 2000;
                 this.timeouts.push(setTimeout(() => {
@@ -112,9 +115,9 @@ export class CowboyGame {
                 }, randomTime));
             }
         } else if (phase === 'bang') {
-            this.messageDiv.textContent = 'Bang!';
+            this.messageDiv.textContent = translate('Bang!');
         } else if (phase === 'finished') {
-            this.messageDiv.textContent = 'Game Over';
+            this.messageDiv.textContent = translate('Game Over');
         }
     }
 
@@ -181,21 +184,21 @@ export class CowboyGame {
 
         let resultHTML = '';
         if (this.winner.reason === 'won by opponent misclick') {
-            resultHTML = `<h3>${this.winner.name} wins this round due to opponent's misclick!</h3>`;
+            resultHTML = `<h3>${this.winner.name} ${translate('wins this round due to opponent\'s misclick!')}</h3>`;
         } else {
             resultHTML = `
-                <h3>${this.winner.name} wins this round!</h3>
-                <p>Reaction Time: ${this.winner.reactionTime} ms</p>
+                <h3>${this.winner.name} ${translate('wins this round!')}</h3>
+                <p>${translate('Reaction Time')}: ${this.winner.reactionTime} ms</p>
             `;
         }
 
         if (this.player1Score === this.maxScore || this.player2Score === this.maxScore) {
-            resultHTML += `<h3>${this.player1Score === this.maxScore ? this.player1Name : this.player2Name} wins the match!</h3>`;
-			if (this.onGameEnd)
-				this.onGameEnd();
-		}
+            resultHTML += `<h3>${this.player1Score === this.maxScore ? this.player1Name : this.player2Name} ${translate('wins the match!')}</h3>`;
+            if (this.onGameEnd)
+                this.onGameEnd();
+        }
 
-        resultHTML += `<p>Press "Enter" or "Space" to play again</p>`;
+        resultHTML += `<p>${translate('Press "Enter" or "Space" to play again')}</p>`;
         this.resultDiv.innerHTML = resultHTML;
     }
 

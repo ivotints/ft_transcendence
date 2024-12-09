@@ -2,6 +2,7 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
+    height: 60px; /* Set explicit height */
     background-color: #303030;
     padding: 10px;
     display: flex;

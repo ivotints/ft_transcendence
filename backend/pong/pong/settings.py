@@ -183,7 +183,7 @@ METAMASK_PRIVATE_KEY = os.environ.get('METAMASK_PRIVATE_KEY')
 
 FT_CLIENT_ID = os.environ.get('CLIENT_ID_42')
 FT_CLIENT_SECRET = os.environ.get('CLIENT_SECRET_42')
-FT_REDIRECT_URI = 'https://localhost:8000/oauth/callback/'
+FT_REDIRECT_URI = 'https://localhost/api/oauth/callback/'
 
 
 SIMPLE_JWT = {
