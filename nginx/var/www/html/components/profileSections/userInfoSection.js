@@ -35,12 +35,17 @@ export function renderUserInfo(userInfo, mainContent) {
     avatarContainer.className = 'avatar-container';
 
     const avatarImg = document.createElement('img');
-    const defaultAvatar = 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg?t=st=1728555835~exp=1728559435~hmac=d755d92883b6e90517bb85a9f4873282fbf000290f17eeddd79afdcddaee9ac7&w=826';
+    const defaultAvatar = 'https://img.freepik.com/free-vector/mysterious-gangster-character_23-2148483453.jpg';
 
     const avatarUrl = userInfo.avatar ? constructAvatarUrl(userInfo.avatar) : defaultAvatar;
     avatarImg.src = avatarUrl;
     avatarImg.alt = 'Avatar';
     avatarImg.className = 'avatar';
+
+    // Add error handler to reset avatar to default if image fails to load
+    avatarImg.addEventListener('error', () => {
+        avatarImg.src = defaultAvatar;
+    });
 
     const inputLabel = document.createElement('label');
     inputLabel.className = 'change-avatar-label';
@@ -95,7 +100,6 @@ export function renderUserInfo(userInfo, mainContent) {
 
                 const newAvatarUrl = constructAvatarUrl(data.avatar);
                 avatarImg.src = newAvatarUrl;
-                console.log('Updated avatar URL:', newAvatarUrl);
                 errorMessage.textContent = '';
             } catch (error) {
                 console.error('Error updating avatar:', error);

@@ -10,12 +10,13 @@ import { PongTwoVsTwoPage } from './components/PongTwoVsTwoPage.js';
 import { cowboyPage } from './components/cowboyPage.js';
 import { checkLoginStatus, setLoggedIn } from './components/utils/state.js';
 import { refreshToken, setupTokenRefresh } from './components/utils/auth.js';
+import { translate } from './components/utils/translate.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const app = document.getElementById('app');
     const loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
-    loadingIndicator.innerText = 'Loading...';
+    loadingIndicator.innerText = translate('Loading...');
     document.body.appendChild(loadingIndicator);
 
     async function initializeApp() {
