@@ -126,6 +126,11 @@ export async function tournamentPage() {
                 return;
             }
 
+            if (alias === 'none') {
+                errorMessage.textContent = translate('Username "none" is not allowed');
+                return;
+            }
+
             if (!validAliasRegex.test(alias)) {
                 errorMessage.textContent = translate('Alias may contain only letters, numbers, and @/./+/-/_ characters.');
                 return;
@@ -224,9 +229,7 @@ export async function tournamentPage() {
         tournamentContainer.appendChild(tournamentLayout);
     }
 
-    // Update startGame() function:
     function startGame(player1, player2) {
-        // Cleanup any existing game first
         if (activeGame) {
             activeGame.cleanup();
             activeGame = null;

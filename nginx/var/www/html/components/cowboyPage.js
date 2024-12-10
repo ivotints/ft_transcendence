@@ -59,6 +59,13 @@ export async function cowboyPage() {
             const player2Value = player2Input.value.trim();
             const validNameRegex = /^[a-zA-Z0-9@.+\-_]+$/;
 
+            // Check for forbidden "none" username
+            if (player2Value === 'none') {
+                errorMessage.textContent = translate('Username "none" is not allowed');
+                errorMessage.style.display = 'block';
+                return;
+            }
+
             if (player2Value === currentUsername) {
                 errorMessage.textContent = translate('Player names must be different');
                 errorMessage.style.display = 'block';

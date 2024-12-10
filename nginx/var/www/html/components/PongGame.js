@@ -13,7 +13,7 @@ export class PongGame {
 
 		this.container = container;
 		this.players = players;
-		this.is2v2 = players.player3 !== 'AI';
+		this.is2v2 = players.player3 !== 'none';
 
 		this.canvas = document.createElement('canvas');
 		this.canvas.className = 'pong-canvas';

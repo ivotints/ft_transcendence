@@ -249,8 +249,13 @@ export const translations = {
         "Failed to fetch user info": "Не удалось получить информацию о пользователе",
         "User is authenticated": "Пользователь аутентифицирован",
         "File size exceeds 2MB limit": "Размер файла превышает ограничение в 2 МБ",
-        "Upload a valid image. The file you uploaded was either not an image or a corrupted image.": "Загрузите допустимое изображение. Загруженный вами файл либо не является изображением, либо является поврежденным изображением."
-    },
+        "Upload a valid image. The file you uploaded was either not an image or a corrupted image.": "Загрузите допустимое изображение. Загруженный вами файл либо не является изображением, либо является поврежденным изображением.",
+        'Username "none" is not allowed': "«Имя пользователя «none» не допускается»",
+        "st": "-е",
+        "nd": "-е",
+        "rd": "-е",
+        "th": "-е",
+        },
     "cz": {
         "Change Email": "Změnit e-mail",
         "New Email": "Nový e-mail",
@@ -500,7 +505,12 @@ export const translations = {
         "Failed to fetch user info": "Nepodařilo se získat informace o uživateli",
         "User is authenticated": "Uživatel je ověřen",
         "File size exceeds 2MB limit": "Velikost souboru přesahuje limit 2 MB",
-        "Upload a valid image. The file you uploaded was either not an image or a corrupted image.": "Nahrajte platný obrázek. Soubor, který jste nahráli, buď nebyl obrázek, nebo byl poškozený."
+        "Upload a valid image. The file you uploaded was either not an image or a corrupted image.": "Nahrajte platný obrázek. Soubor, který jste nahráli, buď nebyl obrázek, nebo byl poškozený.",
+        'Username "none" is not allowed': "„Uživatelské jméno „none“ není povoleno“",
+        "st": ".",
+        "nd": ".",
+        "rd": ".",
+        "th": ".",
     }
 };
 

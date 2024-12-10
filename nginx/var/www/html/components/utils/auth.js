@@ -387,6 +387,11 @@ export function authForms() {
     event.preventDefault();
     errorMessageDiv.textContent = '';
 
+    if (username.trim().toLowerCase() === 'none') {
+        errorMessageDiv.textContent = translate('Username "none" is not allowed');
+        return;
+    }
+
     try {
       const response = await fetch('/api/users/register/', {
         method: 'POST',

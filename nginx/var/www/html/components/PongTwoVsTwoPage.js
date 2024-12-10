@@ -70,9 +70,15 @@ export async function PongTwoVsTwoPage() {
 
             const validNameRegex = /^[a-zA-Z0-9@.+\-_]+$/;
             const playerInputs = [player2Input, player3Input, player4Input];
-            const playerValues = playerInputs.map(input => input.value.trim().toLowerCase());
+            const playerValues = playerInputs.map(input => input.value.trim());
 
-            if (playerValues.includes(currentUsername.toLowerCase())) {
+            if (playerValues.includes('none')) {
+                errorMessage.textContent = translate('Username "none" is not allowed');
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            if (playerValues.includes(currentUsername)) {
                 errorMessage.textContent = translate('Player names must be different');
                 errorMessage.style.display = 'block';
                 return;
