@@ -64,7 +64,7 @@ class SetupTwoFactorView(APIView):
 					# Checks if code is correct so it can be written to DB
 					otp = request.data.get('code')
 					if not two_factor_auth_data.validate_otp(otp):
-						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+						return JsonResponse({"error": "Invalid OTP code."}, status=400)
 
 					two_factor_auth_data.app_enabled = True
 					two_factor_auth_data.save()
@@ -83,25 +83,27 @@ class SetupTwoFactorView(APIView):
 					user_phone = '+' + user_phone
 				if not re.match(r'^\+[1-9]\d{1,14}$', user_phone):
 					return JsonResponse({"errors": ["Invalid phone number format."]}, status=400)
-
-				if not code :
-					verification = client.verify.services(verify_service_sid).verifications.create(
-						to=user_phone,
-						channel='sms'
-					)
-					return JsonResponse({"success": "OTP sent successfully."})
-				else:
-					verification_check = client.verify.services(verify_service_sid).verification_checks.create(
-						to=user_phone,
-						code=code
-					)
-					if verification_check.status == 'approved':
-						two_factor_auth_data.sms_enabled = True
-						two_factor_auth_data.mobile_number = user_phone
-						two_factor_auth_data.save()
-						return JsonResponse({"success": "2FA setup successfully."})
+				try:
+					if not code :
+						verification = client.verify.services(verify_service_sid).verifications.create(
+							to=user_phone,
+							channel='sms'
+						)
+						return JsonResponse({"success": "OTP sent successfully."})
 					else:
-						return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+						verification_check = client.verify.services(verify_service_sid).verification_checks.create(
+							to=user_phone,
+							code=code
+						)
+						if verification_check.status == 'approved':
+							two_factor_auth_data.sms_enabled = True
+							two_factor_auth_data.mobile_number = user_phone
+							two_factor_auth_data.save()
+							return JsonResponse({"success": "2FA setup successfully."})
+						else:
+							return JsonResponse({"error": "Invalid OTP code."}, status=400)
+				except Exception as e:
+					return JsonResponse({"error": "Error during 2FA verification"}, status=400)
 
 			elif method == 'email':
 				if two_factor_auth_data.app_enabled or two_factor_auth_data.sms_enabled:
@@ -115,42 +117,16 @@ class SetupTwoFactorView(APIView):
 				else:
 
 					if not two_factor_auth_data.validate_email_otp(code):
-						return Response({"error": "Invalid OTP code."}, status=400)
+						return JsonResponse({"error": "Invalid OTP code."}, status=400)
 
 					two_factor_auth_data.email_enabled = True
 					two_factor_auth_data.save()
-					return Response({"success": "2FA setup successfully."}, status=200)
+					return JsonResponse({"success": "2FA setup successfully."}, status=200)
 
 			else:
 				return JsonResponse({"errors": ["Invalid method"]}, status=400)
 		except ValidationError as exc:
 			return JsonResponse({"errors": exc.messages}, status=400)
-	
-
-class ConfirmTwoFactorAuthView(APIView):
-	authentication_classes = [
-		CustomJWTAuthentication,
-	]
-	permission_classes = [permissions.IsAuthenticated]
-
-	def post(self, request):
-		user = request.user
-		otp = request.data.get('otp')
-
-		try:
-			two_factor_auth_data = UserTwoFactorAuthData.objects.filter(user=user).first()
-
-			if two_factor_auth_data is None:
-				return Response({"error": "2FA is not set up for this user."}, status=status.HTTP_400_BAD_REQUEST)
-
-			if not two_factor_auth_data.validate_otp(otp):
-				return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
-
-			# If OTP is valid, return success response
-			return Response({"success": "2FA verified successfully."}, status=status.HTTP_200_OK)
-
-		except ValidationError as exc:
-			return Response({"error": exc.message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -177,15 +153,6 @@ class UserDetailAPIView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
-
-class UserProfileListAPIView(generics.ListAPIView):
-	serializer_class = UserProfileSerializer
-	queryset = UserProfile.objects.all()
-	authentication_classes = [
-		CustomJWTAuthentication,
-	]
-	permission_classes = [permissions.IsAdminUser]
 	
 	
 class UserProfileDetailAPIView(generics.RetrieveUpdateAPIView):
@@ -258,16 +225,12 @@ class SendVerificationCode(APIView):
 
 
 
-class FriendListCreateAPIView(generics.ListCreateAPIView):
+class FriendCreateAPIView(generics.CreateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		CustomJWTAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
-
-	def get_queryset(self):
-		user = self.request.user
-		return Friend.objects.filter(user=user) | Friend.objects.filter(friend=user)
 	
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)
@@ -330,7 +293,7 @@ class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 		if serializer.instance.status == 'rejected':
 			serializer.instance.delete()
-			return Response({'detail': 'Friend request rejected and deleted.'}, status=status.HTTP_200_OK)
+			return Response({'detail': 'Friend request rejected and deleted.'}, status=200)
 
 		return Response(serializer.data)
 
@@ -339,10 +302,10 @@ class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 		# Verify the user is part of the friendship before deleting
 		if request.user != instance.user and request.user != instance.friend:
 			return Response({'detail': 'You do not have permission to delete this friend request.'},
-							status=status.HTTP_403_FORBIDDEN)
+							status=403)
 
 		self.perform_destroy(instance)
-		return Response({'detail': 'Friend request deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+		return Response({'detail': 'Friend request deleted successfully.'}, status=204)
 
 
 class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
@@ -363,7 +326,7 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 			print('Caught exception in create:', str(e))
 			return Response(
 				{'detail': str(e)},
-				status=status.HTTP_400_BAD_REQUEST
+				status=400
 			)
 
 	def perform_create(self, serializer):
@@ -391,7 +354,7 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 			print('Caught exception in create:', str(e))
 			return Response(
 				{'detail': str(e)},
-				status=status.HTTP_400_BAD_REQUEST
+				status=400
 			)
 
 	def perform_create(self, serializer):

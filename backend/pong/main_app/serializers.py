@@ -30,17 +30,11 @@ class UserSerializer(serializers.ModelSerializer):
 			'old_password',
 			'first_name',
 			'last_name',
-			'is_active',
 		]
 
 	def validate_username(self, value):
 		if len(value) > 32:
 			raise serializers.ValidationError({'username:': 'Username must be 32 characters or fewer'})
-		
-		# username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
-		# if not re.match(username_regex, value):
-		# 	raise serializers.ValidationError("Your username contains invalid characters.")
-		
 		return value
 	
 	def validate_email(self, value):
@@ -74,7 +68,10 @@ class UserSerializer(serializers.ModelSerializer):
 						raise serializers.ValidationError({"old_password": "Old password is incorrect"})
 				else:
 					pass
-		
+		elif request and request.method == 'POST':
+			if 'old_password' in data:
+				data.pop('old_password')
+
 		if request and request.method == 'POST':
 			if 'email' not in data or not data.get('email'):
 				raise serializers.ValidationError({"email": "Email cannot be empty"})
@@ -89,13 +86,6 @@ class UserSerializer(serializers.ModelSerializer):
 				raise serializers.ValidationError({"email": "Invalid email address"})
 			if user and user.email == email:
 				raise serializers.ValidationError({"email": "New email cannot be the same as the old email"})
-
-		# if 'old_password' in data:
-		# 	old_password = data.get('old_password')
-		# 	if old_password is None:
-		# 		raise serializers.ValidationError({"old_password": "You need to validate old password"})
-		# 	if user and not user.check_password(old_password):
-		# 		raise serializers.ValidationError({"old_password": "Old password is incorrect"})
 
 		if 'password' in data:
 			password = data.get('password')
@@ -223,8 +213,6 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Player2's username must be 32 characters or fewer.")
 
 		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
-		print(value)
-		print(re.match(username_regex, value))
 		if not re.match(username_regex, value):
 			raise serializers.ValidationError("Player2's username contains invalid characters. This value may contain only letters, numbers, and @/./+/-/_ characters.")
 
@@ -288,7 +276,7 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 		player3 = data['player3']
 		player4 = data['player4']
 		if len(player2) > 32 or len(player3) > 32 or len(player4) > 32:
-			raise serializers.ValidationError("Player2's username must be 32 characters or fewer.")
+			raise serializers.ValidationError("Player's username must be 32 characters or fewer.")
 		
 		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
 		if not re.match(username_regex, player2) or not re.match(username_regex, player3) or not re.match(username_regex, player4):
@@ -301,13 +289,6 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 			return super().create(validated_data)
 		except Exception as e:
 			raise serializers.ValidationError({'detail': str(e)})
-	# def validate(self, data):
-	# 	player1 = User.objects.get(user=data.get('player1'))
-	# 	player1_username = player1.username
-	# 	players = [player1_username, data.get('player2'), data.get('player3'), data.get('player4')]
-	# 	if len(players) != len(set(players)):
-	# 		raise serializers.ValidationError("All players must be unique.")
-	# 	return data
 	
 
 class CowboyMatchHistorySerializer(serializers.ModelSerializer):
@@ -374,73 +355,78 @@ class IsOnlineField(serializers.Field):
 
 
 class FriendSerializer(serializers.ModelSerializer):
-	friend_username = serializers.CharField(write_only=True, required=False)
-	friend_detail = UserSerializer(source='friend', read_only=True)
-	user_detail = UserSerializer(source='user', read_only=True)
-	is_friend_online = IsOnlineField(source='friend', read_only=True)
-	is_user_online = IsOnlineField(source='user', read_only=True)
+    friend_username = serializers.CharField(write_only=True, required=False)
+    user_username = serializers.SerializerMethodField()
+    friend_username_read_only = serializers.SerializerMethodField()
+    is_friend_online = IsOnlineField(source='friend', read_only=True)
+    is_user_online = IsOnlineField(source='user', read_only=True)
 
-	class Meta:
-		model = Friend
-		fields = [
-			'id',
-			'user',
-			'friend',
-			'friend_username',
-			'friend_detail',
-			'is_friend_online',
-			'user_detail',
-			'is_user_online',
-			'status',
-			'is_activated',
-			'created_at',
-		]
-		read_only_fields = ['id', 'user', 'user_detail', 'friend', 'friend_detail', 'created_at', 'is_activated']
+    class Meta:
+        model = Friend
+        fields = [
+            'id',
+            'user',
+            'user_username',
+            'friend',
+            'friend_username',
+            'friend_username_read_only',
+            'is_friend_online',
+            'is_user_online',
+            'status',
+            'is_activated',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'user', 'user_username', 'friend', 'friend_username_read_only', 'created_at', 'is_activated']
 
-	def validate(self, data):
-		user = self.context['request'].user
-		friend_username = data.get('friend_username')
+    def get_user_username(self, obj):
+        return obj.user.username
 
-		if self.context['request'].method == 'POST':
-			if not friend_username:
-				raise serializers.ValidationError("Friend username is required.")
+    def get_friend_username_read_only(self, obj):
+        return obj.friend.username
 
-			try:
-				friend = User.objects.get(username=friend_username)
-			except User.DoesNotExist:
-				raise serializers.ValidationError("Friend with this username does not exist.")
+    def validate(self, data):
+        user = self.context['request'].user
+        friend_username = data.get('friend_username')
 
-			if user == friend:
-				raise serializers.ValidationError("You cannot send a friend request to yourself.")
+        if self.context['request'].method == 'POST':
+            if not friend_username:
+                raise serializers.ValidationError("Friend username is required.")
 
-			if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
-				raise serializers.ValidationError("A friend request already exists between these users.")
+            try:
+                friend = User.objects.get(username=friend_username)
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Friend with this username does not exist.")
 
-			data['friend_instance'] = friend
+            if user == friend:
+                raise serializers.ValidationError("You cannot send a friend request to yourself.")
 
-		return data
-	
-	def update(self, instance, validated_data):
-		if self.context['request'].method == 'PATCH':
-			new_status = validated_data.get('status', instance.status)
-			print(new_status)
-			if instance.status == 'pending' and new_status in ['accepted', 'rejected']:
-				instance.set_activated()
-			elif instance.is_activated:
-				raise serializers.ValidationError("Status cannot be changed once it is set to accepted or rejected.")
+            if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
+                raise serializers.ValidationError("A friend request already exists between these users.")
 
-			return super().update(instance, validated_data)
+            data['friend_instance'] = friend
 
-	def create(self, validated_data):
-		user = self.context['request'].user
-		friend = validated_data.pop('friend_instance')
+        return data
 
-		friend_request = Friend.objects.create(
-			user=user,
-			friend=friend,
-			status='pending'
-		)
-		return friend_request
+    def create(self, validated_data):
+        user = self.context['request'].user
+        friend = validated_data.pop('friend_instance')
+
+        friend_request = Friend.objects.create(
+            user=user,
+            friend=friend,
+            status='pending'
+        )
+        return friend_request
+
+    def update(self, instance, validated_data):
+        if self.context['request'].method == 'PATCH' or self.context['request'].method == 'PUT':
+            new_status = validated_data.get('status', instance.status)
+            if instance.status == 'pending' and new_status in ['accepted', 'rejected']:
+                instance.set_activated()
+            elif instance.is_activated:
+                raise serializers.ValidationError("Status cannot be changed once it is set to accepted or rejected.")
+
+        return super().update(instance, validated_data)
 
 
 class TournamentSerializer(serializers.ModelSerializer):
