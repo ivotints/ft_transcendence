@@ -67,13 +67,9 @@ export function renderFriendList(mainContent, userInfo, showSection) {
                 const li = document.createElement('li');
                 li.className = 'friend-list-item';
 
-                const username = friend.user_detail?.username === userInfo.username
-                    ? friend.friend_detail?.username
-                    : friend.user_detail?.username;
-
-                const isOnline = friend.user_detail?.username === userInfo.username
-                    ? friend.is_friend_online
-                    : friend.is_user_online;
+                const isCurrentUser = friend.user_username === userInfo.username;
+                const username = isCurrentUser ? friend.friend_username_read_only : friend.user_username;
+                const isOnline = isCurrentUser ? friend.is_friend_online : friend.is_user_online;
 
                 li.innerHTML = `
                     <span class="status-circle ${isOnline ? 'online' : 'offline'}"></span>
@@ -108,7 +104,7 @@ export function renderPendingRequests(mainContent, showSection) {
                 const li = document.createElement('li');
                 li.className = 'pending-request-item';
                 li.innerHTML = `
-                    <span class="pending-request-username">${request.user_detail.username}</span>
+                    <span class="pending-request-username">${request.user_username}</span>
                     <div class="pending-request-buttons">
                         <button class="accept-btn">${translate('Accept')}</button>
                         <button class="reject-btn">${translate('Reject')}</button>
