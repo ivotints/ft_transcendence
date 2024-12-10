@@ -29,7 +29,6 @@ export function renderMatchHistory(mainContent) {
     historyDiv.appendChild(matchList);
     mainContent.appendChild(historyDiv);
 
-    // Initial load with 1v1 matches
     fetchMatchHistory('1v1', matchList);
 }
 

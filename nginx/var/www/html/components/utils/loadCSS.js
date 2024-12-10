@@ -15,7 +15,6 @@ export function loadCSS(href) {
     });
 }
 
-// utils/loadAllStyles.js
 export async function loadAllStyles() {
     const styles = [
         '/components/styles/styles.css',

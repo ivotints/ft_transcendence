@@ -72,14 +72,12 @@ export async function PongTwoVsTwoPage() {
             const playerInputs = [player2Input, player3Input, player4Input];
             const playerValues = playerInputs.map(input => input.value.trim().toLowerCase());
 
-            // Check for duplicate names with current user
             if (playerValues.includes(currentUsername.toLowerCase())) {
                 errorMessage.textContent = translate('Player names must be different');
                 errorMessage.style.display = 'block';
                 return;
             }
 
-            // Check for duplicates between other players
             const uniqueNames = new Set(playerValues);
             if (uniqueNames.size !== playerValues.length) {
                 errorMessage.textContent = translate('All player names must be different');
@@ -87,7 +85,6 @@ export async function PongTwoVsTwoPage() {
                 return;
             }
 
-            // Check for valid characters
             for (const input of playerInputs) {
                 const value = input.value.trim();
                 if (!validNameRegex.test(value)) {

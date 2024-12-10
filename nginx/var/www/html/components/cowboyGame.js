@@ -6,7 +6,6 @@ export class CowboyGame {
         this.container = container;
         this.players = players;
 
-        // Game state
         this.gamePhase = 'ready';
         this.winner = null;
         this.gameStartTime = null;
@@ -22,7 +21,6 @@ export class CowboyGame {
     }
 
     initGame() {
-        // Initialize game elements
         this.scoreboard = document.createElement('div');
         this.scoreboard.className = 'scoreboard';
 
@@ -140,7 +138,6 @@ export class CowboyGame {
                 }
                 this.updateGamePhase('finished');
 
-                // Check if game is over and trigger onGameEnd
                 if (this.player1Score === this.maxScore || this.player2Score === this.maxScore) {
                     if (this.onGameEnd) {
                         this.onGameEnd();
@@ -158,7 +155,6 @@ export class CowboyGame {
             }
             this.updateGamePhase('finished');
 
-            // Check if game is over and trigger onGameEnd
             if (this.player1Score === this.maxScore || this.player2Score === this.maxScore) {
                 if (this.onGameEnd) {
                     this.onGameEnd();

@@ -12,11 +12,9 @@ export async function cowboyPage() {
     const container = document.createElement('div');
     container.className = 'game-container';
 
-    // Variables to hold player information
     let currentUserId;
     let currentUsername;
 
-    // Fetch current user's data
     try {
         const response = await fetch('/api/profiles/me/', {
             credentials: 'include'
@@ -61,7 +59,6 @@ export async function cowboyPage() {
             const player2Value = player2Input.value.trim();
             const validNameRegex = /^[a-zA-Z0-9@.+\-_]+$/;
 
-            // Check for duplicate names
             if (player2Value === currentUsername) {
                 errorMessage.textContent = translate('Player names must be different');
                 errorMessage.style.display = 'block';

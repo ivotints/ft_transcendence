@@ -29,7 +29,7 @@ export function renderLanguageChange(container, showSection) {
 
     languageSelect.addEventListener('change', (e) => {
         setLanguage(e.target.value);
-        window.navigateTo('/profile'); // Nav
+        window.navigateTo('/profile');
 
     });
 

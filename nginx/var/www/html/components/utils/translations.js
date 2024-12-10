@@ -89,7 +89,6 @@ export const translations = {
         "Games": "Игры",
         "Log out": "Выйти",
 
-        // User validation errors
         "Username must be 32 characters or fewer": "Имя пользователя должно быть не более 32 символов",
         "Your username contains invalid characters.": "Ваше имя пользователя содержит недопустимые символы",
         "Email must be 32 characters or fewer": "Email должен быть не более 32 символов",
@@ -97,7 +96,6 @@ export const translations = {
         "Email cannot be empty": "Email не может быть пустым",
         "New email cannot be the same as the old email": "Новый email не может совпадать со старым",
 
-        // Password validation errors
         "Password must be at least 8 characters long": "Пароль должен быть не менее 8 символов",
         "Password must be at least 8 characters long and no longer than 32": "Пароль должен быть не менее 8 и не более 32 символов",
         "Password must contain at least one digit": "Пароль должен содержать хотя бы одну цифру",
@@ -108,11 +106,9 @@ export const translations = {
         "New password cannot be the same as the old password": "Новый пароль не может совпадать со старым",
         "Password is required": "Необходимо указать пароль",
 
-        // Avatar validation errors
         "Avatar image size should not exceed 2 MB.": "Размер изображения аватара не должен превышать 2 МБ",
         "Avatar image must be in JPEG or PNG format.": "Изображение аватара должно быть в формате JPEG или PNG",
 
-        // Match history validation errors
         "Player2's username must be 32 characters or fewer.": "Имя второго игрока должно быть не более 32 символов",
         "Player2's username contains invalid characters.": "Имя второго игрока содержит недопустимые символы",
         "Invalid score. Score must be non-negative integers.": "Неверный счет. Счет должен быть неотрицательным числом",
@@ -122,22 +118,18 @@ export const translations = {
         "Player's username contains invalid characters.": "Имя игрока содержит недопустимые символы",
         "All players must be unique.": "Все игроки должны быть разными",
 
-        // Friend validation errors
         "Friend username is required.": "Необходимо указать имя друга",
         "Friend with this username does not exist.": "Друг с таким именем не существует",
         "You cannot send a friend request to yourself.": "Нельзя отправить запрос в друзья самому себе",
         "A friend request already exists between these users.": "Запрос в друзья между этими пользователями уже существует",
         "Status cannot be changed once it is set to accepted or rejected.": "Статус нельзя изменить после принятия или отклонения",
 
-        // Tournament errors
         "Error creating tournament:": "Ошибка при создании турнира:",
         "Refresh token not found in cookies": "Токен обновления не найден в cookies",
 
-        // Profile sections
         "Pending Requests": "Ожидающие запросы",
         "Error fetching user data:": "Ошибка при получении данных пользователя:",
 
-        // Tournament page
         "Upcoming Matches": "Предстоящие матчи",
         "Scores": "Счет",
         "points": "очков",
@@ -201,18 +193,15 @@ export const translations = {
         "Win!": "Победили!",
         "Press Space or Enter to Restart": "Нажмите Пробел или Enter для перезапуска",
 
-        // Auth buttons
         "Log In": "Войти",
         "Create User": "Создать пользователя",
         "Verify": "Подтвердить",
 
-        // Form placeholders
         "Username": "Имя пользователя",
         "Email": "Электронная почта",
         "Password": "Пароль",
         "Enter verification code": "Введите код подтверждения",
 
-        // Messages
         "All fields must be filled out": "Все поля должны быть заполнены",
         "Verification code is required": "Требуется код подтверждения",
         "Send verification code": "Отправить код подтверждения",
@@ -222,13 +211,11 @@ export const translations = {
         "Network error": "Ошибка сети",
         "An error occurred": "Произошла ошибка",
 
-        // Error prefixes
         "Error:": "Ошибка:",
         "Username error:": "Ошибка имени пользователя:",
         "Email error:": "Ошибка электронной почты:",
         "Password error:": "Ошибка пароля:",
 
-        // 2FA Errors
         "Another 2FA method is already enabled": "Другой метод 2FA уже активирован",
         "This 2FA method is already enabled": "Этот метод 2FA уже активирован",
         "Mobile number is required for SMS 2FA": "Номер телефона необходим для SMS 2FA",
@@ -241,14 +228,12 @@ export const translations = {
         "OTP sent successfully.": "OTP успешно отправлен",
         "OTP required.": "Требуется OTP",
 
-        // User Related Errors
         "User not found": "Пользователь не найден",
         "Invalid token": "Недействительный токен",
         "Access token not found": "Токен доступа не найден",
         "Refresh token not found": "Токен обновления не найден",
         "Successfully logged out.": "Успешно выполнен выход",
 
-        // Permission Errors
         "You do not have permission to access this friend request.": "У вас нет прав для доступа к этому запросу в друзья",
         "You do not have permission to update this friend request.": "У вас нет прав для обновления этого запроса в друзья",
         "You do not have permission to delete this friend request.": "У вас нет прав для удаления этого запроса в друзья",
@@ -256,11 +241,9 @@ export const translations = {
         "Friend request rejected and deleted.": "Запрос в друзья отклонен и удален",
         "Friend request deleted successfully.": "Запрос в друзья успешно удален",
 
-        // Match Related Errors
         "You can only create matches for yourself.": "Вы можете создавать матчи только для себя",
         "You can only create tournaments for yourself.": "Вы можете создавать турниры только для себя",
 
-        // OAuth Errors
         "Invalid state parameter": "Недействительный параметр состояния",
         "Failed to obtain access token": "Не удалось получить токен доступа",
         "Failed to fetch user info": "Не удалось получить информацию о пользователе",
@@ -357,7 +340,6 @@ export const translations = {
         "Games": "Hry",
         "Log out": "Odhlásit se",
 
-        // User validation errors
         "Username must be 32 characters or fewer": "Uživatelské jméno nesmí být delší než 32 znaků",
         "Your username contains invalid characters.": "Vaše uživatelské jméno obsahuje neplatné znaky",
         "Email must be 32 characters or fewer": "Email nesmí být delší než 32 znaků",
@@ -365,7 +347,6 @@ export const translations = {
         "Email cannot be empty": "Email nemůže být prázdný",
         "New email cannot be the same as the old email": "Nový email nemůže být stejný jako starý",
 
-        // Password validation errors
         "Password must be at least 8 characters long": "Heslo musí mít alespoň 8 znaků",
         "Password must be at least 8 characters long and no longer than 32": "Heslo musí mít 8 až 32 znaků",
         "Password must contain at least one digit": "Heslo musí obsahovat alespoň jednu číslici",
@@ -376,11 +357,9 @@ export const translations = {
         "New password cannot be the same as the old password": "Nové heslo nemůže být stejné jako staré",
         "Password is required": "Heslo je povinné",
 
-        // Avatar validation errors
         "Avatar image size should not exceed 2 MB.": "Velikost obrázku avatara nesmí překročit 2 MB",
         "Avatar image must be in JPEG or PNG format.": "Obrázek avatara musí být ve formátu JPEG nebo PNG",
 
-        // Match history validation errors
         "Player2's username must be 32 characters or fewer.": "Jméno druhého hráče nesmí být delší než 32 znaků",
         "Player2's username contains invalid characters.": "Jméno druhého hráče obsahuje neplatné znaky",
         "Invalid score. Score must be non-negative integers.": "Neplatné skóre. Skóre musí být nezáporné číslo",
@@ -390,22 +369,18 @@ export const translations = {
         "Player's username contains invalid characters.": "Jméno hráče obsahuje neplatné znaky",
         "All players must be unique.": "Všichni hráči musí být různí",
 
-        // Friend validation errors
         "Friend username is required.": "Jméno přítele je povinné",
         "Friend with this username does not exist.": "Přítel s tímto jménem neexistuje",
         "You cannot send a friend request to yourself.": "Nemůžete poslat žádost o přátelství sám sobě",
         "A friend request already exists between these users.": "Žádost o přátelství mezi těmito uživateli již existuje",
         "Status cannot be changed once it is set to accepted or rejected.": "Status nelze změnit po přijetí nebo odmítnutí",
 
-        // Tournament errors
         "Error creating tournament:": "Chyba při vytváření turnaje:",
         "Refresh token not found in cookies": "Obnovovací token nebyl nalezen v cookies",
 
-        // Profile sections
         "Pending Requests": "Čekající žádosti",
         "Error fetching user data:": "Chyba při načítání dat uživatele:",
 
-        // Tournament page
         "Upcoming Matches": "Nadcházející zápasy",
         "Scores": "Skóre",
         "points": "bodů",
@@ -469,18 +444,15 @@ export const translations = {
         "Win!": "Vyhrávají!",
         "Press Space or Enter to Restart": "Stiskněte Mezerník nebo Enter pro restart",
 
-        // Auth buttons
         "Log In": "Přihlásit se",
         "Create User": "Vytvořit uživatele",
         "Verify": "Ověřit",
 
-        // Form placeholders
         "Username": "Uživatelské jméno",
         "Email": "E-mail",
         "Password": "Heslo",
         "Enter verification code": "Zadejte ověřovací кód",
 
-        // Messages
         "All fields must be filled out": "Všechna pole musí být vyplněna",
         "Verification code is required": "Ověřovací kód je povinný",
         "Send verification code": "Odeslat ověřovací кód",
@@ -490,13 +462,11 @@ export const translations = {
         "Network error": "Chyba sítě",
         "An error occurred": "Došlo k chybě",
 
-        // Error prefixes
         "Error:": "Chyba:",
         "Username error:": "Chyba uživatelského jména:",
         "Email error:": "Chyba e-mailu:",
         "Password error:": "Chyba hesla:",
 
-        // 2FA Errors
         "Another 2FA method is already enabled": "Jiná metoda 2FA je již aktivována",
         "This 2FA method is already enabled": "Tato metoda 2FA je již aktivována",
         "Mobile number is required for SMS 2FA": "Pro SMS 2FA je vyžadováno telefonní číslo",
@@ -509,14 +479,12 @@ export const translations = {
         "OTP sent successfully.": "OTP úspěšně odesláno",
         "OTP required.": "OTP je vyžadováno",
 
-        // User Related Errors
         "User not found": "Uživatel nenalezen",
         "Invalid token": "Neplatný token",
         "Access token not found": "Přístupový token nenalezen",
         "Refresh token not found": "Obnovovací token nenalezen",
         "Successfully logged out.": "Úspěšně odhlášeno",
 
-        // Permission Errors
         "You do not have permission to access this friend request.": "Nemáte oprávnění k přístupu k této žádosti o přátelství",
         "You do not have permission to update this friend request.": "Nemáte oprávnění k aktualizaci této žádosti o přátelství",
         "You do not have permission to delete this friend request.": "Nemáte oprávnění ke smazání této žádosti o přátelství",
@@ -524,11 +492,9 @@ export const translations = {
         "Friend request rejected and deleted.": "Žádost o přátelství odmítnuta a smazána",
         "Friend request deleted successfully.": "Žádost o přátelství úspěšně smazána",
 
-        // Match Related Errors
         "You can only create matches for yourself.": "Můžete vytvářet zápasy pouze pro sebe",
         "You can only create tournaments for yourself.": "Můžete vytvářet turnaje pouze pro sebe",
 
-        // OAuth Errors
         "Invalid state parameter": "Neplatný parametr stavu",
         "Failed to obtain access token": "Nepodařilo se získat přístupový token",
         "Failed to fetch user info": "Nepodařilo se získat informace o uživateli",

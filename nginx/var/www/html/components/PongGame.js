@@ -13,7 +13,7 @@ export class PongGame {
 
 		this.container = container;
 		this.players = players;
-		this.is2v2 = players.player3 !== 'none';
+		this.is2v2 = players.player3 !== 'AI';
 
 		this.canvas = document.createElement('canvas');
 		this.canvas.className = 'pong-canvas';
@@ -55,12 +55,10 @@ export class PongGame {
 		this.addEventListeners();
 		this.showStartMenu();
 
-		// Store event listeners for cleanup
 		this.keyDownHandler = null;
 		this.keyUpHandler = null;
 		this.restartHandler = null;
 
-		// Initialize cleanedUp flag
 		this.cleanedUp = false;
 	}
 
@@ -89,7 +87,6 @@ export class PongGame {
 	}
 
 	initializeTwoVsTwo() {
-		// Left team
 		this.player1 = {
 			width: 18,
 			height: 180,
@@ -114,7 +111,6 @@ export class PongGame {
 			minY: this.canvas.height / 2
 		};
 
-		// Right team
 		this.player2 = {
 			width: 18,
 			height: 180,
@@ -274,7 +270,6 @@ export class PongGame {
 	}
 
 	addEventListeners() {
-		// Store handlers as class properties
 		this.keyDownHandler = (key) => {
 			if (!this.running) {
 				this.startGame();
@@ -341,13 +336,11 @@ export class PongGame {
 	}
 
 	cleanup() {
-		// Cancel animation frame
 		if (this.animationFrameId) {
 			cancelAnimationFrame(this.animationFrameId);
 			this.animationFrameId = null;
 		}
 
-		// Remove event listeners
 		if (this.keyDownHandler) {
 			document.removeEventListener('keydown', this.keyDownHandler);
 		}
@@ -358,19 +351,15 @@ export class PongGame {
 			document.removeEventListener('keydown', this.restartHandler);
 		}
 
-		// Clear game state
 		this.running = false;
 		this.over = true;
 
-		 // Set cleanedUp flag
-        this.cleanedUp = true;
+		this.cleanedUp = true;
 
-		// Remove canvas from container
 		if (this.canvas && this.canvas.parentNode) {
 			this.canvas.parentNode.removeChild(this.canvas);
 		}
 
-		// Clear any reference to the container
 		this.container = null;
 	}
 
@@ -492,15 +481,12 @@ export class PongGame {
 			this.context.fill();
 		};
 
-		// Draw paddles
 		if (this.is2v2) {
-			// Draw all paddles
 			roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
 			roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
 			roundRect(this.player3.x, this.player3.y, this.player3.width, this.player3.height);
 			roundRect(this.player4.x, this.player4.y, this.player4.width, this.player4.height);
 
-			// Draw middle line
 			this.context.beginPath();
 			this.context.strokeStyle = '#ffffff';
 			this.context.setLineDash([5, 15]);
@@ -508,15 +494,12 @@ export class PongGame {
 			this.context.lineTo(this.canvas.width, this.canvas.height / 2);
 			this.context.stroke();
 
-			// Draw team names and scores
 			this.context.font = '24px Arial';
 			this.context.textAlign = 'center';
 
-			// Left Team players
 			this.context.fillText(this.player1.name, this.canvas.width / 4, 30);
 			this.context.fillText(this.player3.name, this.canvas.width / 4, this.canvas.height - 10);
 
-			// Left Team score
 			this.context.font = '48px Arial';
 			this.context.fillText(
 				(this.player1.score + this.player3.score).toString(),
@@ -524,12 +507,10 @@ export class PongGame {
 				80
 			);
 
-			// Right Team players
 			this.context.font = '24px Arial';
 			this.context.fillText(this.player2.name, (this.canvas.width / 4) * 3, 30);
 			this.context.fillText(this.player4.name, (this.canvas.width / 4) * 3, this.canvas.height - 10);
 
-			// Right Team score
 			this.context.font = '48px Arial';
 			this.context.fillText(
 				(this.player2.score + this.player4.score).toString(),
@@ -537,30 +518,24 @@ export class PongGame {
 				80
 			);
 		} else {
-			// Original 1v1 drawing
 			roundRect(this.player1.x, this.player1.y, this.player1.width, this.player1.height);
 			roundRect(this.player2.x, this.player2.y, this.player2.width, this.player2.height);
 
-			// Draw player names and scores
 			this.context.font = '24px Arial';
 			this.context.textAlign = 'center';
 
-			// Player 1
 			this.context.fillText(this.player1.name, this.canvas.width / 4, 50);
 			this.context.font = '48px Arial';
 			this.context.fillText(this.player1.score.toString(), this.canvas.width / 4, 100);
 
-			// Player 2
 			this.context.font = '24px Arial';
 			this.context.fillText(this.player2.name, (this.canvas.width / 4) * 3, 50);
 			this.context.font = '48px Arial';
 			this.context.fillText(this.player2.score.toString(), (this.canvas.width / 4) * 3, 100);
 		}
 
-		// Draw ball
 		this.context.fillRect(this.ball.x, this.ball.y, this.ball.width, this.ball.height);
 
-		// Draw game over message if needed
 		if (this.over) {
 			this.context.font = '64px Arial';
 			if (this.is2v2) {
@@ -585,10 +560,9 @@ export class PongGame {
 	}
 
 	gameLoop() {
-		// Check if the game has been cleaned up
-        if (this.cleanedUp) {
-            return; // Stop the game loop if cleaned up
-        }
+		if (this.cleanedUp) {
+			return;
+		}
 
 		if (!this.over) {
 			this.update();
@@ -683,20 +657,18 @@ export class PongGame {
 	}
 
 	showGameOver() {
-		// Check if the game has been cleaned up
-        if (this.cleanedUp) {
-            return; // Do not proceed if cleaned up
-        }
+		if (this.cleanedUp) {
+			return;
+		}
 
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.font = '64px Arial';
 		this.context.textAlign = 'center';
 		this.context.fillStyle = '#ffffff';
 
-		// Safely access player1 and player2
-        const winnerName = this.player1 && this.player2
-            ? (this.player1.score > this.player2.score ? this.player1.name : this.player2.name)
-            : translate('Player');
+		const winnerName = this.player1 && this.player2
+			? (this.player1.score > this.player2.score ? this.player1.name : this.player2.name)
+			: translate('Player');
 
 		this.context.fillText(
 			`${winnerName} ${translate('Wins!')}`,
@@ -714,10 +686,9 @@ export class PongGame {
 			this.restartListenerAdded = true;
 			this.restartHandler = (e) => {
 				if (e.code === 'Space' || e.code === 'Enter') {
-					// Prevent restarting if cleaned up
-                    if (this.cleanedUp) {
-                        return;
-                    }
+					if (this.cleanedUp) {
+						return;
+					}
 					document.removeEventListener('keydown', this.restartHandler);
 					this.restartListenerAdded = false;
 					this.resetGame();

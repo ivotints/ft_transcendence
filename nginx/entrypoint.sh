@@ -12,9 +12,6 @@ server {
 
     server_name localhost;
 
-    # ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
-    # ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
-
     ssl_certificate /etc/ssl/certs/cert.pem;
     ssl_certificate_key /etc/ssl/private/key.pem;
 
@@ -27,15 +24,6 @@ server {
         try_files \$uri \$uri/ /index.html;
     }
 
-    # location / {
-    #     proxy_pass http://frontend:3000;
-    #     proxy_http_version 1.1;
-    #     proxy_set_header Upgrade \$http_upgrade;
-    #     proxy_set_header Connection 'upgrade';
-    #     proxy_set_header Host \$host;
-    #     proxy_cache_bypass \$http_upgrade;
-    # }
-
     location /api/ {
         proxy_pass https://web:8000/;
         proxy_http_version 1.1;
@@ -45,14 +33,6 @@ server {
         proxy_cache_bypass \$http_upgrade;
     }
 
-    # location /ws {
-    #     proxy_pass http://frontend:3000/ws;
-    #     proxy_http_version 1.1;
-    #     proxy_set_header Upgrade \$http_upgrade;
-    #     proxy_set_header Connection 'upgrade';
-    #     proxy_set_header Host \$host;
-    #     proxy_cache_bypass \$http_upgrade;
-    # }
 }" > /etc/nginx/conf.d/default.conf
 
 nginx -g "daemon off;"
