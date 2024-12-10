@@ -213,8 +213,6 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Player2's username must be 32 characters or fewer.")
 
 		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
-		print(value)
-		print(re.match(username_regex, value))
 		if not re.match(username_regex, value):
 			raise serializers.ValidationError("Player2's username contains invalid characters. This value may contain only letters, numbers, and @/./+/-/_ characters.")
 
@@ -291,13 +289,6 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 			return super().create(validated_data)
 		except Exception as e:
 			raise serializers.ValidationError({'detail': str(e)})
-	# def validate(self, data):
-	# 	player1 = User.objects.get(user=data.get('player1'))
-	# 	player1_username = player1.username
-	# 	players = [player1_username, data.get('player2'), data.get('player3'), data.get('player4')]
-	# 	if len(players) != len(set(players)):
-	# 		raise serializers.ValidationError("All players must be unique.")
-	# 	return data
 	
 
 class CowboyMatchHistorySerializer(serializers.ModelSerializer):
@@ -428,7 +419,7 @@ class FriendSerializer(serializers.ModelSerializer):
         return friend_request
 
     def update(self, instance, validated_data):
-        if self.context['request'].method == 'PATCH':
+        if self.context['request'].method == 'PATCH' or self.context['request'].method == 'PUT':
             new_status = validated_data.get('status', instance.status)
             if instance.status == 'pending' and new_status in ['accepted', 'rejected']:
                 instance.set_activated()

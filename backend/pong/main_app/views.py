@@ -225,16 +225,12 @@ class SendVerificationCode(APIView):
 
 
 
-class FriendListCreateAPIView(generics.ListCreateAPIView):
+class FriendCreateAPIView(generics.CreateAPIView):
 	serializer_class = FriendSerializer
 	authentication_classes = [
 		CustomJWTAuthentication,
 	]
 	permission_classes = [IsAuthenticated]
-
-	def get_queryset(self):
-		user = self.request.user
-		return Friend.objects.filter(user=user) | Friend.objects.filter(friend=user)
 	
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)
@@ -297,7 +293,7 @@ class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 		if serializer.instance.status == 'rejected':
 			serializer.instance.delete()
-			return Response({'detail': 'Friend request rejected and deleted.'}, status=status.HTTP_200_OK)
+			return Response({'detail': 'Friend request rejected and deleted.'}, status=200)
 
 		return Response(serializer.data)
 
@@ -306,10 +302,10 @@ class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 		# Verify the user is part of the friendship before deleting
 		if request.user != instance.user and request.user != instance.friend:
 			return Response({'detail': 'You do not have permission to delete this friend request.'},
-							status=status.HTTP_403_FORBIDDEN)
+							status=403)
 
 		self.perform_destroy(instance)
-		return Response({'detail': 'Friend request deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+		return Response({'detail': 'Friend request deleted successfully.'}, status=204)
 
 
 class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
@@ -330,7 +326,7 @@ class MatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 			print('Caught exception in create:', str(e))
 			return Response(
 				{'detail': str(e)},
-				status=status.HTTP_400_BAD_REQUEST
+				status=400
 			)
 
 	def perform_create(self, serializer):
@@ -358,7 +354,7 @@ class MatchHistory2v2ListCreateAPIView(generics.ListCreateAPIView):
 			print('Caught exception in create:', str(e))
 			return Response(
 				{'detail': str(e)},
-				status=status.HTTP_400_BAD_REQUEST
+				status=400
 			)
 
 	def perform_create(self, serializer):
