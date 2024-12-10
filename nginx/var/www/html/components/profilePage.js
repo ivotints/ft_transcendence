@@ -49,12 +49,10 @@ export async function profilePage() {
     sidebar.appendChild(sidebarList);
     container.appendChild(sidebar);
 
-    // Create main content area
     const mainContent = document.createElement('div');
     mainContent.className = 'user-info';
     container.appendChild(mainContent);
 
-    // Initial data
     let userInfo = {
         username: '',
         email: '',
@@ -65,7 +63,6 @@ export async function profilePage() {
         cowboyLosses: 0
     };
 
-    // Fetch user data
     async function fetchUserData() {
         try {
             const response = await fetch('/api/profiles/me/', {
@@ -121,7 +118,6 @@ export async function profilePage() {
         }
     }
 
-    // Initial load
     await fetchUserData();
 
     return container;

@@ -12,7 +12,6 @@ export async function tournamentPage() {
     const tournamentContainer = document.createElement('div');
     tournamentContainer.className = 'tournament-container';
 
-    // State management
     let players = [];
     let matches = [];
     let matchQueue = [];
@@ -20,10 +19,8 @@ export async function tournamentPage() {
     let scores = {};
     let tournamentStarted = false;
 
-    // Add game instance tracking
     let activeGame = null;
 
-    // Create components
     function createMatchQueue() {
         const queueContainer = document.createElement('div');
         queueContainer.className = 'match-queue';
@@ -74,7 +71,6 @@ export async function tournamentPage() {
         matchText.textContent = currentMatch ? currentMatch.replace(' vs ', ` ${translate('vs')} `) : translate('No matches yet.');
         displayContainer.appendChild(matchText);
 
-        // Update match counter to use currentMatchIndex
         const matchCounter = document.createElement('p');
         matchCounter.className = 'match-counter';
         matchCounter.textContent = `${translate('Match')} ${currentMatchIndex + 1} ${translate('of')} ${matchQueue.length}`;
@@ -110,7 +106,6 @@ export async function tournamentPage() {
         const playerList = document.createElement('ul');
         playerList.className = 'player-list';
 
-        // Create start button
         const startButton = document.createElement('button');
         startButton.textContent = translate('Start Tournament');
         startButton.className = 'start-button';
@@ -124,11 +119,15 @@ export async function tournamentPage() {
 
         addButton.addEventListener('click', () => {
             const alias = input.value.trim();
-            // Updated regex to only allow letters, numbers, and @/./+/-/_
             const validAliasRegex = /^[a-zA-Z0-9@.+\-_]+$/;
 
             if (!alias) {
                 errorMessage.textContent = translate('Alias cannot be empty.');
+                return;
+            }
+
+            if (alias === 'none') {
+                errorMessage.textContent = translate('Username "none" is not allowed');
                 return;
             }
 
@@ -170,28 +169,18 @@ export async function tournamentPage() {
         container.appendChild(inputGroup);
         container.appendChild(errorMessage);
         container.appendChild(playerList);
-        container.appendChild(startButton); // Add start button inside container
-
+        container.appendChild(startButton);
         return container;
     }
 
-    // Update generateMatchQueue() function:
     function generateMatchQueue() {
         matchQueue = [];
-        // Generate all possible combinations (6 matches total)
         for (let i = 0; i < players.length - 1; i++) {
             for (let j = i + 1; j < players.length; j++) {
                 matchQueue.push(`${players[i]} vs ${players[j]}`);
             }
         }
         return matchQueue;
-        // For 4 players this will generate:
-        // player1 vs player2
-        // player1 vs player3
-        // player1 vs player4
-        // player2 vs player3
-        // player2 vs player4
-        // player3 vs player4
     }
 
     function startTournament() {
@@ -203,7 +192,6 @@ export async function tournamentPage() {
     }
 
     function renderTournament() {
-        // Cleanup any active game when returning to tournament view
         if (activeGame) {
             activeGame.cleanup();
             activeGame = null;
@@ -214,14 +202,12 @@ export async function tournamentPage() {
         const tournamentLayout = document.createElement('div');
         tournamentLayout.className = 'tournament-layout';
 
-        // Left column - match display, play button, and scores
         const leftColumn = document.createElement('div');
         leftColumn.className = 'left-column';
 
         const currentMatch = matchQueue[currentMatchIndex];
         leftColumn.appendChild(createMatchDisplay(currentMatch));
 
-        // Add play button between match display and scores
         const playButton = document.createElement('button');
         playButton.className = 'submit-button';
         playButton.textContent = translate('Play Game');
@@ -234,7 +220,6 @@ export async function tournamentPage() {
         leftColumn.appendChild(playButton);
         leftColumn.appendChild(createScoreTracker());
 
-        // Right column - upcoming matches
         const rightColumn = document.createElement('div');
         rightColumn.className = 'right-column';
         rightColumn.appendChild(createMatchQueue());
@@ -244,9 +229,7 @@ export async function tournamentPage() {
         tournamentContainer.appendChild(tournamentLayout);
     }
 
-    // Update startGame() function:
     function startGame(player1, player2) {
-        // Cleanup any existing game first
         if (activeGame) {
             activeGame.cleanup();
             activeGame = null;
@@ -264,27 +247,21 @@ export async function tournamentPage() {
             player4: 'none'
         });
 
-        // Use local variables to store scores before cleanup
         let finalPlayer1Score = 0;
         let finalPlayer2Score = 0;
 
         activeGame.onGameEnd = () => {
-            // Store scores before cleanup
             finalPlayer1Score = activeGame.player1.score;
             finalPlayer2Score = activeGame.player2.score;
 
-            // Determine winner based on stored scores
             const winner = finalPlayer1Score > finalPlayer2Score ? player1 : player2;
 
-            // Cleanup game AFTER getting scores
             activeGame.cleanup();
             activeGame = null;
 
-            // Update tournament scores
             scores[winner]++;
             currentMatchIndex++;
 
-            // Render next view
             if (currentMatchIndex < matchQueue.length) {
                 renderTournament();
             } else {
@@ -294,7 +271,6 @@ export async function tournamentPage() {
     }
 
     function showFinalResults() {
-        // Cleanup any active game when showing results
         if (activeGame) {
             activeGame.cleanup();
             activeGame = null;
@@ -302,24 +278,21 @@ export async function tournamentPage() {
 
         tournamentContainer.innerHTML = '';
 
-        // Sort players by score
         const sortedPlayers = [...players].sort((a, b) => {
             const scoreA = scores[a] || 0;
             const scoreB = scores[b] || 0;
             if (scoreB === scoreA) {
-                return Math.random() - 0.5; // Randomize ties
+                return Math.random() - 0.5;
             }
             return scoreB - scoreA;
         });
 
-        // Create ranked players array
         const rankedPlayers = sortedPlayers.slice(0, 4).map((player, index) => ({
             name: player,
             score: scores[player] || 0,
             position: index + 1
         }));
 
-        // Create win table
         const winTableContainer = document.createElement('div');
         winTableContainer.innerHTML = `
             <h1 class="profileH2">${translate('Final standings were determined by your score and performance!')}</h1>
@@ -349,10 +322,8 @@ export async function tournamentPage() {
             </div>
         `;
 
-        // Update restart functionality to re-render instead of reload
         const restartButton = winTableContainer.querySelector('.win-table-restart-button');
         restartButton.addEventListener('click', () => {
-            // Reset all state variables
             players = [];
             matches = [];
             matchQueue = [];
@@ -361,7 +332,6 @@ export async function tournamentPage() {
             tournamentStarted = false;
             sessionStorage.removeItem('resultsPosted');
 
-            // Clear and re-render the tournament container
             tournamentContainer.innerHTML = '';
             const playerRegistration = createPlayerRegistration();
             tournamentContainer.appendChild(playerRegistration);
@@ -371,16 +341,13 @@ export async function tournamentPage() {
         sendTournamentResults(rankedPlayers);
     }
 
-    // Add function to send results to backend
     async function sendTournamentResults(rankedPlayers) {
         try {
-            // First get current user
             const userResponse = await fetch('/api/profiles/me/', {
                 credentials: 'include'
             });
             const userData = await userResponse.json();
 
-            // Post tournament results
             if (!sessionStorage.getItem('resultsPosted')) {
                 const response = await fetch('/api/tournaments/', {
                     method: 'POST',
@@ -404,7 +371,6 @@ export async function tournamentPage() {
         }
     }
 
-    // Add cleanup on tournament container removal
     const cleanup = () => {
         if (activeGame) {
             activeGame.cleanup();
@@ -412,7 +378,6 @@ export async function tournamentPage() {
         }
     };
 
-    // Create MutationObserver to watch for container removal
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             mutation.removedNodes.forEach((node) => {
@@ -424,13 +389,11 @@ export async function tournamentPage() {
         });
     });
 
-    // Start observing the document body for container removal
     observer.observe(document.body, {
         childList: true,
         subtree: true
     });
 
-    // Initial render - remove separate start button
     const playerRegistration = createPlayerRegistration();
     tournamentContainer.appendChild(playerRegistration);
 

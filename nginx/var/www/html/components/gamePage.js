@@ -18,11 +18,9 @@ export async function gamePage() {
     title.textContent = translate('Select Match Type');
     container.appendChild(title);
 
-    // Create button group
     const buttonGroup = document.createElement('div');
     buttonGroup.className = 'button-group';
 
-    // Define game options
     const gameOptions = [
         { text: 'Player vs Player', path: '/vs-player' },
         { text: 'Player vs AI', path: '/vs-ai' },
@@ -30,7 +28,6 @@ export async function gamePage() {
         { text: 'Cowboy game', path: '/cowboy' }
     ];
 
-    // Create buttons for each option
     gameOptions.forEach(option => {
         const button = document.createElement('button');
         button.className = 'submit-button';

@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.appendChild(loadingIndicator);
 
     async function initializeApp() {
-        // Check if user is logged in and setup token refresh
         if (checkLoginStatus()) {
             const isValid = await refreshToken();
             if (isValid) {
@@ -27,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setupTokenRefresh();
             }
         } else {
-            // Attempt to refresh token if not logged in but cookies are present
             const isValid = await refreshToken();
             if (isValid) {
                 setLoggedIn(true);
@@ -59,7 +57,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function renderPage(path) {
         const page = routes[path] || notFoundPage;
 
-        // Run cleanup on existing game if present
         const existingGame = app.querySelector('.match-container');
         if (existingGame) {
             const cleanupEvent = new Event('cleanup');

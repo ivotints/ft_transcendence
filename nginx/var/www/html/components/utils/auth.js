@@ -4,17 +4,14 @@ import { header } from '../header.js';
 import { homePage } from '../homePage.js';
 import { translate } from './translate.js';
 
-// Add timestamp tracking for login
 let loginTimestamp = null;
-const TOKEN_EXPIRY_TIME = 3*60 * 60 * 1000; // 3 hours in milliseconds
+const TOKEN_EXPIRY_TIME = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
 let refreshIntervalId = null;
 
-// Add these variables at the top with other state variables
 let otpRequired = false;
 let twoFactorMethods = null;
 let otp = '';
 
-// Modified refreshToken function with logging
 export async function refreshToken() {
   console.log('Attempting token refresh at:', new Date().toISOString());
 
@@ -40,21 +37,16 @@ export async function refreshToken() {
   }
 }
 
-// Modified setupTokenRefresh function
 export function setupTokenRefresh() {
   console.log('Setting up token refresh interval');
 
-  // Clear any existing interval
   if (refreshIntervalId) {
     clearInterval(refreshIntervalId);
   }
 
-  // Set login timestamp
   loginTimestamp = Date.now();
 
-  // Set up new interval
   refreshIntervalId = setInterval(async () => {
-    // Check if token has expired
     if (Date.now() - loginTimestamp >= TOKEN_EXPIRY_TIME) {
       console.log('Token expired - logging out');
       await handleTokenExpiration();
@@ -64,10 +56,8 @@ export function setupTokenRefresh() {
     await refreshToken();
   }, 45 * 1000); // Refresh every 45 seconds
 
-  // Initial refresh check
   refreshToken();
 
-  // Clear interval on page unload
   window.addEventListener('unload', () => {
     if (refreshIntervalId) {
       clearInterval(refreshIntervalId);
@@ -75,33 +65,25 @@ export function setupTokenRefresh() {
   });
 }
 
-// Modified handleTokenExpiration function
 async function handleTokenExpiration() {
   console.log('Handling token expiration');
 
-  // Clear refresh interval
   if (refreshIntervalId) {
     clearInterval(refreshIntervalId);
     refreshIntervalId = null;
   }
 
-  // Reset login timestamp
   loginTimestamp = null;
 
-  // Clear the cache first
-  //window.clearPageCache(); // We'll add this to app.js
-
-  // Log out user and force re-render
   setLoggedIn(false);
 
   try {
     const app = document.getElementById('app');
     if (app) {
-      app.innerHTML = ''; // Clear current content
+      app.innerHTML = '';
       const container = document.createElement('div');
       container.className = 'page-container';
 
-      // Re-render header and homepage with new state
       const headerElement = await header();
       const pageContent = await homePage();
 
@@ -181,7 +163,6 @@ export function authForms() {
     const tbody = document.createElement('tbody');
 
     if (!otpRequired) {
-      // Regular login form
       const usernameRow = document.createElement('tr');
       const usernameCell = document.createElement('td');
       const usernameInput = document.createElement('input');
@@ -190,7 +171,7 @@ export function authForms() {
       usernameInput.placeholder = translate('Username');
       usernameInput.value = username;
       usernameInput.required = true;
-      usernameInput.setAttribute('required', ''); // Extra required attribute
+      usernameInput.setAttribute('required', '');
       usernameInput.addEventListener('input', (e) => {
         username = e.target.value;
       });
@@ -264,7 +245,6 @@ export function authForms() {
         });
       }
     } else {
-      // 2FA verification form
       const otpRow = document.createElement('tr');
       const otpCell = document.createElement('td');
       const otpInput = document.createElement('input');
@@ -281,7 +261,6 @@ export function authForms() {
       otpRow.appendChild(otpCell);
       tbody.appendChild(otpRow);
 
-      // Add send code button for SMS/Email
       if (twoFactorMethods?.sms_enabled || twoFactorMethods?.email_enabled) {
         const sendCodeRow = document.createElement('tr');
         const sendCodeCell = document.createElement('td');
@@ -359,13 +338,11 @@ export function authForms() {
     formContainer.appendChild(table);
   }
 
-  // Modified handleLoginSubmit to set timestamp and check for 2FA first
   async function handleLoginSubmit(event) {
     event.preventDefault();
     errorMessageDiv.textContent = '';
 
     try {
-      // First check if 2FA is required
       const twoFactorResponse = await fetch('/api/users-2fa/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -378,11 +355,10 @@ export function authForms() {
       if (methods.app_enabled || methods.sms_enabled || methods.email_enabled) {
         twoFactorMethods = methods;
         otpRequired = true;
-        renderForm(); // Re-render form to show OTP input
+        renderForm();
         return;
       }
 
-      // If no 2FA, proceed with normal login
       const response = await fetch('/api/token/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -398,7 +374,7 @@ export function authForms() {
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
         const errorData = await response.json();
-        errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
+        errorMessage = `${translate("Error")}: ${translate(errorData.detail || 'An error occurred')}`;
         errorMessageDiv.textContent = errorMessage;
       }
     } catch (error) {
@@ -411,37 +387,42 @@ export function authForms() {
     event.preventDefault();
     errorMessageDiv.textContent = '';
 
-    try {
-        const response = await fetch('/api/users/register/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ username, email, password })
-        });
-
-        if (response.ok) {
-            console.log('User created successfully');
-            await handleLogin(username, password);
-        } else {
-            const errorData = await response.json();
-            if (errorData.password && errorData.password.password) {
-                errorMessage = translate(errorData.password.password);
-            } else if (errorData.username) {
-                errorMessage = `${translate('Username error:')} ${translate(errorData.username[0])}`;
-            } else if (errorData.email) {
-                errorMessage = `${translate('Email error:')} ${translate(errorData.email[0])}`;
-            } else if (errorData.password) {
-                errorMessage = `${translate('Password error:')} ${translate(errorData.password[0])}`;
-            } else {
-                errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
-            }
-            errorMessageDiv.textContent = errorMessage;
-        }
-    } catch (error) {
-        console.error('Error creating user:', error);
-        errorMessageDiv.textContent = translate('Error: Network error');
+    if (username.trim().toLowerCase() === 'none') {
+        errorMessageDiv.textContent = translate('Username "none" is not allowed');
+        return;
     }
-}
+
+    try {
+      const response = await fetch('/api/users/register/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, email, password })
+      });
+
+      if (response.ok) {
+        console.log('User created successfully');
+        await handleLogin(username, password);
+      } else {
+        const errorData = await response.json();
+        if (errorData.password && errorData.password.password) {
+          errorMessage = translate(errorData.password.password);
+        } else if (errorData.username) {
+          errorMessage = `${translate('Username error:')} ${translate(errorData.username[0])}`;
+        } else if (errorData.email) {
+          errorMessage = `${translate('Email error:')} ${translate(errorData.email[0])}`;
+        } else if (errorData.password) {
+          errorMessage = `${translate('Password error:')} ${translate(errorData.password[0])}`;
+        } else {
+          errorMessage = `${translate("Error")}: ${translate(errorData.detail || 'An error occurred')}`;
+        }
+        errorMessageDiv.textContent = errorMessage;
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      errorMessageDiv.textContent = translate('Error: Network error');
+    }
+  }
 
   async function handleLogin(usernameParam, passwordParam) {
     try {
@@ -459,7 +440,7 @@ export function authForms() {
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
         const errorData = await response.json();
-        errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
+        errorMessage = `${translate("Error")}: ${translate(errorData.detail || 'An error occurred')}`;
         errorMessageDiv.textContent = errorMessage;
       }
     } catch (error) {
@@ -471,43 +452,34 @@ export function authForms() {
   return container;
 }
 
-// Modified logout function
 export async function logout() {
   console.log('Logging out');
 
   try {
-    // Clear refresh interval
     if (refreshIntervalId) {
       clearInterval(refreshIntervalId);
       refreshIntervalId = null;
     }
 
-    // Reset login timestamp
     loginTimestamp = null;
 
-    // Reset 2FA states
     otpRequired = false;
     twoFactorMethods = null;
     otp = '';
 
-    // Call logout endpoint if exists
     await fetch('/api/logout/', {
       method: 'POST',
       credentials: 'include'
     });
 
-    // Clear cache and set logged out state
-    // window.clearPageCache();
     setLoggedIn(false);
 
-    // Force re-render main page
     const app = document.getElementById('app');
     if (app) {
       app.innerHTML = '';
       const container = document.createElement('div');
       container.className = 'page-container';
 
-      // Re-render header and homepage with new state
       const headerElement = await header();
       const pageContent = await homePage();
 
