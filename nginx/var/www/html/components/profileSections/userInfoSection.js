@@ -74,6 +74,12 @@ export function renderUserInfo(userInfo, mainContent) {
     fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file size before uploading (2MB = 2 * 1024 * 1024 bytes)
+            if (file.size > 2 * 1024 * 1024) {
+                errorMessage.textContent = translate('File size exceeds 2MB limit');
+                return;
+            }
+
             const formData = new FormData();
             formData.append('avatar', file);
 
@@ -84,18 +90,28 @@ export function renderUserInfo(userInfo, mainContent) {
                     credentials: 'include'
                 });
 
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    throw new Error('File size too large');
+                }
+
                 if (!response.ok) {
+                    if (data.avatar && data.avatar[0]) {
+                        throw new Error(data.avatar[0]);
+                    }
                     throw new Error('Upload failed');
                 }
 
-                const data = await response.json();
                 const newAvatarUrl = constructAvatarUrl(data.avatar);
                 avatarImg.src = newAvatarUrl;
                 console.log('Updated avatar URL:', newAvatarUrl);
                 errorMessage.textContent = '';
             } catch (error) {
                 console.error('Error updating avatar:', error);
-                errorMessage.textContent = translate('An unexpected error occurred. Please try again.');
+                errorMessage.textContent = translate(error.message);
             }
         }
     });
