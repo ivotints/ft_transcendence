@@ -114,7 +114,7 @@ export async function PongTwoVsTwoPage() {
 
             game.onGameEnd = async () => {
                 try {
-                    await fetch('/api/matches/', {
+                    await fetch('/api/matches/2v2/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
