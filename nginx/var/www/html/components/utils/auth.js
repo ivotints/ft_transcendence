@@ -374,7 +374,7 @@ export function authForms() {
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
         const errorData = await response.json();
-        errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
+        errorMessage = `${translate("Error")}: ${translate(errorData.detail || 'An error occurred')}`;
         errorMessageDiv.textContent = errorMessage;
       }
     } catch (error) {
@@ -414,7 +414,7 @@ export function authForms() {
         } else if (errorData.password) {
           errorMessage = `${translate('Password error:')} ${translate(errorData.password[0])}`;
         } else {
-          errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
+          errorMessage = `${translate("Error")}: ${translate(errorData.detail || 'An error occurred')}`;
         }
         errorMessageDiv.textContent = errorMessage;
       }
@@ -440,7 +440,7 @@ export function authForms() {
         document.querySelector('.home-page').replaceWith(await homePage());
       } else {
         const errorData = await response.json();
-        errorMessage = `Error: ${translate(errorData.detail || 'An error occurred')}`;
+        errorMessage = `${translate("Error")}: ${translate(errorData.detail || 'An error occurred')}`;
         errorMessageDiv.textContent = errorMessage;
       }
     } catch (error) {
