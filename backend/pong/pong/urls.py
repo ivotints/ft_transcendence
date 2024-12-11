@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
-from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView, check_login_status, oauth_redirect, oauth_callback, LogoutView
+from main_app.views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView, oauth_redirect, oauth_callback, LogoutView
 
 
 urlpatterns = [
@@ -28,6 +28,5 @@ urlpatterns = [
 	path("token/verify/", CustomTokenVerifyView.as_view(), name="token_verify"),
 	path('oauth/redirect/', oauth_redirect, name='oauth_redirect'),
     path('oauth/callback/', oauth_callback, name='oauth_callback'),
-    # path('check-login/', check_login_status, name='check_login_status'),
 	path("", include("main_app.urls")),
 ]

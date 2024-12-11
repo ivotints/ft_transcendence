@@ -22,10 +22,8 @@ class CustomJWTAuthentication(JWTAuthentication):
 		header = self.get_header(request)
 		if header is None:
 			raw_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])
-			# logger.debug(f"Token from cookie: {raw_token[:10]}..." if raw_token else None)
 		else:
 			raw_token = self.get_raw_token(header)
-			# logger.debug(f"Token from header: {raw_token[:10]}..." if raw_token else None)
 		
 		if raw_token is None:
 			logger.warning("No token found in request")

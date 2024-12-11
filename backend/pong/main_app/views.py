@@ -69,7 +69,6 @@ class SetupTwoFactorView(APIView):
 					two_factor_auth_data.app_enabled = True
 					two_factor_auth_data.save()
 					return JsonResponse({"success": "2FA setup successfully."})
-				# return JsonResponse({"otp_secret": two_factor_auth_data.otp_secret, "qr_code": qr_code})
 			elif method == 'sms':
 				client = Client(account_sid, auth_token)
 
@@ -285,7 +284,7 @@ class FriendDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 		instance = self.get_object()
 		if instance.friend != request.user:
 			return Response({'detail': 'You do not have permission to update this friend request.'},
-							status=status.HTTP_403_FORBIDDEN)
+							status=403)
 
 		serializer = self.get_serializer(instance, data=request.data, partial=True)
 		serializer.is_valid(raise_exception=True)
@@ -382,7 +381,7 @@ class CowboyMatchHistoryListCreateAPIView(generics.ListCreateAPIView):
 			print('Caught exception in create:', str(e))
 			return Response(
 				{'detail': str(e)},
-				status=status.HTTP_400_BAD_REQUEST
+				status=400
 			)
 
 	def perform_create(self, serializer):
@@ -547,7 +546,7 @@ class LogoutView(APIView):
         except UserProfile.DoesNotExist:
             logger.warning(f"UserProfile does not exist for user: {request.user.username}")
 
-        response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+        response = Response({"detail": "Successfully logged out."}, status=200)
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
         return response
@@ -561,7 +560,7 @@ class ProtectedMediaView(APIView):
 	def get(self, request, path, format=None):
 		file_path = os.path.join(settings.MEDIA_ROOT, path)
 		user = request.user
-		profile = UserProfile.objects.get(user = user)
+		profile = UserProfile.objects.get(user=user)
 		if os.path.exists(file_path) and profile.avatar == path:
 			return FileResponse(open(file_path, 'rb'))
 		else:
@@ -654,10 +653,3 @@ def oauth_callback(request):
 	)
 
 	return response
-
-
-@api_view(['GET'])
-@authentication_classes([CustomJWTAuthentication])
-@permission_classes([IsAuthenticated])
-def check_login_status(request):
-	return JsonResponse({'detail': 'User is authenticated'}, status=200)

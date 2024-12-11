@@ -340,134 +340,154 @@ class CowboyMatchHistorySerializer(serializers.ModelSerializer):
 
 
 class IsOnlineField(serializers.Field):
-    def get_attribute(self, instance):
-        user = super().get_attribute(instance)
-        return user
+	def get_attribute(self, instance):
+		user = super().get_attribute(instance)
+		return user
 
-    def to_representation(self, user):
-        if user is None:
-            return False
-        try:
-            profile = UserProfile.objects.get(user=user)
-            return profile.is_online
-        except UserProfile.DoesNotExist:
-            return False
+	def to_representation(self, user):
+		if user is None:
+			return False
+		try:
+			profile = UserProfile.objects.get(user=user)
+			return profile.is_online
+		except UserProfile.DoesNotExist:
+			return False
 
 
 class FriendSerializer(serializers.ModelSerializer):
-    friend_username = serializers.CharField(write_only=True, required=False)
-    user_username = serializers.SerializerMethodField()
-    friend_username_read_only = serializers.SerializerMethodField()
-    is_friend_online = IsOnlineField(source='friend', read_only=True)
-    is_user_online = IsOnlineField(source='user', read_only=True)
+	friend_username = serializers.CharField(write_only=True, required=False)
+	user_username = serializers.SerializerMethodField()
+	friend_username_read_only = serializers.SerializerMethodField()
+	is_friend_online = IsOnlineField(source='friend', read_only=True)
+	is_user_online = IsOnlineField(source='user', read_only=True)
 
-    class Meta:
-        model = Friend
-        fields = [
-            'id',
-            'user',
-            'user_username',
-            'friend',
-            'friend_username',
-            'friend_username_read_only',
-            'is_friend_online',
-            'is_user_online',
-            'status',
-            'is_activated',
-            'created_at',
-        ]
-        read_only_fields = ['id', 'user', 'user_username', 'friend', 'friend_username_read_only', 'created_at', 'is_activated']
+	class Meta:
+		model = Friend
+		fields = [
+			'id',
+			'user',
+			'user_username',
+			'friend',
+			'friend_username',
+			'friend_username_read_only',
+			'is_friend_online',
+			'is_user_online',
+			'status',
+			'is_activated',
+			'created_at',
+		]
+		read_only_fields = ['id', 'user', 'user_username', 'friend', 'friend_username_read_only', 'created_at', 'is_activated']
 
-    def get_user_username(self, obj):
-        return obj.user.username
+	def get_user_username(self, obj):
+		return obj.user.username
 
-    def get_friend_username_read_only(self, obj):
-        return obj.friend.username
+	def get_friend_username_read_only(self, obj):
+		return obj.friend.username
 
-    def validate(self, data):
-        user = self.context['request'].user
-        friend_username = data.get('friend_username')
+	def validate(self, data):
+		user = self.context['request'].user
+		friend_username = data.get('friend_username')
 
-        if self.context['request'].method == 'POST':
-            if not friend_username:
-                raise serializers.ValidationError("Friend username is required.")
+		if self.context['request'].method == 'POST':
+			if not friend_username:
+				raise serializers.ValidationError("Friend username is required.")
 
-            try:
-                friend = User.objects.get(username=friend_username)
-            except User.DoesNotExist:
-                raise serializers.ValidationError("Friend with this username does not exist.")
+			try:
+				friend = User.objects.get(username=friend_username)
+			except User.DoesNotExist:
+				raise serializers.ValidationError("Friend with this username does not exist.")
 
-            if user == friend:
-                raise serializers.ValidationError("You cannot send a friend request to yourself.")
+			if user == friend:
+				raise serializers.ValidationError("You cannot send a friend request to yourself.")
 
-            if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
-                raise serializers.ValidationError("A friend request already exists between these users.")
+			if Friend.objects.filter(user=user, friend=friend).exists() or Friend.objects.filter(user=friend, friend=user).exists():
+				raise serializers.ValidationError("A friend request already exists between these users.")
 
-            data['friend_instance'] = friend
+			data['friend_instance'] = friend
 
-        return data
+		return data
 
-    def create(self, validated_data):
-        user = self.context['request'].user
-        friend = validated_data.pop('friend_instance')
+	def create(self, validated_data):
+		user = self.context['request'].user
+		friend = validated_data.pop('friend_instance')
 
-        friend_request = Friend.objects.create(
-            user=user,
-            friend=friend,
-            status='pending'
-        )
-        return friend_request
+		friend_request = Friend.objects.create(
+			user=user,
+			friend=friend,
+			status='pending'
+		)
+		return friend_request
 
-    def update(self, instance, validated_data):
-        if self.context['request'].method == 'PATCH' or self.context['request'].method == 'PUT':
-            new_status = validated_data.get('status', instance.status)
-            if instance.status == 'pending' and new_status in ['accepted', 'rejected']:
-                instance.set_activated()
-            elif instance.is_activated:
-                raise serializers.ValidationError("Status cannot be changed once it is set to accepted or rejected.")
+	def update(self, instance, validated_data):
+		if self.context['request'].method == 'PATCH' or self.context['request'].method == 'PUT':
+			new_status = validated_data.get('status', instance.status)
+			if instance.status == 'pending' and new_status in ['accepted', 'rejected']:
+				instance.set_activated()
+			elif instance.is_activated:
+				raise serializers.ValidationError("Status cannot be changed once it is set to accepted or rejected.")
 
-        return super().update(instance, validated_data)
+		return super().update(instance, validated_data)
 
 
 class TournamentSerializer(serializers.ModelSerializer):
-    winners_order = serializers.ListField(child=serializers.CharField(), write_only=True)
-    winners_order_display = serializers.SerializerMethodField()
+	winners_order = serializers.ListField(child=serializers.CharField(), write_only=True)
+	winners_order_display = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Tournament
-        fields = [
-            'owner',
-            'tournament_id',
-            'match_date',
-            'winners_order',
-            'winners_order_display',
-            'blockchain_tx_hash',
-        ]
-        read_only_fields = ['blockchain_tx_hash', 'winners_order_display']
+	class Meta:
+		model = Tournament
+		fields = [
+			'owner',
+			'tournament_id',
+			'match_date',
+			'winners_order',
+			'winners_order_display',
+			'blockchain_tx_hash',
+		]
+		read_only_fields = ['blockchain_tx_hash', 'winners_order_display']
 
-    def get_winners_order_display(self, obj):
-        try:
-            blockchain_data = get_tournament_data(obj.tournament_id)
-            print("Blockchain data:", blockchain_data)
-            return blockchain_data
-        except Exception as e:
-            return {'error': str(e)}
+	def get_winners_order_display(self, obj):
+		try:
+			blockchain_data = get_tournament_data(obj.tournament_id)
+			print("Blockchain data:", blockchain_data)
+			return blockchain_data
+		except Exception as e:
+			return {'error': str(e)}
 
-    def create(self, validated_data):
-        winners_order = validated_data.pop('winners_order', None)
-        try:
-            tournament = Tournament.objects.create(**validated_data)
+	def validate(self, data):
+		winners_order = data.get('winners_order', [])
+		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
+		owner = data.get('owner')
 
-            if winners_order:
-                tournament_id = tournament.id + 60055
-                tournament.tournament_id = tournament_id
-                tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
-                tournament.blockchain_tx_hash = tx_hash
-                tournament.save()
+		if self.context['request'].method == 'POST':
+			if not owner:
+				raise serializers.ValidationError("Owner field is required.")
 
-            return tournament
-        except Exception as e:
-            raise serializers.ValidationError(f"Error creating tournament: {e}")
+		if len(set(winners_order)) != 4:
+			raise serializers.ValidationError("Names must be unique.")
+
+		for username in winners_order:
+			if len(username) > 32:
+				raise serializers.ValidationError("Player's username must be 32 characters or fewer.")
+			if not re.match(username_regex, username):
+				raise serializers.ValidationError("Player's username contains invalid characters.")
+
+		return data
+
+	def create(self, validated_data):
+		winners_order = validated_data.pop('winners_order', None)
+		try:
+			tournament = Tournament.objects.create(**validated_data)
+
+			if winners_order:
+				tournament_id = tournament.id + 60080
+				tournament.tournament_id = tournament_id
+				tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
+				tournament.blockchain_tx_hash = tx_hash
+				tournament.save()
+
+			return tournament
+		except Exception as e:
+			raise serializers.ValidationError(f"Error creating tournament: {e}")
 	
 
 class CustomTokenRefreshSerializer(TokenRefreshSerializer):
