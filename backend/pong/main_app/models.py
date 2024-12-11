@@ -15,9 +15,8 @@ import qrcode.image.svg
 
 
 class UserProfile(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE) # , related_name="profile")
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-	# oauth = models.BooleanField(default=False)
 	is_online = models.BooleanField(default=False)
 	match_history = models.ManyToManyField("MatchHistory", blank=True)
 	last_activity = models.DateTimeField(null=True, blank=True)
@@ -211,10 +210,9 @@ class CowboyMatchHistory(models.Model):
 
 
 class Tournament(models.Model):
-	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tournaments", default=1)
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tournaments")
 	tournament_id = models.IntegerField(unique=True, null=True, blank=True)
 	match_date = models.DateTimeField(default=timezone.now)
-	# participants = models.ManyToManyField(User, related_name='tournaments')
 	blockchain_tx_hash = models.CharField(max_length=66, blank=True, null=True)
 	
 	def __str__(self):

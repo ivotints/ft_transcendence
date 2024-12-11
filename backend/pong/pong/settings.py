@@ -35,7 +35,7 @@ TWILIO_VERIFY_SERVICE_SID = os.environ.get('TWILIO_VERIFY_SERVICE_SID')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -187,13 +187,13 @@ FT_REDIRECT_URI = 'https://localhost/api/oauth/callback/'
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=3),
-	"AUTH_COOKIE": "access_token",  # Cookie name. Enables cookies if value is set.
-    "AUTH_COOKIE_DOMAIN": None,     # A string like "example.com", or None for standard domain cookie.
-    "AUTH_COOKIE_SECURE": True,    # Whether the auth cookies should be secure (https:// only).
-    "AUTH_COOKIE_HTTP_ONLY" : True, # Http only cookie flag.It's not fetch by javascript.
-    "AUTH_COOKIE_PATH": "/",        # The path of the auth cookie.
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=180),
+	"AUTH_COOKIE": "access_token",
+    "AUTH_COOKIE_DOMAIN": None,
+    "AUTH_COOKIE_SECURE": True,
+    "AUTH_COOKIE_HTTP_ONLY" : True,
+    "AUTH_COOKIE_PATH": "/",
 	'USER_ID_CLAIM': 'user_id',
     'USER_ID_FIELD': 'id',
 }
