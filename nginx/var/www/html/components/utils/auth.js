@@ -54,7 +54,7 @@ export function setupTokenRefresh() {
     }
 
     await refreshToken();
-  }, 45 * 1000); // Refresh every 45 seconds
+  }, 5 * 60 * 1000); // Refresh every 45 seconds
 
   refreshToken();
 

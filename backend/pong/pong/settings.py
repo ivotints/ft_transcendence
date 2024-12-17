@@ -37,12 +37,12 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost']
 
 CORS_ALLOWED_ORIGINS = [
     "https://localhost",
-	"https://127.0.0.1",
-	"http://localhost:3000",
+	# "https://127.0.0.1",
+	# "http://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -64,8 +64,8 @@ CORS_ALLOW_METHODS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-	"http://localhost",
+    # "http://localhost:3000",
+	# "http://localhost",
 	"https://localhost",
 ]
 
@@ -127,10 +127,10 @@ WSGI_APPLICATION = "pong.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "db",
-		"USER": "admin",
-		"PASSWORD": "test",
-		"HOST": "db",
+        "NAME": os.environ.get("POSTGRES_DB"),
+		"USER": os.environ.get("POSTGRES_USER"),
+		"PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+		"HOST": os.environ.get("POSTGRES_DB"),
 		"PORT": "5432",
     }
 }

@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 		if len(value) > 32:
 			raise serializers.ValidationError({'username:': 'Username must be 32 characters or fewer'})
 		return value
-	
+
 	def validate_email(self, value):
 		if len(value) > 32:
 			raise serializers.ValidationError({'email:': 'Email must be 32 characters or fewer'})
@@ -45,7 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
 		except ValidationError:
 			raise serializers.ValidationError({'email:': 'Invalid email address'})
 		return value
-	
+
 	def validate_password(self, value):
 		if len(value) < 8 or len(value) > 32:
 			raise serializers.ValidationError({"password": "Password must be at least 8 characters long and no longer than 32"})
@@ -106,13 +106,13 @@ class UserSerializer(serializers.ModelSerializer):
 		password = validate_data.pop('password', None)
 		if not password:
 			raise serializers.ValidationError({'password': 'Password is required'})
-		
+
 		user = User(**validate_data)
 		user.set_password(password)
 		user.save()
 
 		return user
-	
+
 	def update(self, instance, validated_data):
 		password = validated_data.pop('password', None)
 
@@ -151,16 +151,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 	def get_wins(self, obj):
 		return obj.calculate_wins()
-	
+
 	def get_losses(self, obj):
 		return obj.calculate_losses()
-	
+
 	def get_cowboy_wins(self, obj):
 		return obj.calculate_cowboy_wins()
-	
+
 	def get_cowboy_losses(self, obj):
 		return obj.calculate_cowboy_losses()
-	
+
 	def validate_avatar(self, value):
 		max_size = 2 * 1024 * 1024
 		valid_content_types = ['image/jpeg', 'image/png']
@@ -172,7 +172,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 			raise ValidationError("Avatar image must be in JPEG or PNG format.")
 
 		return value
-	
+
 	def update(self, instance, validated_data):
 		user_data = validated_data.pop('user', None)
 		avatar = validated_data.pop('avatar', None)
@@ -207,7 +207,7 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 
 	def get_player1_username(self, obj):
 		return obj.player1.username
-	
+
 	def validate_player2(self, value):
 		if len(value) > 32:
 			raise serializers.ValidationError("Player2's username must be 32 characters or fewer.")
@@ -230,13 +230,13 @@ class MatchHistorySerializer(serializers.ModelSerializer):
 		except ValueError:
 			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '5-4').")
 		return value
-	
+
 	def create(self, validated_data):
 		try:
 			return super().create(validated_data)
 		except Exception as e:
 			raise serializers.ValidationError({'detail': str(e)})
-	
+
 
 class MatchHistory2v2Serializer(serializers.ModelSerializer):
 	player1_username = serializers.SerializerMethodField()
@@ -270,26 +270,26 @@ class MatchHistory2v2Serializer(serializers.ModelSerializer):
 		except ValueError:
 			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '5-4').")
 		return value
-	
+
 	def validate(self, data):
 		player2 = data['player2']
 		player3 = data['player3']
 		player4 = data['player4']
 		if len(player2) > 32 or len(player3) > 32 or len(player4) > 32:
 			raise serializers.ValidationError("Player's username must be 32 characters or fewer.")
-		
+
 		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
 		if not re.match(username_regex, player2) or not re.match(username_regex, player3) or not re.match(username_regex, player4):
 			raise serializers.ValidationError("Player's username contains invalid characters.")
 
 		return data
-	
+
 	def create(self, validated_data):
 		try:
 			return super().create(validated_data)
 		except Exception as e:
 			raise serializers.ValidationError({'detail': str(e)})
-	
+
 
 class CowboyMatchHistorySerializer(serializers.ModelSerializer):
 	player1_username = serializers.SerializerMethodField()
@@ -320,18 +320,18 @@ class CowboyMatchHistorySerializer(serializers.ModelSerializer):
 		except ValueError:
 			raise serializers.ValidationError("Match score must be in the format 'int-int' (e.g., '10-5').")
 		return value
-	
+
 	def validate(self, data):
 		player2 = data['player2']
 		if len(player2) > 32:
 			raise serializers.ValidationError("Player2's username must be 32 characters or fewer.")
-		
+
 		username_regex = r'^[a-zA-Z0-9@.+\-_]+$'
 		if not re.match(username_regex, player2):
 			raise serializers.ValidationError("Player2's username contains invalid characters.")
 
 		return data
-	
+
 	def create(self, validated_data):
 		try:
 			return super().create(validated_data)
@@ -479,7 +479,7 @@ class TournamentSerializer(serializers.ModelSerializer):
 			tournament = Tournament.objects.create(**validated_data)
 
 			if winners_order:
-				tournament_id = tournament.id + 60080
+				tournament_id = tournament.id + 60090
 				tournament.tournament_id = tournament_id
 				tx_hash = add_tournament_data(tournament_id, winners_order, settings.METAMASK_PRIVATE_KEY)
 				tournament.blockchain_tx_hash = tx_hash
@@ -488,7 +488,7 @@ class TournamentSerializer(serializers.ModelSerializer):
 			return tournament
 		except Exception as e:
 			raise serializers.ValidationError(f"Error creating tournament: {e}")
-	
+
 
 class CustomTokenRefreshSerializer(TokenRefreshSerializer):
 	def validate(self, attrs):
