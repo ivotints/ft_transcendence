@@ -101,6 +101,7 @@ export function renderUserInfo(userInfo, mainContent) {
                 const newAvatarUrl = constructAvatarUrl(data.avatar);
                 avatarImg.src = newAvatarUrl;
                 errorMessage.textContent = '';
+                navigateTo('/profile'); // Navigate to /profile to rerender the page
             } catch (error) {
                 console.error('Error updating avatar:', error);
                 errorMessage.textContent = translate(error.message);
