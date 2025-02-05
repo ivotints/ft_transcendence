@@ -1,10 +1,7 @@
 # ft_transcendence
+This project is a web application that includes a backend, frontend, and an Nginx server for serving the application. The application is containerized using Docker and can be easily run using Docker Compose.
 
-## Table of Contents
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Stopping the Application](#stopping-the-application)
+![Showcase Pong](./assets/Pong.gif)
 
 ## Features
 - Real-time multiplayer Pong game
@@ -63,3 +60,5 @@ To stop the application, press Ctrl+C in the terminal where docker-compose up is
 docker-compose down
 ```
 This command will stop and remove the containers.
+
+
