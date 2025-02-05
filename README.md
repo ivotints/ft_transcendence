@@ -17,7 +17,8 @@ This project is a web application that includes a backend, a frontend, and an Ng
 - Tournament system
 - Live chat functionality
 - Responsive web design
-- Showcase: ![Showcase Pong](./assets/Pong.gif)
+- Showcase:
+![Showcase Pong](./assets/Pong.gif)
 
 ## Prerequisites
 Before you begin, ensure you have the following installed:
@@ -27,7 +28,7 @@ Before you begin, ensure you have the following installed:
 ## Installation
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/0xSuitQ/ft_transcendence.git
+git clone https://github.com/ivotints/ft_transcendence.git
 cd ft_transcendence
 ```
 ### 2. Navigate to the Docker Directory
